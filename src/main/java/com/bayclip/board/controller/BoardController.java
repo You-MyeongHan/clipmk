@@ -27,7 +27,7 @@ import com.bayclip.security.token.service.JwtService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/board")
+@RequestMapping("/board")
 @RequiredArgsConstructor
 public class BoardController {
 

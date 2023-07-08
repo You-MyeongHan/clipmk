@@ -33,21 +33,21 @@ public class SecurityConfig {
             	.requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
             	
             	//auth 요청
-            	.requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
-            	.requestMatchers(HttpMethod.POST, "/api/auth/authecticate").permitAll()
-            	.requestMatchers(HttpMethod.POST, "/api/auth/logout").authenticated()
-            	.requestMatchers(HttpMethod.GET, "/api/auth/checkUid").permitAll()
-            	.requestMatchers(HttpMethod.GET, "/api/auth/checkEmail").permitAll()
-            	.requestMatchers(HttpMethod.GET, "/api/auth/refresh-token").authenticated()
+            	.requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
+            	.requestMatchers(HttpMethod.POST, "/auth/authecticate").permitAll()
+            	.requestMatchers(HttpMethod.POST, "/auth/logout").authenticated()
+            	.requestMatchers(HttpMethod.GET, "/auth/checkUid").permitAll()
+            	.requestMatchers(HttpMethod.GET, "/auth/checkEmail").permitAll()
+            	.requestMatchers(HttpMethod.GET, "/auth/refresh-token").authenticated()
             	
             	//board 요청
-            	.requestMatchers(HttpMethod.GET, "/api/board/{boardId}").permitAll()
-            	.requestMatchers(HttpMethod.POST, "/api/board/register").authenticated()
-            	.requestMatchers(HttpMethod.GET, "/api/board/post").permitAll()
-            	.requestMatchers(HttpMethod.GET, "/api/board/best-post").permitAll()
-            	.requestMatchers(HttpMethod.GET, "/api/board/recommendBoard").authenticated()
-            	.requestMatchers(HttpMethod.POST, "/api/board/{boardId}/comment").authenticated()
-            	.requestMatchers(HttpMethod.DELETE, "/api/board/{boardId}/comment/delete/{commentId}").authenticated()
+            	.requestMatchers(HttpMethod.GET, "/board/{boardId}").permitAll()
+            	.requestMatchers(HttpMethod.POST, "/board/register").authenticated()
+            	.requestMatchers(HttpMethod.GET, "/board/post").permitAll()
+            	.requestMatchers(HttpMethod.GET, "/board/best-post").permitAll()
+            	.requestMatchers(HttpMethod.GET, "/board/recommendBoard").authenticated()
+            	.requestMatchers(HttpMethod.POST, "/board/{boardId}/comment").authenticated()
+            	.requestMatchers(HttpMethod.DELETE, "/board/{boardId}/comment/delete/{commentId}").authenticated()
             	.anyRequest().hasAnyRole("ADMIN"))		
 			
 			.sessionManagement((sessionManagement) ->

@@ -10,7 +10,7 @@ import com.bayclip.mail.service.MailService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/mail")
+@RequestMapping("/mail")
 @RequiredArgsConstructor
 public class MailController {
 	private final MailService mailService;

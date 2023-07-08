@@ -12,7 +12,7 @@ import com.bayclip.barter.service.BarterService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/barter")
+@RequestMapping("/barter")
 @RequiredArgsConstructor
 public class BarterController {
 	private final BarterService barterService;
