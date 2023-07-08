@@ -1,6 +1,6 @@
 package com.bayclip.security.auth.entity;
 
-import com.bayclip.security.user.entity.Role;
+import com.bayclip.user.entity.Role;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

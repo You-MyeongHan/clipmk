@@ -1,6 +1,6 @@
 package com.bayclip.board.entity;
 
-import com.bayclip.security.user.entity.User;
+import com.bayclip.user.entity.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BoardRequest {
-	private User user_id;
 	private String title;
 	private String category;
 	private String content;

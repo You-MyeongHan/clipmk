@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +22,7 @@ import com.bayclip.board.entity.Comment;
 import com.bayclip.board.entity.PostResponse;
 import com.bayclip.board.service.BoardService;
 import com.bayclip.board.service.CommentService;
+import com.bayclip.security.token.service.JwtService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,6 +33,7 @@ public class BoardController {
 
 	private final BoardService boardService;
 	private final CommentService commentService;
+	private final JwtService jwtService;
 	@Value("${application.post.best-post.viewCnt}")
 	private Integer viewCount;
 	
@@ -42,9 +45,10 @@ public class BoardController {
 	
 	@PostMapping("/register")
 	public ResponseEntity<Boolean> register(
-			@RequestBody BoardRequest request
+			@RequestBody BoardRequest request,
+			@RequestHeader("Authorization") String token
 	){
-		return ResponseEntity.ok(boardService.register(request));
+		return ResponseEntity.ok(boardService.register(request, jwtService.extractId(token)));
 	}
 	
 	@GetMapping("/post")
@@ -74,9 +78,10 @@ public class BoardController {
 
 	@GetMapping("/recommendBoard")
 	public ResponseEntity<Boolean> recommendBoard(
-			@RequestParam(value="userId") Long userId,
-			@RequestParam(value="boardId") Long boardId){
-		return ResponseEntity.ok(boardService.recommendBoard(userId, boardId));
+			@RequestParam(value="boardId") Long boardId,
+			@RequestHeader("Authorization") String token){
+		
+		return ResponseEntity.ok(boardService.recommendBoard(boardId, jwtService.extractId(token)));
 	}
 	
 	@PostMapping("/{boardId}/comment")

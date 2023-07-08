@@ -10,9 +10,10 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import com.bayclip.user.entity.User;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.bayclip.security.user.entity.User;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -30,7 +31,6 @@ import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
-import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -64,12 +64,11 @@ public class Board {
 	private Integer recommend;
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+	@JsonIgnore
     private User user;
-	@Version
-    private int version;
-	public void updateViewCnt(Integer visit) {
-		this.viewCnt=visit;
-	}
+	private String nick;
+//	@Version
+//    private int version;
 	
 	@ManyToMany
 	@JoinTable(
@@ -82,4 +81,8 @@ public class Board {
 	@OneToMany(mappedBy="board", cascade = CascadeType.ALL, orphanRemoval = true)
 	@OrderBy("wr_date desc")
 	private List<Comment> comments;
+	
+	public void updateViewCnt(Integer visit) {
+		this.viewCnt=visit;
+	}
 }

@@ -1,4 +1,4 @@
-package com.bayclip.security.user.entity;
+package com.bayclip.user.entity;
 
 public class Category {
 	private Long id;

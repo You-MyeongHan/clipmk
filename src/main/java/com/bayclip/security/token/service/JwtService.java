@@ -5,13 +5,15 @@ import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
-import com.bayclip.security.token.entity.RedisDao;
-import com.bayclip.security.user.entity.User;
+import com.bayclip.user.entity.User;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -23,16 +25,18 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class JwtService {
-		
+	private static final String REDIS_KEY_PREFIX = "";
+	
 	@Value("${application.security.jwt.secret-key}")
 	private String secretKey;
 	@Value("${application.security.jwt.access-token.expiration}")
 	private long accessExpiration;
 	@Value("${application.security.jwt.refresh-token.expiration}")
 	private long refreshExpiration;
-	private final RedisDao redisDao;
 	
-	public String extractUid(String token) {
+	private final RedisTemplate<String, String> redisTemplate;
+	
+	public String extractId(String token) {
 		return extractClaim(token,Claims::getSubject);
 	}
 	
@@ -52,29 +56,27 @@ public class JwtService {
 				.setSubject(user.getId().toString())
 				.setIssuedAt(new Date(System.currentTimeMillis()))
 				.setExpiration(new Date(System.currentTimeMillis()+expiration))
-				.signWith(getSignInKey(),SignatureAlgorithm.HS256)
+				.signWith(getSignInKey(), SignatureAlgorithm.HS256)
 				.compact();
 	}
 	
 	public String generateRefreshToken(User user) {
-		HashMap<String, Object> map = new HashMap<>() {{
-			put("nick", user.getNick());
-		}};
+		HashMap<String, Object> map = new HashMap<>();
 		String refreshToken=generateToken(map, user, refreshExpiration);
-		redisDao.setValues(user.getId().toString(), refreshToken, Duration.ofMillis(accessExpiration));
+		
+		saveToken(user.getId().toString(), refreshToken);
+		
 		return refreshToken;
 	}
 	
 	public String generateAccessToken(User user) {
-		HashMap<String, Object> map = new HashMap<>() {{
-			put("nick", user.getNick());
-		}};
+		HashMap<String, Object> map = new HashMap<>();
 		return generateToken(map, user, accessExpiration); 
 	}
 	
 	public boolean isTokenValid(String token, User user) {
-		final String uid=extractUid(token);
-		return (uid.equals(user.getUid())) && !isTokenExpired(token);
+		final Integer id=Integer.parseInt(extractId(token));
+		return (id.equals(user.getId())) && !isTokenExpired(token);
 	}
 	
 	private boolean isTokenExpired(String token) {
@@ -95,7 +97,40 @@ public class JwtService {
 	}
 	
 	private Key getSignInKey() {
-		byte[] keyBytes=Decoders.BASE64.decode(secretKey);
+  		byte[] keyBytes=Decoders.BASE64.decode(secretKey);
 		return Keys.hmacShaKeyFor(keyBytes);
 	}
+	
+	public void saveToken(String userId, String token) {
+        String key = REDIS_KEY_PREFIX + userId;
+        redisTemplate.opsForValue().set(key, token, refreshExpiration, TimeUnit.MILLISECONDS);
+    }
+
+    public void setValues(String key, String data) {
+        ValueOperations<String, String> values = redisTemplate.opsForValue();
+        values.set(key, data);
+    }
+
+    public void setValues(String key, String data, Duration duration) {
+        ValueOperations<String, String> values = redisTemplate.opsForValue();
+        values.set(key, data, duration);
+    }
+
+    public String getValues(String key) {
+        ValueOperations<String, String> values = redisTemplate.opsForValue();
+        return values.get(key);
+    }
+
+    public void deleteValues(String key) {
+        redisTemplate.delete(key);
+    }
+    
+    public boolean isTokenValid(String token) {
+        String key = REDIS_KEY_PREFIX + token;
+        return redisTemplate.hasKey(key);
+    }
+    public void invalidateToken(String userId) {
+        String key = REDIS_KEY_PREFIX + userId;
+        redisTemplate.delete(key);
+    }
 }

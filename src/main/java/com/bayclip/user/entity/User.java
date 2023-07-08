@@ -1,4 +1,4 @@
-package com.bayclip.security.user.entity;
+package com.bayclip.user.entity;
 
 import java.util.Collection;
 import java.util.List;
@@ -32,11 +32,12 @@ public class User implements UserDetails{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@JsonIgnore
-    private Long id;
+    private Integer id;
 	private String uid;
 	@JsonIgnore
 	private String pwd;
 	private String nick;
+	@JsonIgnore
 	private String email;
 	@JsonIgnore
 	private Boolean emailReceive;

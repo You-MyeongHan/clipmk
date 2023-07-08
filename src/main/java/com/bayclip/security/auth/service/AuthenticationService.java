@@ -18,11 +18,10 @@ import com.bayclip.security.auth.entity.AuthenticationResponse;
 import com.bayclip.security.auth.entity.RegisterRequest;
 import com.bayclip.security.token.entity.Token;
 import com.bayclip.security.token.entity.TokenType;
-import com.bayclip.security.token.repository.TokenRepository;
 import com.bayclip.security.token.service.JwtService;
-import com.bayclip.security.user.entity.Role;
-import com.bayclip.security.user.entity.User;
-import com.bayclip.security.user.repository.UserRepository;
+import com.bayclip.user.entity.Role;
+import com.bayclip.user.entity.User;
+import com.bayclip.user.repository.UserRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -33,7 +32,6 @@ import lombok.RequiredArgsConstructor;
 public class AuthenticationService implements LogoutHandler{
 	
 	private final UserRepository userRepository;
-	private final TokenRepository tokenRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtService jwtService;
 	private final AuthenticationManager authenticationManager;
@@ -78,19 +76,13 @@ public class AuthenticationService implements LogoutHandler{
 		    Authentication authentication
 	){
 		final String authHeader = request.getHeader("Authorization");
-	    final String jwt;
+	    
 	    if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
 	      return;
 	    }
+	    final String jwt;
 	    jwt = authHeader.substring(7);
-	    var storedToken = tokenRepository.findByToken(jwt)
-	        .orElse(null);
-	    if (storedToken != null) {
-	      storedToken.setExpired(true);
-	      storedToken.setRevoked(true);
-	      tokenRepository.save(storedToken);
-	      SecurityContextHolder.clearContext();
-	    }
+	    SecurityContextHolder.clearContext();
 	}
 	
 	public boolean existsByUid(String uid){
@@ -100,17 +92,6 @@ public class AuthenticationService implements LogoutHandler{
 	public boolean existsByEmail(String email){
 		return !userRepository.existsByEmail(email);
 	}
-	 
-	private void revokeAllUserTokens(User user) {
-	    var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
-	    if (validUserTokens.isEmpty())
-	      return;
-	    validUserTokens.forEach(token -> {
-	      token.setExpired(true);
-	      token.setRevoked(true);
-	    });
-	    tokenRepository.saveAll(validUserTokens);
-	}
 	
 	public void refreshToken(
 			HttpServletRequest request,
@@ -118,20 +99,18 @@ public class AuthenticationService implements LogoutHandler{
 	) throws IOException {
 		final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 	    final String refreshToken;
-	    final String uid;
+	    final String id;
 	    if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
 	      return;
 	    }
 	    
 	    refreshToken = authHeader.substring(7);
-	    uid = jwtService.extractUid(refreshToken);
-	    if(uid!=null) {
-	    	var user= this.userRepository.findByUid(uid).orElseThrow();
+	    id = jwtService.extractId(refreshToken);
+	    if(id!=null) {
+	    	var user= this.userRepository.findById(Integer.parseInt(id)).orElseThrow();
 	    	
 	    	if(jwtService.isTokenValid(refreshToken, user)) {
 	    		var accessToken=jwtService.generateAccessToken(user);
-	    		revokeAllUserTokens(user);
-//	            saveUserToken(user, refreshToken);
 	            var authResponse = AuthenticationResponse.builder()
 	                    .accessToken(accessToken)
 	                    .refreshToken(refreshToken)

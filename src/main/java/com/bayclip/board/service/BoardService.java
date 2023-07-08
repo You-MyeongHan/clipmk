@@ -13,8 +13,8 @@ import com.bayclip.board.entity.BoardRequest;
 import com.bayclip.board.entity.Comment;
 import com.bayclip.board.repository.BoardRepository;
 import com.bayclip.board.repository.CommentRepository;
-import com.bayclip.security.user.entity.User;
-import com.bayclip.security.user.repository.UserRepository;
+import com.bayclip.user.entity.User;
+import com.bayclip.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -69,13 +69,15 @@ public class BoardService {
 	
 	
 	@Transactional
-	public boolean register(BoardRequest request) {
-		
+	public boolean register(BoardRequest request, String user_id) {
+		User user=userRepository.findById(Integer.parseInt(user_id)).orElseThrow(()->
+				new IllegalStateException("존재하지 않는 계정입니다."));
 		var board=Board.builder()
 				.title(request.getTitle())
 				.category(request.getCategory())
 				.content(request.getContent())
-				.user(request.getUser_id())
+				.user(user)
+				.nick(user.getNick())
 				.build();
 		boardRepository.save(board);
 		
@@ -90,11 +92,11 @@ public class BoardService {
 		board.updateViewCnt(board1.getViewCnt());
 	}
 	
-	public Boolean recommendBoard(Long userId, Long boardId) {
+	public Boolean recommendBoard(Long boardId, String user_id) {
 		
 		Board board = boardRepository.findById(boardId).orElse(null);
 		if(board!=null) {
-			User user=userRepository.findById(userId).orElse(null);
+			User user=userRepository.findById(Integer.parseInt(user_id)).orElse(null);
 			if(user!=null) {
 				if(board.getRecommendations().contains(user)) {
 					return false;

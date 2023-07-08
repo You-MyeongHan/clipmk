@@ -9,10 +9,9 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.bayclip.security.token.repository.TokenRepository;
 import com.bayclip.security.token.service.JwtService;
-import com.bayclip.security.user.entity.User;
-import com.bayclip.security.user.service.UserService;
+import com.bayclip.user.entity.User;
+import com.bayclip.user.service.UserService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -26,7 +25,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 	
 	private final JwtService jwtService;
 	private final UserService userService;
-	private final TokenRepository tokenRepository;
 	
 	@Override
 	protected void doFilterInternal(
@@ -36,7 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 		
 		final String authHeader=request.getHeader("Authorization");
 		final String jwt;
-		final String uid;
+		final String id;
 		
 		if(authHeader==null || !authHeader.startsWith("Bearer ")) {
 			filterChain.doFilter(request, response);
@@ -44,10 +42,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 		}
 		
 		jwt=authHeader.substring(7);
-		uid=jwtService.extractUid(jwt);
+		id=jwtService.extractId(jwt);
 		
-		if(uid!=null && SecurityContextHolder.getContext().getAuthentication()==null) {
-			User user=this.userService.loadUserByUsername(uid);
+		if(id!=null && SecurityContextHolder.getContext().getAuthentication()==null) {
+			User user=userService.loadUserByUsername(id);
 			if(jwtService.isTokenValid(jwt,user)) {
 				UsernamePasswordAuthenticationToken authToken =new UsernamePasswordAuthenticationToken (
 					user,
