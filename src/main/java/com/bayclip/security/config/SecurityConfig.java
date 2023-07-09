@@ -33,7 +33,10 @@ public class SecurityConfig {
             	authorizeRequests
             	.requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
             	
-            	//auth 요청
+            	// user 요청
+            	.requestMatchers(HttpMethod.GET, "/user/getInfo").authenticated()
+            	
+            	// auth 요청
             	.requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
             	.requestMatchers(HttpMethod.POST, "/auth/authenticate").permitAll()
             	.requestMatchers(HttpMethod.POST, "/auth/logout").authenticated()
@@ -41,7 +44,7 @@ public class SecurityConfig {
             	.requestMatchers(HttpMethod.GET, "/auth/checkEmail").permitAll()
             	.requestMatchers(HttpMethod.GET, "/auth/refresh-token").authenticated()
             	
-            	//board 요청
+            	// board 요청
             	.requestMatchers(HttpMethod.GET, "/board/{boardId}").permitAll()
             	.requestMatchers(HttpMethod.POST, "/board/register").authenticated()
             	.requestMatchers(HttpMethod.GET, "/board/post").permitAll()
