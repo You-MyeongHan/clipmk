@@ -6,12 +6,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,10 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bayclip.board.entity.Board;
 import com.bayclip.board.entity.BoardRequest;
 import com.bayclip.board.entity.Comment;
+import com.bayclip.board.entity.CommentRequest;
 import com.bayclip.board.entity.PostResponse;
 import com.bayclip.board.service.BoardService;
 import com.bayclip.board.service.CommentService;
 import com.bayclip.security.token.service.JwtService;
+import com.bayclip.user.entity.User;
 
 import lombok.RequiredArgsConstructor;
 
@@ -46,9 +48,9 @@ public class BoardController {
 	@PostMapping("/register")
 	public ResponseEntity<Boolean> register(
 			@RequestBody BoardRequest request,
-			@RequestHeader("Authorization") String token
+			@AuthenticationPrincipal User user
 	){
-		return ResponseEntity.ok(boardService.register(request, jwtService.extractId(token)));
+		return ResponseEntity.ok(boardService.register(request, user.getId()));
 	}
 	
 	@GetMapping("/post")
@@ -79,16 +81,16 @@ public class BoardController {
 	@GetMapping("/recommendBoard")
 	public ResponseEntity<Boolean> recommendBoard(
 			@RequestParam(value="boardId") Long boardId,
-			@RequestHeader("Authorization") String token){
+			@AuthenticationPrincipal User user){
 		
-		return ResponseEntity.ok(boardService.recommendBoard(boardId, jwtService.extractId(token)));
+		return ResponseEntity.ok(boardService.recommendBoard(boardId, user.getId()));
 	}
 	
 	@PostMapping("/{boardId}/comment")
 	public ResponseEntity<Boolean> addCommentToBoard(
 			@PathVariable Long boardId,
-			@RequestBody String content){
-		Comment comment = commentService.addCommentToBoard(boardId, content);
+			@RequestBody CommentRequest request){
+		Comment comment = commentService.addCommentToBoard(boardId, request.getContent());
         if (comment != null) {
             return ResponseEntity.ok(true);
         } else {

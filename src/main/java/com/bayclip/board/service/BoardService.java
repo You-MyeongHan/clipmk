@@ -69,8 +69,8 @@ public class BoardService {
 	
 	
 	@Transactional
-	public boolean register(BoardRequest request, String user_id) {
-		User user=userRepository.findById(Integer.parseInt(user_id)).orElseThrow(()->
+	public boolean register(BoardRequest request, Integer user_id) {
+		User user=userRepository.findById(user_id).orElseThrow(()->
 				new IllegalStateException("존재하지 않는 계정입니다."));
 		var board=Board.builder()
 				.title(request.getTitle())
@@ -92,11 +92,11 @@ public class BoardService {
 		board.updateViewCnt(board1.getViewCnt());
 	}
 	
-	public Boolean recommendBoard(Long boardId, String user_id) {
+	public Boolean recommendBoard(Long boardId, Integer user_id) {
 		
 		Board board = boardRepository.findById(boardId).orElse(null);
 		if(board!=null) {
-			User user=userRepository.findById(Integer.parseInt(user_id)).orElse(null);
+			User user=userRepository.findById(user_id).orElse(null);
 			if(user!=null) {
 				if(board.getRecommendations().contains(user)) {
 					return false;

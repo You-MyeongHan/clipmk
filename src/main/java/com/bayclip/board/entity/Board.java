@@ -31,6 +31,7 @@ import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -82,6 +83,7 @@ public class Board {
 	@OrderBy("wr_date desc")
 	private List<Comment> comments;
 	
+	@Transactional
 	public void updateViewCnt(Integer visit) {
 		this.viewCnt=visit;
 	}

@@ -21,20 +21,21 @@ public class SecurityConfig {
 	
 	private final JwtAuthenticationFilter jwtAuthFilter;
 	private final AuthenticationProvider authenticationProvider;
+	private final CorsConfig corsConfig;
 	
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
 		http
 			// CSRF 설정
 			.csrf(AbstractHttpConfigurer::disable)
-			
+			// 권한 설정
 			.authorizeHttpRequests((authorizeRequests) ->
             	authorizeRequests
             	.requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
             	
             	//auth 요청
             	.requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
-            	.requestMatchers(HttpMethod.POST, "/auth/authecticate").permitAll()
+            	.requestMatchers(HttpMethod.POST, "/auth/authenticate").permitAll()
             	.requestMatchers(HttpMethod.POST, "/auth/logout").authenticated()
             	.requestMatchers(HttpMethod.GET, "/auth/checkUid").permitAll()
             	.requestMatchers(HttpMethod.GET, "/auth/checkEmail").permitAll()
@@ -52,9 +53,9 @@ public class SecurityConfig {
 			
 			.sessionManagement((sessionManagement) ->
             	sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-			
-			.authenticationProvider(authenticationProvider)
-			.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+			.addFilter(corsConfig.corsFilter())
+			.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+			.authenticationProvider(authenticationProvider);
 		
 		return http.build();
 	}

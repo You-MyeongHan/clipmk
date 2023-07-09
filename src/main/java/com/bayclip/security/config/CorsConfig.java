@@ -13,7 +13,8 @@ public class CorsConfig {
 	public CorsFilter corsFilter() {
 		UrlBasedCorsConfigurationSource source= new UrlBasedCorsConfigurationSource();
 		CorsConfiguration config=new CorsConfiguration();
-		config.addAllowedOrigin("/**");
+		
+		config.addAllowedOrigin("*");
 		config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         config.setAllowCredentials(true);
