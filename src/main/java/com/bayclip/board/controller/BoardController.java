@@ -23,7 +23,6 @@ import com.bayclip.board.entity.CommentRequest;
 import com.bayclip.board.entity.PostResponse;
 import com.bayclip.board.service.BoardService;
 import com.bayclip.board.service.CommentService;
-import com.bayclip.security.token.service.JwtService;
 import com.bayclip.user.entity.User;
 
 import lombok.RequiredArgsConstructor;
@@ -35,7 +34,6 @@ public class BoardController {
 
 	private final BoardService boardService;
 	private final CommentService commentService;
-	private final JwtService jwtService;
 	@Value("${application.post.best-post.viewCnt}")
 	private Integer viewCount;
 	
@@ -103,8 +101,5 @@ public class BoardController {
 		commentService.deleteComment(commentId);
 		return ResponseEntity.noContent().build();
 	}
-	
-//	@GetMapping("/search")
-//	public ResponseEntity<T> 
 	
 }
