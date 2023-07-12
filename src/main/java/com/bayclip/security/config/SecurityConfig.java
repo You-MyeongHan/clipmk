@@ -40,8 +40,8 @@ public class SecurityConfig {
             	.requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
             	.requestMatchers(HttpMethod.POST, "/auth/authenticate").permitAll()
             	.requestMatchers(HttpMethod.POST, "/auth/logout").authenticated()
-            	.requestMatchers(HttpMethod.GET, "/auth/checkUid").permitAll()
-            	.requestMatchers(HttpMethod.GET, "/auth/checkEmail").permitAll()
+            	.requestMatchers(HttpMethod.POST, "/auth/checkUid").permitAll()
+            	.requestMatchers(HttpMethod.POST, "/auth/checkEmail").permitAll()
             	.requestMatchers(HttpMethod.GET, "/auth/refresh-token").authenticated()
             	
             	// board 요청
