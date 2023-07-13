@@ -1,4 +1,4 @@
-package com.bayclip.board.entity;
+package com.bayclip.security.auth.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BoardRequest {
-	private String title;
-	private String category;
-	private String content;
-	private String thumbnail;
+public class LoginResponse {
+	private String nick;
+	private String email;
 }

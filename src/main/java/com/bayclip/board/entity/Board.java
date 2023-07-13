@@ -68,6 +68,7 @@ public class Board {
 	@JsonIgnore
     private User user;
 	private String nick;
+	private String thumbnail;
 //	@Version
 //    private int version;
 	

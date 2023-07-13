@@ -12,7 +12,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PostResponse {
 	private final String title;
-//	private final String nick;
+	private final Long id;
+	private final String nick;
+	private final String category;
 	private final LocalDateTime wr_date;
 	private final Integer view_cnt;
 	private final int recommend;
@@ -23,7 +25,9 @@ public class PostResponse {
 	
 	private PostResponse(Board board) {
 		this.title=board.getTitle();
-//		this.nick=board.getNick();
+		this.nick=board.getNick();
+		this.id=board.getId();
+		this.category=board.getCategory();
 		this.wr_date=board.getWr_date();
 		this.view_cnt=board.getViewCnt();
 		this.recommend=board.getRecommend();

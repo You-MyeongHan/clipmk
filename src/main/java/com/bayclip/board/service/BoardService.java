@@ -78,6 +78,7 @@ public class BoardService {
 				.content(request.getContent())
 				.user(user)
 				.nick(user.getNick())
+				.thumbnail(request.getThumbnail())
 				.build();
 		boardRepository.save(board);
 		

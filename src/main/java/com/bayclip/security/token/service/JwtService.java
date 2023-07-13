@@ -20,6 +20,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -47,31 +48,31 @@ public class JwtService {
 	
 	public String generateToken(
 			Map<String, Object> extraClaims,
-			User user,
+			String user_id,
 			long expiration
 	) {
 		return  Jwts
 				.builder()
 				.setClaims(extraClaims)
-				.setSubject(user.getId().toString())
+				.setSubject(user_id)
 				.setIssuedAt(new Date(System.currentTimeMillis()))
 				.setExpiration(new Date(System.currentTimeMillis()+expiration))
 				.signWith(getSignInKey(), SignatureAlgorithm.HS256)
 				.compact();
 	}
 	
-	public String generateRefreshToken(User user) {
+	public String generateRefreshToken(String user_id) {
 		HashMap<String, Object> map = new HashMap<>();
-		String refreshToken=generateToken(map, user, refreshExpiration);
+		String refreshToken=generateToken(map, user_id, refreshExpiration);
 		
-		saveToken(user.getId().toString(), refreshToken);
+		saveToken(user_id, refreshToken);
 		
 		return refreshToken;
 	}
 	
-	public String generateAccessToken(User user) {
+	public String generateAccessToken(String user_id) {
 		HashMap<String, Object> map = new HashMap<>();
-		return generateToken(map, user, accessExpiration); 
+		return generateToken(map, user_id, accessExpiration); 
 	}
 	
 	public boolean isTokenValid(String token, User user) {

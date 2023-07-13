@@ -51,7 +51,8 @@ public class AuthenticationService implements LogoutHandler{
 		return true;
 	}
 
-	public AuthenticationResponse authenticate(AuthenticationRequest request) {
+	public AuthenticationResponse authenticate(
+			AuthenticationRequest request) {
 		authenticationManager.authenticate(
 			new UsernamePasswordAuthenticationToken(
 					request.getUid(),
@@ -60,12 +61,14 @@ public class AuthenticationService implements LogoutHandler{
 		);	
 		var user=userRepository.findByUid(request.getUid())
 				.orElseThrow();
-		var accessToken=jwtService.generateAccessToken(user);
-		var refreshToken = jwtService.generateRefreshToken(user);
+		var accessToken=jwtService.generateAccessToken(user.getId().toString());
+		var refreshToken = jwtService.generateRefreshToken(user.getId().toString());
 		
 		return AuthenticationResponse.builder()
 				.accessToken(accessToken)
 				.refreshToken(refreshToken)
+				.nick(user.getNick())
+				.email(user.getEmail())
 				.build();
 	}
 	
@@ -93,35 +96,35 @@ public class AuthenticationService implements LogoutHandler{
 		return !userRepository.existsByEmail(email);
 	}
 	
-	public void refreshToken(
-			HttpServletRequest request,
-		    HttpServletResponse response	
-	) throws IOException {
-		final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-	    final String refreshToken;
-	    final String id;
-	    if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
-	      return;
-	    }
-	    
-	    refreshToken = authHeader.substring(7);
-	    id = jwtService.extractId(refreshToken);
-	    if(id!=null) {
-	    	var user= this.userRepository.findById(Integer.parseInt(id)).orElseThrow();
-	    	
-	    	if(jwtService.isTokenValid(refreshToken, user)) {
-	    		var accessToken=jwtService.generateAccessToken(user);
-	            var authResponse = AuthenticationResponse.builder()
-	                    .accessToken(accessToken)
-	                    .refreshToken(refreshToken)
-	                    .build();
-	            
-	            response.setStatus(HttpServletResponse.SC_OK);
-	            response.setContentType("application/json");
-	            new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
-	            
-	    	}
-	    }
-	}
+//	public void refreshToken(
+//			HttpServletRequest request,
+//		    HttpServletResponse response	
+//	) throws IOException {
+//		final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+//	    final String refreshToken;
+//	    final String id;
+//	    if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
+//	      return;
+//	    }
+//	    
+//	    refreshToken = authHeader.substring(7);
+//	    id = jwtService.extractId(refreshToken);
+//	    if(id!=null) {
+//	    	var user= this.userRepository.findById(Integer.parseInt(id)).orElseThrow();
+//	    	
+//	    	if(jwtService.isTokenValid(refreshToken, user)) {
+//	    		var accessToken=jwtService.generateAccessToken(user);
+//	            var authResponse = AuthenticationResponse.builder()
+//	                    .accessToken(accessToken)
+//	                    .refreshToken(refreshToken)
+//	                    .build();
+//	            
+//	            response.setStatus(HttpServletResponse.SC_OK);
+//	            response.setContentType("application/json");
+//	            new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
+//	            
+//	    	}
+//	    }
+//	}
 	
 }
