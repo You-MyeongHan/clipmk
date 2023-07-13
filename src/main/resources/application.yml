@@ -4,9 +4,8 @@ server:
 spring:
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-
     url: jdbc:mariadb://127.0.0.1:3306/homepage?&serverTimezone=UTC&autoReconnect=true&allowMultiQueries=true&characterEncoding=UTF-8
-    username: root   
+    username: root
     password: 2142
   data:
     redis:
