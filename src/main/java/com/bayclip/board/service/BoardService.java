@@ -44,6 +44,11 @@ public class BoardService {
         
 	}
 	
+	public Long getBoardCnt(Integer userId) {
+		
+		return boardRepository.countByUser_Id(userId);
+	}
+	
 	public Page<Board> findAll(Pageable pageable, String category) {
 		Specification<Board> spec = null;
 		if(category !=null && !category.isEmpty()) {

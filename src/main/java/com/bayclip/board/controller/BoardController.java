@@ -91,15 +91,17 @@ public class BoardController {
 	}
 	
 	@PostMapping("/{boardId}/comment")
-	public ResponseEntity<Boolean> addCommentToBoard(
-			@PathVariable Long boardId,
-			@RequestBody CommentRequest request){
-		Comment comment = commentService.addCommentToBoard(boardId, request.getContent());
-        if (comment != null) {
-            return ResponseEntity.ok(true);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+	public ResponseEntity<Void> addCommentToBoard(
+			@PathVariable("boardId") Long boardId,
+			@RequestBody CommentRequest request,
+			@AuthenticationPrincipal User user){
+		
+		if(commentService.register(boardId, user.getId(), request.getContent())) {
+			return ResponseEntity.ok().build();
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+		}
 	}
 	
 	@DeleteMapping("/{boardId}/comment/delete/{commentId}")

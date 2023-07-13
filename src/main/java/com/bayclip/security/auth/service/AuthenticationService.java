@@ -72,6 +72,7 @@ public class AuthenticationService implements LogoutHandler{
 				.build();
 	}
 	
+	//수정 필요
 	@Override
 	public void logout(
 			HttpServletRequest request,
@@ -83,8 +84,6 @@ public class AuthenticationService implements LogoutHandler{
 	    if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
 	      return;
 	    }
-	    final String jwt;
-	    jwt = authHeader.substring(7);
 	    SecurityContextHolder.clearContext();
 	}
 	

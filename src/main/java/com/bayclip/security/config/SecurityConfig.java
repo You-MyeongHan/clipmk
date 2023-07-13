@@ -52,7 +52,7 @@ public class SecurityConfig {
             	.requestMatchers(HttpMethod.GET, "/board/recommendBoard").authenticated()
             	.requestMatchers(HttpMethod.POST, "/board/{boardId}/comment").authenticated()
             	.requestMatchers(HttpMethod.DELETE, "/board/{boardId}/comment/delete/{commentId}").authenticated()
-            	.anyRequest().hasAnyRole("ADMIN"))		
+            	.anyRequest().hasAnyRole("ADMIN"))
 			
 			.sessionManagement((sessionManagement) ->
             	sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

@@ -9,4 +9,5 @@ import com.bayclip.board.entity.Comment;
 
 public interface CommentRepository extends JpaRepository<Comment, Long>{
 	List<Comment> findByBoard(Board board);
+	Long countByUser_Id(Integer userId);
 }
