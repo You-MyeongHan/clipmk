@@ -89,15 +89,27 @@ public class AuthenticationController {
 	}
 	
 	@PostMapping("/checkUid")
-	public ResponseEntity<?> checkUidDuplication(
+	public ResponseEntity<Void> checkUidDuplication(
 			@RequestBody UidRequest request){
-		return ResponseEntity.ok(userService.existsByUid(request.getUid()));
+		if(userService.existsByUid(request.getUid())) {
+			return ResponseEntity.ok().build();
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+		}
+		
 	}
 	
 	@PostMapping("/checkEmail")
 	public ResponseEntity<?> checkEmailDuplication(
 			@RequestBody EmailRequest request){
-		return ResponseEntity.ok(userService.existsByEmail(request.getEmail()));
+		if(userService.existsByEmail(request.getEmail())) {
+			return ResponseEntity.ok().build();
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+		}
+		
 	}
 	
 //	@PostMapping("/refresh-token")
