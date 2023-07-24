@@ -2,10 +2,11 @@ package com.bayclip.board.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.bayclip.board.entity.Board;
 import com.bayclip.board.entity.Comment;
 import com.bayclip.board.repository.BoardRepository;
 import com.bayclip.board.repository.CommentRepository;
@@ -22,36 +23,41 @@ public class CommentService {
     private final UserRepository userRepository;
     
     @Transactional
-    public boolean register(Long boardId, Integer userId, String content) {
+    public boolean register(Long postId, Integer userId, String content) {
     	
-    	Board board=boardRepository.findById(boardId).orElse(null);
     	User user =userRepository.findById(userId).orElseThrow(()->
+						new IllegalStateException("존재하지 않는 계정입니다."));
     	
-		new IllegalStateException("존재하지 않는 계정입니다."));
-    	if(board!=null) {
+    	if(boardRepository.existsById(postId)) {
     		var comment= Comment.builder()
     					.content(content)
     					.user(user)
-    					.board(board)
+    					.nick(user.getNick())
+    					.postId(postId)
     					.build();
     		commentRepository.save(comment);
+    		return true;
     	}
-    	return true;
+    	else {
+    		return false;
+    	}
     }
     
-    public List<Comment> findByBoard(Board board){
-    	return commentRepository.findByBoard(board);
+    public List<Comment> findByPostId(Long postId){
+    	return commentRepository.findByPostId(postId);
     }
     
-public Long getCommentCnt(Integer userId) {
-		
-		return commentRepository.countByUser_Id(userId);
+    public Page<Comment> findTop10ByUser_IdOrderByComment_IdDesc(Integer userId, Pageable pageable){
+		return commentRepository.findTop10ByUser_IdOrderByIdDesc(userId, pageable);
 	}
     
     @Transactional
-    public void deleteComment(Long commentId) {
+    public boolean deleteComment(Long commentId, User user) {
+    	
     	Comment comment=commentRepository.findById(commentId)
     			.orElseThrow(()-> new IllegalArgumentException("Comment not found with ID: " + commentId));
+    	
     	commentRepository.delete(comment);
+    	return true;
     }
 }

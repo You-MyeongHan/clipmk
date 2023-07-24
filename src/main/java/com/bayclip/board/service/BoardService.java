@@ -8,9 +8,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.bayclip.board.entity.Board;
-import com.bayclip.board.entity.BoardRequest;
+import com.bayclip.board.dto.PostDto;
+import com.bayclip.board.dto.PostRequestDto;
 import com.bayclip.board.entity.Comment;
+import com.bayclip.board.entity.Post;
 import com.bayclip.board.repository.BoardRepository;
 import com.bayclip.board.repository.CommentRepository;
 import com.bayclip.user.entity.User;
@@ -28,29 +29,69 @@ public class BoardService {
 	
 	
 	@Transactional
-	public Board getBoardById(Long boardId) {
-		Board board=boardRepository.findWithUserNickById(boardId);
+	public PostDto getPostById(Long postId, User user) {
+		Post post=boardRepository.findWithUserNickById(postId);
 		
-		if(board!=null) {
-			board.setViewCnt(board.getViewCnt()+1);
-			board=boardRepository.save(board);
-//			
-//			List<Comment> comments = commentRepository.findByBoard(board);
-//	        board.setComments(comments);
-
-	        return board;
+		if(post!=null) {
+			post.setViewCnt(post.getViewCnt()+1);
+			post=boardRepository.save(post);
+			
+			List<Comment> comments = commentRepository.findByPostId(postId);
+			
+			if(user!=null) {
+				var postDto = PostDto.builder()
+						.id(postId)
+						.title(post.getTitle())
+						.category(post.getCategory())
+						.content(post.getContent())
+						.thumbnail(post.getThumbnail())
+						.wr_date(post.getWr_date())
+						.re_date(post.getRe_date())
+						.del_date(post.getDel_date())
+						.viewCnt(post.getViewCnt())
+						.nick(post.getNick())
+						.comments(comments)
+						.recommend_cnt(post.getRecommendations().size())
+						.decommend_cnt(post.getDecommendations().size())
+						.recommend_state(post.getRecommendations().contains(user.getId()))
+						.decommend_state(post.getDecommendations().contains(user.getId()))
+						.build();
+				return postDto;
+			}
+			else {
+				var postDto = PostDto.builder()
+						.id(postId)
+						.title(post.getTitle())
+						.category(post.getCategory())
+						.content(post.getContent())
+						.thumbnail(post.getThumbnail())
+						.wr_date(post.getWr_date())
+						.re_date(post.getRe_date())
+						.del_date(post.getDel_date())
+						.viewCnt(post.getViewCnt())
+						.nick(post.getNick())
+						.comments(comments)
+						.recommend_cnt(post.getRecommendations().size())
+						.decommend_cnt(post.getDecommendations().size())
+						.recommend_state(false)
+						.decommend_state(false)
+						.build();
+				return postDto;
+			}
+			
+	        
 		}
 		return null;
         
 	}
 	
-	public Long getBoardCnt(Integer userId) {
-		
-		return boardRepository.countByUser_Id(userId);
-	}
+//	public Long getBoardCnt(Integer userId) {
+//		
+//		return boardRepository.countByUser_Id(userId);
+//	}
 	
-	public Page<Board> findAll(Pageable pageable, String category) {
-		Specification<Board> spec = null;
+	public Page<Post> findAll(Pageable pageable, String category) {
+		Specification<Post> spec = null;
 		if(category !=null && !category.isEmpty()) {
 			spec = (root, query, criteriaBuilder) ->
             criteriaBuilder.equal(root.get("category"), category);
@@ -63,21 +104,23 @@ public class BoardService {
         }
 	}
 	
-	public Page<Board> findByView_cntGreaterThan(Integer viewCount, Pageable pageable){
+	public Page<Post> findByView_cntGreaterThan(Integer viewCount, Pageable pageable){
 		return boardRepository.findByViewCntGreaterThan(viewCount, pageable);
 	}
 	
-	public Page<Board> findByTitleContaining(Pageable pageable, String searchKeyword){
+	public Page<Post> findByTitleContaining(Pageable pageable, String searchKeyword){
 		return boardRepository.findByTitleContaining(pageable, searchKeyword);
 	}
 	
-	
+	public Page<Post> findTop10ByUser_IdOrderByIdDesc(Integer userId, Pageable pageable){
+		return boardRepository.findTop10ByUser_IdOrderByIdDesc(userId, pageable);
+	}
 	
 	@Transactional
-	public boolean register(BoardRequest request, Integer user_id) {
+	public boolean register(PostRequestDto request, Integer user_id) {
 		User user=userRepository.findById(user_id).orElseThrow(()->
 				new IllegalStateException("존재하지 않는 계정입니다."));
-		var board=Board.builder()
+		var post=Post.builder()
 				.title(request.getTitle())
 				.category(request.getCategory())
 				.content(request.getContent())
@@ -85,33 +128,57 @@ public class BoardService {
 				.nick(user.getNick())
 				.thumbnail(request.getThumbnail())
 				.build();
-		boardRepository.save(board);
+		boardRepository.save(post);
 		
 		return true;
 	}
 	
 	@Transactional
-	public void updateView_cnt(Long boardId, Board board) {
-		Board board1=boardRepository.findById(boardId).orElseThrow(()->
+	public void updateView_cnt(Long postId) {
+		Post post=boardRepository.findById(postId).orElseThrow(()->
 			new IllegalStateException("게시물이 존재하지 않습니다."));
 		
-		board.updateViewCnt(board1.getViewCnt());
+		post.updateViewCnt(post.getViewCnt());
 	}
 	
-	public Boolean recommendBoard(Long boardId, Integer user_id) {
+	public Boolean recommendBoard(Long postId, User user, int value) {
 		
-		Board board = boardRepository.findById(boardId).orElse(null);
-		if(board!=null) {
-			User user=userRepository.findById(user_id).orElse(null);
+		Post post = boardRepository.findById(postId).orElse(null);
+		if(post!=null) {
 			if(user!=null) {
-				if(board.getRecommendations().contains(user)) {
-					return false;
+				if( value==1) {
+					
+					if(post.getDecommendations().contains(user.getId())) {
+						post.getDecommendations().remove(user.getId());
+						boardRepository.save(post);
+						return true;
+					}
+					
+					if(post.getRecommendations().contains(user.getId())) {
+						return false;
+					}
+					
+					post.getRecommendations().add(user.getId());
+					boardRepository.save(post);
+					return true;
+					
 				}
-				
-				board.setRecommend(board.getRecommend()+1);
-				board.getRecommendations().add(user);
-				boardRepository.save(board);
-				return true;
+				else if(value==0) {
+					
+					if(post.getRecommendations().contains(user.getId())) {
+						post.getRecommendations().remove(user.getId());
+						boardRepository.save(post);
+						return true;
+					}
+					
+					if(post.getDecommendations().contains(user.getId())) {
+						return false;
+					}
+					
+					post.getDecommendations().add(user.getId());
+					boardRepository.save(post);
+					return true;
+				}
 			}
 		}
 		

@@ -16,9 +16,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Data
 @Builder
@@ -26,10 +30,8 @@ import lombok.Data;
 public class Comment {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name="id")
 	private Long id;
 	
-	@Column(name="content")
 	private String content;
 	
 	@CreationTimestamp
@@ -41,8 +43,10 @@ public class Comment {
 	@JsonIgnore
     private User user;
 	
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="board_id")
-	private Board board;
+	private String nick;
+	
+	@Column(name="post_id")
+	@JsonIgnore
+	private Long postId;
 	
 }

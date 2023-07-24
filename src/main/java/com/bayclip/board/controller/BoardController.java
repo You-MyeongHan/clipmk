@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,11 +18,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bayclip.board.entity.Board;
-import com.bayclip.board.entity.BoardRequest;
-import com.bayclip.board.entity.Comment;
-import com.bayclip.board.entity.CommentRequest;
-import com.bayclip.board.entity.PostResponse;
+import com.bayclip.board.dto.CommentRequestDto;
+import com.bayclip.board.dto.PostDto;
+import com.bayclip.board.dto.PostRequestDto;
+import com.bayclip.board.dto.PostsResponseDto;
 import com.bayclip.board.service.BoardService;
 import com.bayclip.board.service.CommentService;
 import com.bayclip.user.entity.User;
@@ -38,15 +38,10 @@ public class BoardController {
 	@Value("${application.post.best-post.viewCnt}")
 	private Integer viewCount;
 	
-	@GetMapping("/{boardId}")
-	public ResponseEntity<Board> getBoardById(@PathVariable("boardId") Long boardId){
-		Board board= boardService.getBoardById(boardId);
-	    return ResponseEntity.ok(board);
-	}
-
-	@PostMapping("/register")
+	//게시물 등록
+	@PostMapping("/post")
 	public ResponseEntity<Void> register(
-			@RequestBody BoardRequest request,
+			@RequestBody PostRequestDto request,
 			@AuthenticationPrincipal User user
 	){
 		if(boardService.register(request, user.getId())) {
@@ -57,46 +52,59 @@ public class BoardController {
 		}
 	}
 	
-	@GetMapping("/post")
-	public ResponseEntity<Page<PostResponse>> post(
+	//게시물 조회 
+	@GetMapping("/post/{post-id}")
+	public ResponseEntity<PostDto> getPostById(
+			@PathVariable("post-id") Long postId,
+			@AuthenticationPrincipal User user){
+		PostDto postDto= boardService.getPostById(postId, user);
+	    return ResponseEntity.ok(postDto);
+	}
+	
+	//게시물 페이징
+	@GetMapping("/posts/{category}")
+	public ResponseEntity<Page<PostsResponseDto>> posts(
 			@PageableDefault(page=0, size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
-			@RequestParam(value = "category", defaultValue  = "humor") String group,
+			@PathVariable("category") String category,
 			@RequestParam(value = "searchKeyword", defaultValue  = "") String searchKeyword){
-		Page<PostResponse> boards =null;
-		if(searchKeyword==null) {
-			 boards = boardService.findAll(pageable, group).map(PostResponse::from);
+		Page<PostsResponseDto> posts =null;
+		if(searchKeyword.isEmpty()) {
+			 posts = boardService.findAll(pageable, category).map(PostsResponseDto::from);
 		}else {
-			 boards = boardService.findByTitleContaining(pageable, searchKeyword).map(PostResponse::from);
+			 posts = boardService.findByTitleContaining(pageable, searchKeyword).map(PostsResponseDto::from);
 		}
 		
-		return ResponseEntity.ok(boards);
+		return ResponseEntity.ok(posts);
 	}
 	
-	@GetMapping("/best-post")
-	public ResponseEntity<Page<PostResponse>> bestPost(
+	//베스트 게시물 
+	@GetMapping("/best")
+	public ResponseEntity<Page<PostsResponseDto>> bestPost(
 			@PageableDefault(page=0, size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable){
 		
-		Page<PostResponse> boards =null;
-		boards = boardService.findByView_cntGreaterThan(viewCount, pageable).map(PostResponse::from);
+		Page<PostsResponseDto> boards =null;
+		boards = boardService.findByView_cntGreaterThan(viewCount, pageable).map(PostsResponseDto::from);
 		return ResponseEntity.ok(boards);
 	}
 
-
-	@GetMapping("/recommendBoard")
+	//게시물 추천
+	@PatchMapping("/post/{post-id}/recommend")
 	public ResponseEntity<Boolean> recommendBoard(
-			@RequestParam(value="boardId") Long boardId,
+			@PathVariable(value="post-id") Long postId,
+			@RequestParam(value="value") int value,
 			@AuthenticationPrincipal User user){
 		
-		return ResponseEntity.ok(boardService.recommendBoard(boardId, user.getId()));
+		return ResponseEntity.ok(boardService.recommendBoard(postId, user, value));
 	}
 	
-	@PostMapping("/{boardId}/comment")
+	//댓글 달기
+	@PostMapping("/{post-Id}/comment")
 	public ResponseEntity<Void> addCommentToBoard(
-			@PathVariable("boardId") Long boardId,
-			@RequestBody CommentRequest request,
+			@PathVariable("postId") Long postId,
+			@RequestBody CommentRequestDto request,
 			@AuthenticationPrincipal User user){
 		
-		if(commentService.register(boardId, user.getId(), request.getContent())) {
+		if(commentService.register(postId, user.getId(), request.getContent())) {
 			return ResponseEntity.ok().build();
 		}
 		else {
@@ -104,10 +112,17 @@ public class BoardController {
 		}
 	}
 	
-	@DeleteMapping("/{boardId}/comment/delete/{commentId}")
-	public ResponseEntity<Void> deleteComment(@PathVariable("commentId") Long commentId){
-		commentService.deleteComment(commentId);
-		return ResponseEntity.noContent().build();
+	//댓글 삭제
+	@DeleteMapping("/comment/delete/{commentId}")
+	public ResponseEntity<Void> deleteComment(
+			@PathVariable("commentId") Long commentId,
+			@AuthenticationPrincipal User user){
+		if(commentService.deleteComment(commentId, user)) {
+			return ResponseEntity.ok().build();
+		}
+		else {
+			return ResponseEntity.noContent().build();
+		}
 	}
 	
 }
