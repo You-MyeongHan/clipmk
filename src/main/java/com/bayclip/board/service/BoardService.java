@@ -8,6 +8,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bayclip.board.dto.EditPostRequestDto;
 import com.bayclip.board.dto.PostDto;
 import com.bayclip.board.dto.PostRequestDto;
 import com.bayclip.board.entity.Comment;
@@ -89,6 +90,40 @@ public class BoardService {
 //		
 //		return boardRepository.countByUser_Id(userId);
 //	}
+	
+	@Transactional
+	public PostDto edit(Long postId, EditPostRequestDto request, User user) {
+		
+		Post post= boardRepository.findById(postId).orElse(null);
+		
+		if(user!=null) {
+			String newContent=request.getContent();
+			
+			if(newContent != null) {
+				post.setContent(newContent);
+			}
+			boardRepository.save(post);
+			
+			return getPostById(postId, user);
+
+		}
+		
+		return null;
+	}
+	
+	@Transactional
+	public boolean delete(Long postId, User user) {
+		
+		Post post=boardRepository.findById(postId).orElse(null);
+		
+		if(user!=null) {
+			if(post!=null) {
+				boardRepository.delete(post);
+				return true;
+			}
+		}
+		return false;
+	}
 	
 	public Page<Post> findAll(Pageable pageable, String category) {
 		Specification<Post> spec = null;

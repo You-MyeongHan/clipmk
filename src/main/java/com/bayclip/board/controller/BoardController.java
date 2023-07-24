@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bayclip.board.dto.CommentRequestDto;
+import com.bayclip.board.dto.EditPostRequestDto;
 import com.bayclip.board.dto.PostDto;
 import com.bayclip.board.dto.PostRequestDto;
 import com.bayclip.board.dto.PostsResponseDto;
@@ -56,10 +57,38 @@ public class BoardController {
 	@GetMapping("/post/{post-id}")
 	public ResponseEntity<PostDto> getPostById(
 			@PathVariable("post-id") Long postId,
-			@AuthenticationPrincipal User user){
+			@AuthenticationPrincipal User user
+	){	
 		PostDto postDto= boardService.getPostById(postId, user);
 	    return ResponseEntity.ok(postDto);
 	}
+	
+	//게시물 수정
+	@PatchMapping("/post/{post_Id}")
+	public ResponseEntity<PostDto> editPost(
+			@PathVariable("post-id") Long postId,
+			@RequestBody EditPostRequestDto request,
+			@AuthenticationPrincipal User user
+	){
+		PostDto postDto=boardService.edit(postId, request, user);
+		return ResponseEntity.ok(postDto);
+	}
+	
+	//게시물 삭제
+		@DeleteMapping("/post/{post-id}")
+		public ResponseEntity<Void> deletePost(
+				@PathVariable("post-id") Long postId,
+				@AuthenticationPrincipal User user
+		){	
+			
+			if(boardService.delete(postId, user)) {
+				return ResponseEntity.ok().build();
+			}
+			else{
+				return ResponseEntity.notFound().build();
+			}
+		}
+	
 	
 	//게시물 페이징
 	@GetMapping("/posts/{category}")

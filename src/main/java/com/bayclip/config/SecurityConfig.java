@@ -51,7 +51,9 @@ public class SecurityConfig {
             	
             	// board 요청
             	.requestMatchers(HttpMethod.POST, "/board/post").authenticated()		//게시물 등록
-            	.requestMatchers(HttpMethod.GET, "/board/post/{post-Id}").permitAll()	//게시물 조회            	
+            	.requestMatchers(HttpMethod.GET, "/board/post/{post-Id}").permitAll()	//게시물 조회
+            	.requestMatchers(HttpMethod.PATCH, "/board/post/{post-Id}").authenticated()	//게시물 수정
+            	.requestMatchers(HttpMethod.DELETE, "/board/post/{post-Id}").authenticated()	//게시물 삭제
             	.requestMatchers(HttpMethod.GET, "/board/posts/{category}").permitAll()			//게시물 페이징
             	.requestMatchers(HttpMethod.GET, "/board/best").permitAll()		//베스트 게시물 
             	.requestMatchers(HttpMethod.PATCH, "/board/post/{post-id}/recommend").authenticated()//게시물 추천

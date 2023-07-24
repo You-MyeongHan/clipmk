@@ -77,8 +77,9 @@ public class UserController {
 	@PatchMapping("")
 	public ResponseEntity<Void> update(
 			@RequestBody EditUserRequestDto request,
-			@AuthenticationPrincipal User user){
-		if(userService.update(request, user)) {
+			@AuthenticationPrincipal User user
+	){
+		if(userService.edit(request, user)) {
 			return ResponseEntity.ok().build();
 		}
 		else {
@@ -96,7 +97,8 @@ public class UserController {
 	//uid 중복검사
 	@PostMapping("/check-uid")
 	public ResponseEntity<Void> checkUidDuplication(
-			@RequestBody UidRequestDto request){
+			@RequestBody UidRequestDto request
+	){
 		if(userService.existsByUid(request.getUid())) {
 			return ResponseEntity.ok().build();
 		}

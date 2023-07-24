@@ -36,7 +36,7 @@ public class UserService implements UserDetailsService{
 		return true;
 	}
 	
-	public boolean update(EditUserRequestDto request, User user) {
+	public boolean edit(EditUserRequestDto request, User user) {
 		
 		if(user != null) {
 			String newNick=request.getNick();
