@@ -3,6 +3,6 @@ package com.bayclip.board.dto;
 import lombok.Data;
 
 @Data
-public class CommentRequestDto {
+public class CommentCreateDto {
 	private String content;
 }

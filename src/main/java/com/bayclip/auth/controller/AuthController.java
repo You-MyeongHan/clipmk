@@ -9,10 +9,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bayclip.auth.dto.LoginRequestDto;
 import com.bayclip.auth.dto.AuthResponseDto;
+import com.bayclip.auth.dto.LoginRequestDto;
 import com.bayclip.auth.dto.LoginResponseDto;
 import com.bayclip.auth.service.AuthService;
+import com.bayclip.mail.dto.EmailRequestDto;
+import com.bayclip.mail.service.MailService;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
 	
 	private final AuthService authService;
+	private final MailService mailService;
 	
 	//로그인
 	@PostMapping("/login")
@@ -71,6 +74,14 @@ public class AuthController {
 	        refreshTokenCookie.setSecure(true); // HTTPS에서만 전송되도록 설정 (필요에 따라 변경)
 	        response.addCookie(refreshTokenCookie);
 	    }
+		
+		return ResponseEntity.ok().build();
+	}
+	
+	@PostMapping("/email-authcode")
+	public ResponseEntity<Void> sendEmailVerification(@RequestBody EmailRequestDto request){
+		
+		mailService.sendVerificationEmail(request.getEmail());
 		
 		return ResponseEntity.ok().build();
 	}

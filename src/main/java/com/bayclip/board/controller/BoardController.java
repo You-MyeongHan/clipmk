@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bayclip.board.dto.CommentRequestDto;
+import com.bayclip.board.dto.CommentCreateDto;
 import com.bayclip.board.dto.EditPostRequestDto;
 import com.bayclip.board.dto.PostDto;
 import com.bayclip.board.dto.PostRequestDto;
@@ -64,7 +64,7 @@ public class BoardController {
 	}
 	
 	//게시물 수정
-	@PatchMapping("/post/{post_Id}")
+	@PatchMapping("/post/{post-id}")
 	public ResponseEntity<PostDto> editPost(
 			@PathVariable("post-id") Long postId,
 			@RequestBody EditPostRequestDto request,
@@ -75,19 +75,19 @@ public class BoardController {
 	}
 	
 	//게시물 삭제
-		@DeleteMapping("/post/{post-id}")
-		public ResponseEntity<Void> deletePost(
-				@PathVariable("post-id") Long postId,
-				@AuthenticationPrincipal User user
-		){	
-			
-			if(boardService.delete(postId, user)) {
-				return ResponseEntity.ok().build();
-			}
-			else{
-				return ResponseEntity.notFound().build();
-			}
+	@DeleteMapping("/post/{post-id}")
+	public ResponseEntity<Void> deletePost(
+			@PathVariable("post-id") Long postId,
+			@AuthenticationPrincipal User user
+	){	
+		
+		if(boardService.delete(postId, user)) {
+			return ResponseEntity.ok().build();
 		}
+		else{
+			return ResponseEntity.notFound().build();
+		}
+	}
 	
 	
 	//게시물 페이징
@@ -127,13 +127,29 @@ public class BoardController {
 	}
 	
 	//댓글 달기
-	@PostMapping("/{post-Id}/comment")
-	public ResponseEntity<Void> addCommentToBoard(
-			@PathVariable("postId") Long postId,
-			@RequestBody CommentRequestDto request,
+	@PostMapping("/post/{post-id}/comment")
+	public ResponseEntity<Void> createComment(
+			@PathVariable(value="post-id") Long postId,
+			@RequestBody CommentCreateDto request,
 			@AuthenticationPrincipal User user){
 		
-		if(commentService.register(postId, user.getId(), request.getContent())) {
+		if(commentService.createComment(postId, user, request.getContent())) {
+			return ResponseEntity.ok().build();
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+		}
+	}
+	
+	//대댓글 달기
+	@PostMapping("/post/{post-id}/comment/{parent-id}/reply")
+	 public ResponseEntity<Void> createReply(
+			 @PathVariable(value="post-id") Long postId,
+			 @PathVariable(value="parent-id") Long parentId,
+			 @RequestBody CommentCreateDto request,
+			 @AuthenticationPrincipal User user
+	){
+		if(commentService.createReply(postId, parentId, user, request.getContent())) {
 			return ResponseEntity.ok().build();
 		}
 		else {

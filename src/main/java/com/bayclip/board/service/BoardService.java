@@ -37,50 +37,13 @@ public class BoardService {
 			post.setViewCnt(post.getViewCnt()+1);
 			post=boardRepository.save(post);
 			
-			List<Comment> comments = commentRepository.findByPostId(postId);
+			PostDto postDto = post.toDto();
 			
 			if(user!=null) {
-				var postDto = PostDto.builder()
-						.id(postId)
-						.title(post.getTitle())
-						.category(post.getCategory())
-						.content(post.getContent())
-						.thumbnail(post.getThumbnail())
-						.wr_date(post.getWr_date())
-						.re_date(post.getRe_date())
-						.del_date(post.getDel_date())
-						.viewCnt(post.getViewCnt())
-						.nick(post.getNick())
-						.comments(comments)
-						.recommend_cnt(post.getRecommendations().size())
-						.decommend_cnt(post.getDecommendations().size())
-						.recommend_state(post.getRecommendations().contains(user.getId()))
-						.decommend_state(post.getDecommendations().contains(user.getId()))
-						.build();
-				return postDto;
+				postDto.setRecommend_state(post.getRecommendations().contains(user.getId()));
+				postDto.setRecommend_state(post.getDecommendations().contains(user.getId()));
 			}
-			else {
-				var postDto = PostDto.builder()
-						.id(postId)
-						.title(post.getTitle())
-						.category(post.getCategory())
-						.content(post.getContent())
-						.thumbnail(post.getThumbnail())
-						.wr_date(post.getWr_date())
-						.re_date(post.getRe_date())
-						.del_date(post.getDel_date())
-						.viewCnt(post.getViewCnt())
-						.nick(post.getNick())
-						.comments(comments)
-						.recommend_cnt(post.getRecommendations().size())
-						.decommend_cnt(post.getDecommendations().size())
-						.recommend_state(false)
-						.decommend_state(false)
-						.build();
-				return postDto;
-			}
-			
-	        
+			return postDto;	        
 		}
 		return null;
         

@@ -8,10 +8,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bayclip.board.entity.Comment;
+import com.bayclip.board.entity.Post;
+import com.bayclip.board.entity.ReplyComment;
 import com.bayclip.board.repository.BoardRepository;
 import com.bayclip.board.repository.CommentRepository;
+import com.bayclip.board.repository.ReplyCommentRepository;
 import com.bayclip.user.entity.User;
-import com.bayclip.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,24 +21,47 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CommentService {
 	private final CommentRepository commentRepository;
+	private final ReplyCommentRepository replyCommentRepository;
     private final BoardRepository boardRepository;
-    private final UserRepository userRepository;
     
     @Transactional
-    public boolean register(Long postId, Integer userId, String content) {
-    	
-    	User user =userRepository.findById(userId).orElseThrow(()->
-						new IllegalStateException("존재하지 않는 계정입니다."));
-    	
+    public boolean createComment(Long postId, User user, String content) {
+    	Post post = boardRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid Post ID"));
     	if(boardRepository.existsById(postId)) {
     		var comment= Comment.builder()
     					.content(content)
     					.user(user)
-    					.nick(user.getNick())
-    					.postId(postId)
+    					.post(post)
     					.build();
     		commentRepository.save(comment);
     		return true;
+    	}
+    	else {
+    		return false;
+    	}
+    }
+    
+    @Transactional
+    public boolean createReply(Long postId, Long parentId, User user, String content) {
+    	
+    	Post post = boardRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid Post ID"));
+    	
+    	Comment comment = commentRepository.findById(parentId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid parent comment ID"));
+    	
+    	
+    	if(post!=null && comment!=null) {
+    		var replyComment= ReplyComment.builder()
+						.content(content)
+						.user(user)
+						.post(post)
+						.parentComment(comment)
+						.build();
+    		
+    		replyCommentRepository.save(replyComment);
+			return true;
     	}
     	else {
     		return false;

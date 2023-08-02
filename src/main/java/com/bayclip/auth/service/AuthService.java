@@ -59,36 +59,5 @@ public class AuthService implements LogoutHandler{
 	    }
 	    SecurityContextHolder.clearContext();
 	}
-
-//	public void refreshToken(
-//			HttpServletRequest request,
-//		    HttpServletResponse response	
-//	) throws IOException {
-//		final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-//	    final String refreshToken;
-//	    final String id;
-//	    if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
-//	      return;
-//	    }
-//	    
-//	    refreshToken = authHeader.substring(7);
-//	    id = jwtService.extractId(refreshToken);
-//	    if(id!=null) {
-//	    	var user= this.userRepository.findById(Integer.parseInt(id)).orElseThrow();
-//	    	
-//	    	if(jwtService.isTokenValid(refreshToken, user)) {
-//	    		var accessToken=jwtService.generateAccessToken(user);
-//	            var authResponse = AuthenticationResponse.builder()
-//	                    .accessToken(accessToken)
-//	                    .refreshToken(refreshToken)
-//	                    .build();
-//	            
-//	            response.setStatus(HttpServletResponse.SC_OK);
-//	            response.setContentType("application/json");
-//	            new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
-//	            
-//	    	}
-//	    }
-//	}
 	
 }

@@ -35,7 +35,7 @@ public class UserController {
 	private final UserService userService;
 	
 	//회원 정보 조회
-	@GetMapping("")
+	@GetMapping
 	public ResponseEntity<UserInfoDto> getUserInfo(
 			@RequestParam(value="act", defaultValue="userInfo") String act,
 			@AuthenticationPrincipal User user){
@@ -60,7 +60,7 @@ public class UserController {
 	}
 	
 	//회원 가입
-	@PostMapping("")
+	@PostMapping
 	public ResponseEntity<Void> register(
 			@RequestBody RegisterRequestDto request
 	){
@@ -74,7 +74,7 @@ public class UserController {
 	
 	//회원 정보 수정
 	//수정예정
-	@PatchMapping("")
+	@PatchMapping
 	public ResponseEntity<Void> update(
 			@RequestBody EditUserRequestDto request,
 			@AuthenticationPrincipal User user
@@ -89,7 +89,7 @@ public class UserController {
 	
 	//회원 탈퇴
 	//수정예정
-	@DeleteMapping("")
+	@DeleteMapping
 	public ResponseEntity<Void> delete(){
 		return ResponseEntity.ok().build();
 	}
