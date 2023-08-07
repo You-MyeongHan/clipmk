@@ -1,5 +1,6 @@
 package com.bayclip.board.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -82,7 +83,9 @@ public class CommentService {
     	Comment comment=commentRepository.findById(commentId)
     			.orElseThrow(()-> new IllegalArgumentException("Comment not found with ID: " + commentId));
     	
-    	commentRepository.delete(comment);
+    	comment.setDel_date(LocalDateTime.now());
+    	
+    	commentRepository.save(comment);
     	return true;
     }
 }
