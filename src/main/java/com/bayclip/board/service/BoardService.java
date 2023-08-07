@@ -115,10 +115,12 @@ public class BoardService {
 	}
 	
 	@Transactional
-	public boolean register(PostRequestDto request, Integer user_id) {
-		User user=userRepository.findById(user_id).orElseThrow(()->
+	public boolean register(PostRequestDto request, Integer userId) {
+		
+		User user=userRepository.findById(userId).orElseThrow(()->
 				new IllegalStateException("존재하지 않는 계정입니다."));
-		var post=Post.builder()
+		
+		Post post=Post.builder()
 				.title(request.getTitle())
 				.category(request.getCategory())
 				.content(request.getContent())
@@ -126,6 +128,7 @@ public class BoardService {
 				.nick(user.getNick())
 				.thumbnail(request.getThumbnail())
 				.build();
+		
 		boardRepository.save(post);
 		
 		return true;
