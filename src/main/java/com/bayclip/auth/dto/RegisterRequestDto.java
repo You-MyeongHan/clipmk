@@ -1,6 +1,6 @@
 package com.bayclip.auth.dto;
 
-import com.bayclip.user.entity.Role;
+import com.bayclip.user.dto.Role;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

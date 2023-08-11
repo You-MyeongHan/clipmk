@@ -19,8 +19,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bayclip.board.dto.CommentCreateDto;
+import com.bayclip.board.dto.EditCommentRequestDto;
 import com.bayclip.board.dto.EditPostRequestDto;
 import com.bayclip.board.dto.PostDto;
+import com.bayclip.board.dto.RecommendRequestDto;
 import com.bayclip.board.dto.PostRequestDto;
 import com.bayclip.board.dto.PostsResponseDto;
 import com.bayclip.board.service.BoardService;
@@ -57,21 +59,32 @@ public class BoardController {
 	@GetMapping("/post/{post-id}")
 	public ResponseEntity<PostDto> getPostById(
 			@PathVariable("post-id") Long postId,
+//			@RequestParam(defaultValue = "50") int pageSize,
 			@AuthenticationPrincipal User user
 	){	
 		PostDto postDto= boardService.getPostById(postId, user);
-	    return ResponseEntity.ok(postDto);
+		
+		if(postDto != null) {
+			return ResponseEntity.ok(postDto);
+		} else {
+			return ResponseEntity.notFound().build();
+		}
 	}
 	
 	//게시물 수정
 	@PatchMapping("/post/{post-id}")
-	public ResponseEntity<PostDto> editPost(
+	public ResponseEntity<Void> editPost(
 			@PathVariable("post-id") Long postId,
 			@RequestBody EditPostRequestDto request,
 			@AuthenticationPrincipal User user
 	){
-		PostDto postDto=boardService.edit(postId, request, user);
-		return ResponseEntity.ok(postDto);
+
+		if(boardService.edit(postId, request, user)) {
+			return ResponseEntity.ok().build();
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+		
 	}
 	
 	//게시물 삭제
@@ -90,40 +103,62 @@ public class BoardController {
 	}
 	
 	
-	//게시물 페이징
+	//게시물 페이징 and 검색
 	@GetMapping("/posts/{category}")
 	public ResponseEntity<Page<PostsResponseDto>> posts(
 			@PageableDefault(page=0, size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
 			@PathVariable("category") String category,
-			@RequestParam(value = "searchKeyword", defaultValue  = "") String searchKeyword){
+			@RequestParam(value = "searchTerm", defaultValue  = "") String searchTerm){
+		
 		Page<PostsResponseDto> posts =null;
-		if(searchKeyword.isEmpty()) {
+		
+		if(searchTerm.isEmpty()) {
 			 posts = boardService.findAll(pageable, category).map(PostsResponseDto::from);
 		}else {
-			 posts = boardService.findByTitleContaining(pageable, searchKeyword).map(PostsResponseDto::from);
+			 posts = boardService.findByTitleContaining(pageable, searchTerm).map(PostsResponseDto::from);
 		}
 		
 		return ResponseEntity.ok(posts);
 	}
 	
 	//베스트 게시물 
-	@GetMapping("/best")
-	public ResponseEntity<Page<PostsResponseDto>> bestPost(
+	@GetMapping("/posts/best")
+	public ResponseEntity<Page<PostsResponseDto>> bestPosts(
 			@PageableDefault(page=0, size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable){
 		
 		Page<PostsResponseDto> boards =null;
-		boards = boardService.findByView_cntGreaterThan(viewCount, pageable).map(PostsResponseDto::from);
+		boards = boardService.findByViewCntGreaterThan(viewCount, pageable).map(PostsResponseDto::from);
 		return ResponseEntity.ok(boards);
 	}
+	
+//	@GetMapping("/posts/{post-Id}/comments")
+//	public ResponseEntity<Page<CommentDto>> getPagedComments(
+//			@PathVariable("post-id") Long postId,
+//	        @RequestParam(defaultValue = "0") int page,
+//	        @RequestParam(defaultValue = "50") int pageSize) {
+//	    Page<Comment> comments = commentService.getPagedComments(postId, page, pageSize);
+//	    
+//	    if (!comments.isEmpty()) {
+//	        Page<CommentDto> commentDtos = comments.toDto();
+//	        return ResponseEntity.ok(commentDtos);
+//	    } else {
+//	        // 댓글이 없는 경우 처리
+//	        return ResponseEntity.notFound().build();
+//	    }
+//	}
 
 	//게시물 추천
 	@PatchMapping("/post/{post-id}/recommend")
 	public ResponseEntity<Boolean> recommendBoard(
 			@PathVariable(value="post-id") Long postId,
-			@RequestParam(value="value") int value,
+			@RequestBody RecommendRequestDto request,
 			@AuthenticationPrincipal User user){
+		if(boardService.recommend(postId, user, request.getValue())) {
+			return ResponseEntity.ok().build();
+		}else {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+		}
 		
-		return ResponseEntity.ok(boardService.recommendBoard(postId, user, value));
 	}
 	
 	//댓글 달기
@@ -158,7 +193,7 @@ public class BoardController {
 	}
 	
 	//댓글 삭제
-	@DeleteMapping("/comment/delete/{commentId}")
+	@DeleteMapping("/comment/{commentId}")
 	public ResponseEntity<Void> deleteComment(
 			@PathVariable("commentId") Long commentId,
 			@AuthenticationPrincipal User user){
@@ -170,4 +205,32 @@ public class BoardController {
 		}
 	}
 	
+	//댓글 수정
+	@PatchMapping("/comment/{comment-id}")
+	public ResponseEntity<Void> editPost(
+			@PathVariable("comment-id") Long commentId,
+			@RequestBody EditCommentRequestDto request,
+			@AuthenticationPrincipal User user
+	){
+		if(commentService.edit(commentId, request, user)) {
+			return ResponseEntity.ok().build();
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+		
+	}
+	
+	//댓글 추천
+	@PatchMapping("/comment/{comment-id}/recommend")
+	public ResponseEntity<Boolean> recommendComment(
+			@PathVariable(value="comment-id") Long commentId,
+			@RequestBody RecommendRequestDto request,
+			@AuthenticationPrincipal User user){
+		if(commentService.recommend(commentId, user, request.getValue())) {
+			return ResponseEntity.ok().build();
+		}else {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+		}
+		
+	}
 }

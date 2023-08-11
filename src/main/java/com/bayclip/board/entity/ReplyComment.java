@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.bayclip.board.dto.ReplyCommentDto;
 import com.bayclip.user.entity.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -44,6 +45,8 @@ public class ReplyComment {
     @JoinColumn(name = "user_id")
 	@JsonIgnore
     private User user;
+	
+	private String nick;
 
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
@@ -54,4 +57,19 @@ public class ReplyComment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "comment_id")
     private Comment parentComment;
+	
+	public ReplyCommentDto toDto() {
+		
+		ReplyCommentDto replyCommentDto = ReplyCommentDto.builder()
+			.id(this.id)
+			.content(this.content)
+			.wr_date(this.wr_date)
+			.del_date(this.del_date)
+			.user_id(this.user.getId())
+			.user_nick(this.user.getNick())
+			.build();
+		
+		return replyCommentDto;
+	}
+			
 }

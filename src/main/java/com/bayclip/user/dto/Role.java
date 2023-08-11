@@ -1,4 +1,4 @@
-package com.bayclip.user.entity;
+package com.bayclip.user.dto;
 
 public enum Role {
 	USER,

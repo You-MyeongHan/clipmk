@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.bayclip.auth.dto.RegisterRequestDto;
 import com.bayclip.user.dto.EditUserRequestDto;
-import com.bayclip.user.entity.Role;
+import com.bayclip.user.dto.Role;
 import com.bayclip.user.entity.User;
 import com.bayclip.user.repository.UserRepository;
 

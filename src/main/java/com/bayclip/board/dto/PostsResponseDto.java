@@ -22,16 +22,15 @@ public class PostsResponseDto {
 
 	
 	public static PostsResponseDto from(Post post) {
-		return new PostsResponseDto(post);
-	}
-	
-	private PostsResponseDto(Post post) {
-		this.title=post.getTitle();
-		this.nick=post.getNick();
-		this.id=post.getId();
-		this.category=post.getCategory();
-		this.wr_date=post.getWr_date();
-		this.view_cnt=post.getViewCnt();
-		this.recommend_cnt=post.getRecommendations().size();
+		PostsResponseDto postsResponseDto = PostsResponseDto.builder()
+				.title(post.getTitle())
+				.nick(post.getUser().getNick())
+				.id(post.getId())
+				.category(post.getCategory())
+				.wr_date(post.getWr_date())
+				.view_cnt(post.getViewCnt())
+				.recommend_cnt(post.getRecommendations().size())
+				.build();
+		return postsResponseDto;
 	}
 }

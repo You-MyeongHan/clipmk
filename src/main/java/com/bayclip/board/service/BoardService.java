@@ -1,5 +1,6 @@
 package com.bayclip.board.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -8,13 +9,13 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bayclip.board.dto.CommentDto;
 import com.bayclip.board.dto.EditPostRequestDto;
 import com.bayclip.board.dto.PostDto;
 import com.bayclip.board.dto.PostRequestDto;
 import com.bayclip.board.entity.Comment;
 import com.bayclip.board.entity.Post;
 import com.bayclip.board.repository.BoardRepository;
-import com.bayclip.board.repository.CommentRepository;
 import com.bayclip.user.entity.User;
 import com.bayclip.user.repository.UserRepository;
 
@@ -26,23 +27,42 @@ public class BoardService {
 	
 	private final BoardRepository boardRepository;
 	private final UserRepository userRepository;
-	private final CommentRepository commentRepository;
 	
 	
 	@Transactional
 	public PostDto getPostById(Long postId, User user) {
-		Post post=boardRepository.findWithUserNickById(postId);
+		Post post=boardRepository.findById(postId).orElse(null);
 		
 		if(post!=null) {
 			post.setViewCnt(post.getViewCnt()+1);
 			post=boardRepository.save(post);
 			
+			int commentSize=0;
+			
 			PostDto postDto = post.toDto();
+			List<CommentDto> combinedComments = new ArrayList<>();
+			
+			for (Comment comment : post.getComments()) {
+				if(comment.getParent()==null) {
+					commentSize+=1+comment.getReplies().size();
+					combinedComments.add(comment.toDto());
+	                if (commentSize >= 50) {
+	                    break;
+	                }
+				}
+            }
+			
+			postDto.setComments(combinedComments);
 			
 			if(user!=null) {
-				postDto.setRecommend_state(post.getRecommendations().contains(user.getId()));
-				postDto.setRecommend_state(post.getDecommendations().contains(user.getId()));
+				if(post.getRecommendations().contains(user.getId()))
+					postDto.setRecommend_state(1);
+				else if(post.getDecommendations().contains(user.getId()))
+					postDto.setRecommend_state(-1);
+				else
+					postDto.setRecommend_state(0);
 			}
+			
 			return postDto;	        
 		}
 		return null;
@@ -55,23 +75,32 @@ public class BoardService {
 //	}
 	
 	@Transactional
-	public PostDto edit(Long postId, EditPostRequestDto request, User user) {
+	public Boolean edit(Long postId, EditPostRequestDto request, User user) {
 		
 		Post post= boardRepository.findById(postId).orElse(null);
 		
 		if(user!=null) {
-			String newContent=request.getContent();
 			
-			if(newContent != null) {
-				post.setContent(newContent);
-			}
+			if (request.getTitle() != null) {
+                post.setTitle(request.getTitle());
+            }
+            if (request.getCategory() != null) {
+                post.setCategory(request.getCategory());
+            }
+            if (request.getContent() != null) {
+                post.setContent(request.getContent());
+            }
+            if (request.getThumbnail() != null) {
+                post.setThumbnail(request.getThumbnail());
+            }
+            
 			boardRepository.save(post);
 			
-			return getPostById(postId, user);
+			return true;
 
 		}
 		
-		return null;
+		return false;
 	}
 	
 	@Transactional
@@ -102,12 +131,12 @@ public class BoardService {
         }
 	}
 	
-	public Page<Post> findByView_cntGreaterThan(Integer viewCount, Pageable pageable){
+	public Page<Post> findByViewCntGreaterThan(Integer viewCount, Pageable pageable){
 		return boardRepository.findByViewCntGreaterThan(viewCount, pageable);
 	}
 	
-	public Page<Post> findByTitleContaining(Pageable pageable, String searchKeyword){
-		return boardRepository.findByTitleContaining(pageable, searchKeyword);
+	public Page<Post> findByTitleContaining(Pageable pageable, String searchTerm){
+		return boardRepository.findByTitleContaining(pageable, searchTerm);
 	}
 	
 	public Page<Post> findTop10ByUser_IdOrderByIdDesc(Integer userId, Pageable pageable){
@@ -125,7 +154,6 @@ public class BoardService {
 				.category(request.getCategory())
 				.content(request.getContent())
 				.user(user)
-				.nick(user.getNick())
 				.thumbnail(request.getThumbnail())
 				.build();
 		
@@ -142,7 +170,8 @@ public class BoardService {
 		post.updateViewCnt(post.getViewCnt());
 	}
 	
-	public Boolean recommendBoard(Long postId, User user, int value) {
+	@Transactional
+	public Boolean recommend(Long postId, User user, int value) {
 		
 		Post post = boardRepository.findById(postId).orElse(null);
 		if(post!=null) {
@@ -164,7 +193,7 @@ public class BoardService {
 					return true;
 					
 				}
-				else if(value==0) {
+				else if(value==-1) {
 					
 					if(post.getRecommendations().contains(user.getId())) {
 						post.getRecommendations().remove(user.getId());

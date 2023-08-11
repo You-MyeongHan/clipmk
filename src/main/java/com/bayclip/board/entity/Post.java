@@ -46,7 +46,6 @@ import lombok.NoArgsConstructor;
 @DynamicUpdate
 @Entity
 @Table(name="post")
-@NamedEntityGraph(name = "Post.userWithNick", attributeNodes = @NamedAttributeNode(value = "user", subgraph = "userNick"))
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Post {
 	@Id
@@ -66,7 +65,6 @@ public class Post {
     @JoinColumn(name = "user_id")
 	@JsonIgnore
     private User user;
-	private String nick;
 	private String thumbnail;
 	
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -104,8 +102,8 @@ public class Post {
 				.re_date(this.re_date)
 				.del_date(this.del_date)
 				.viewCnt(this.viewCnt)
-				.nick(this.nick)
-				.comments(this.comments)
+				.user_nick(this.user.getNick())
+				.user_id(this.user.getId())
 				.recommend_cnt(this.getRecommendations().size())
 				.decommend_cnt(this.getDecommendations().size())
 				.build();

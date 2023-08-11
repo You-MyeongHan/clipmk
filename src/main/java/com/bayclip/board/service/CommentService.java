@@ -8,9 +8,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bayclip.board.dto.EditCommentRequestDto;
 import com.bayclip.board.entity.Comment;
 import com.bayclip.board.entity.Post;
-import com.bayclip.board.entity.ReplyComment;
 import com.bayclip.board.repository.BoardRepository;
 import com.bayclip.board.repository.CommentRepository;
 import com.bayclip.board.repository.ReplyCommentRepository;
@@ -49,19 +49,19 @@ public class CommentService {
     	Post post = boardRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid Post ID"));
     	
-    	Comment comment = commentRepository.findById(parentId)
+    	Comment parentComment = commentRepository.findById(parentId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid parent comment ID"));
     	
     	
-    	if(post!=null && comment!=null) {
-    		var replyComment= ReplyComment.builder()
+    	if(post!=null && parentComment!=null) {
+    		Comment comment= Comment.builder()
 						.content(content)
 						.user(user)
 						.post(post)
-						.parentComment(comment)
+						.parent(parentComment)
 						.build();
     		
-    		replyCommentRepository.save(replyComment);
+    		commentRepository.save(comment);
 			return true;
     	}
     	else {
@@ -80,12 +80,77 @@ public class CommentService {
     @Transactional
     public boolean deleteComment(Long commentId, User user) {
     	
-    	Comment comment=commentRepository.findById(commentId)
-    			.orElseThrow(()-> new IllegalArgumentException("Comment not found with ID: " + commentId));
+    	Comment comment=commentRepository.findById(commentId).orElseThrow(null);
     	
-    	comment.setDel_date(LocalDateTime.now());
+    	if(user!=null && comment!=null) {
+    		comment.setDel_date(LocalDateTime.now());
+        	commentRepository.save(comment);
+        	return true;
+    	}
     	
-    	commentRepository.save(comment);
-    	return true;
+    	return false;
     }
+    
+    @Transactional
+	public boolean edit(Long commentId, EditCommentRequestDto request, User user) {
+		
+		Comment comment= commentRepository.findById(commentId).orElse(null);
+		
+		if(user!=null && comment!=null) {
+			
+            if (request.getContent() != null) {
+                comment.setContent(request.getContent());
+                commentRepository.save(comment);
+            }
+			
+			return true;
+
+		}
+		
+		return false;
+	}
+    
+    @Transactional
+	public Boolean recommend(Long commentId, User user, int value) {
+		
+		Comment comment= commentRepository.findById(commentId).orElse(null);
+		if(comment!=null && user!=null) {
+			if( value==1) {
+				
+				if(comment.getDecommendations().contains(user.getId())) {
+					comment.getDecommendations().remove(user.getId());
+					commentRepository.save(comment);
+					return true;
+				}
+				
+				if(comment.getRecommendations().contains(user.getId())) {
+					return false;
+				}
+				
+				comment.getRecommendations().add(user.getId());
+				commentRepository.save(comment);
+				return true;
+				
+			}
+			else if(value==-1) {
+				
+				if(comment.getRecommendations().contains(user.getId())) {
+					comment.getRecommendations().remove(user.getId());
+					commentRepository.save(comment);
+					return true;
+				}
+				
+				if(comment.getDecommendations().contains(user.getId())) {
+					return false;
+				}
+				
+				comment.getDecommendations().add(user.getId());
+				commentRepository.save(comment);
+				return true;
+			}
+		}
+		
+		return false;
+	}
+    
 }

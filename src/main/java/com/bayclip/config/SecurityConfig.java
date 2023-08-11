@@ -55,11 +55,13 @@ public class SecurityConfig {
             	.requestMatchers(HttpMethod.PATCH, "/board/post/{post-Id}").authenticated()	//게시물 수정
             	.requestMatchers(HttpMethod.DELETE, "/board/post/{post-Id}").authenticated()	//게시물 삭제
             	.requestMatchers(HttpMethod.GET, "/board/posts/{category}").permitAll()			//게시물 페이징
-            	.requestMatchers(HttpMethod.GET, "/board/best").permitAll()		//베스트 게시물 
+            	.requestMatchers(HttpMethod.GET, "/board/posts/best").permitAll()		//베스트 게시물 
             	.requestMatchers(HttpMethod.PATCH, "/board/post/{post-id}/recommend").authenticated()//게시물 추천
             	.requestMatchers(HttpMethod.POST, "/board/post/{post-id}/comment").authenticated()	//댓글 달기
             	.requestMatchers(HttpMethod.POST, "/board/post/{post-id}/comment/{parent-id}/reply").authenticated()	//대댓글 달기
-            	.requestMatchers(HttpMethod.DELETE, "/board/comment/delete/{commentId}").authenticated()//댓글 삭제
+            	.requestMatchers(HttpMethod.DELETE, "/board/comment/{commentId}").authenticated()//댓글 삭제
+            	.requestMatchers(HttpMethod.PATCH, "/board/comment/{comment-id}").authenticated()//댓글 수정
+            	.requestMatchers(HttpMethod.PATCH, "/board/comment/{comment-id}/recommend").authenticated()//댓글 추천
             	.anyRequest().hasAnyRole("ADMIN"))
 			
 			.sessionManagement((sessionManagement) ->
