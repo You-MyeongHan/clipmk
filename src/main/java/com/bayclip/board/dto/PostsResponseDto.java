@@ -20,7 +20,6 @@ public class PostsResponseDto {
 	private Integer view_cnt;
 	private Integer recommend_cnt;
 
-	
 	public static PostsResponseDto from(Post post) {
 		PostsResponseDto postsResponseDto = PostsResponseDto.builder()
 				.title(post.getTitle())

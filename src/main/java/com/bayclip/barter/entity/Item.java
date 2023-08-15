@@ -1,6 +1,8 @@
 package com.bayclip.barter.entity;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
@@ -9,7 +11,9 @@ import com.bayclip.barter.dto.ItemDto;
 import com.bayclip.user.entity.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -48,6 +52,14 @@ public class Item {
     @JoinColumn(name = "user_id")
 	@JsonIgnore
     private User user;
+	
+	@ElementCollection
+	@CollectionTable(
+		name="item_interested",
+		joinColumns=@JoinColumn(name="item_id")
+	)
+	@Column(name="user_id")
+	private Set<Integer> interested=new HashSet<>();
 	
 	public ItemDto toDto() {
 		ItemDto itemDto = ItemDto.builder()

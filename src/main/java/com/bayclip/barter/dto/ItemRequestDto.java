@@ -1,4 +1,4 @@
-package com.bayclip.barter.controller;
+package com.bayclip.barter.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -10,9 +10,9 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import com.bayclip.board.entity.Post;
 
 public interface BoardRepository extends JpaRepository<Post, Long>,JpaSpecificationExecutor<Post>{
-	public Optional<Post> findById(Long postId);
-	public Page<Post> findByViewCntGreaterThan(Integer viewCount, Pageable pageable);
-	public Page<Post> findByTitleContaining(Pageable pageable, String searchTerm);
-	public Long countByUser_Id(Integer userId);
-	public Page<Post> findTop10ByUser_IdOrderByIdDesc(Integer userId, Pageable pageable);
+	Optional<Post> findById(Long postId);
+	Page<Post> findByViewCntGreaterThan(Integer viewCount, Pageable pageable);
+	Page<Post> findByTitleContaining(Pageable pageable, String searchTerm);
+	Long countByUser_Id(Integer userId);
+	Page<Post> findTop10ByUser_IdOrderByIdDesc(Integer userId, Pageable pageable);
 }

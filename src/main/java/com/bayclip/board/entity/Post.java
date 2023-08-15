@@ -54,13 +54,16 @@ public class Post {
 	private String title;
 	private String category;
 	private String content;
+	
 	@CreationTimestamp
 	private LocalDateTime  wr_date;
 	private LocalDateTime  re_date;
 	private LocalDateTime  del_date;
+	
 	@ColumnDefault("0")
 	@Column(name="view_cnt")
 	private Integer viewCnt;
+	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
 	@JsonIgnore

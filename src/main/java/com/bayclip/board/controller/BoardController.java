@@ -108,7 +108,8 @@ public class BoardController {
 	public ResponseEntity<Page<PostsResponseDto>> posts(
 			@PageableDefault(page=0, size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
 			@PathVariable("category") String category,
-			@RequestParam(value = "searchTerm", defaultValue  = "") String searchTerm){
+			@RequestParam(value = "searchTerm", defaultValue  = "") String searchTerm
+			){
 		
 		Page<PostsResponseDto> posts =null;
 		

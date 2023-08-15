@@ -118,6 +118,7 @@ public class BoardService {
 	}
 	
 	public Page<Post> findAll(Pageable pageable, String category) {
+		
 		Specification<Post> spec = null;
 		if(category !=null && !category.isEmpty()) {
 			spec = (root, query, criteriaBuilder) ->

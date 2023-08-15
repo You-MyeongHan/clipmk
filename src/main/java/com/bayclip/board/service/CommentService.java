@@ -13,7 +13,6 @@ import com.bayclip.board.entity.Comment;
 import com.bayclip.board.entity.Post;
 import com.bayclip.board.repository.BoardRepository;
 import com.bayclip.board.repository.CommentRepository;
-import com.bayclip.board.repository.ReplyCommentRepository;
 import com.bayclip.user.entity.User;
 
 import lombok.RequiredArgsConstructor;
@@ -22,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CommentService {
 	private final CommentRepository commentRepository;
-	private final ReplyCommentRepository replyCommentRepository;
     private final BoardRepository boardRepository;
     
     @Transactional
