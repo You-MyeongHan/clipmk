@@ -40,6 +40,7 @@ public class AuthService implements LogoutHandler{
 		return AuthResponseDto.builder()
 				.accessToken(accessToken)
 				.refreshToken(refreshToken)
+				.id(user.getId())
 				.nick(user.getNick())
 				.email(user.getEmail())
 				.build();

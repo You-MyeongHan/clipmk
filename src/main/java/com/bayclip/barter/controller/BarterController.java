@@ -19,9 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bayclip.barter.dto.DealRequestDto;
 import com.bayclip.barter.dto.EditItemRequestDto;
-import com.bayclip.barter.dto.ItemDto;
-import com.bayclip.barter.dto.ItemRequestDto;
-import com.bayclip.barter.dto.ItemsResponseDto;
+import com.bayclip.barter.dto.ItemReqDto;
+import com.bayclip.barter.dto.ItemResDto;
+import com.bayclip.barter.dto.ItemsResDto;
 import com.bayclip.barter.service.BarterService;
 import com.bayclip.user.entity.User;
 
@@ -34,9 +34,9 @@ public class BarterController {
 	private final BarterService barterService;
 	
 	//아이템 등록
-	@PostMapping("/{itemId}")
+	@PostMapping("/item")
 	public ResponseEntity<Void> register(
-			@RequestBody ItemRequestDto request,
+			@RequestBody ItemReqDto request,
 			@AuthenticationPrincipal User user
 	){
 		if(barterService.register(request, user.getId())) {
@@ -48,9 +48,9 @@ public class BarterController {
 	}
 	
 	//아이템 조회
-	@GetMapping("/{itemId}")
-	public ResponseEntity<ItemDto> getItemById(@PathVariable("itemId") Long itemId){
-		ItemDto itemDto=barterService.getItemById(itemId);
+	@GetMapping("/item/{itemId}")
+	public ResponseEntity<ItemResDto> getItemById(@PathVariable("itemId") Long itemId){
+		ItemResDto itemDto=barterService.getItemById(itemId);
 		
 		if(itemDto != null) {
 			return ResponseEntity.ok(itemDto);
@@ -60,13 +60,13 @@ public class BarterController {
 	}
 	
 	//아이템 수정
-	@PatchMapping("/{item-id}")
-	public ResponseEntity<ItemDto> editItem(
+	@PatchMapping("/item/{item-id}")
+	public ResponseEntity<ItemResDto> editItem(
 			@PathVariable("item-id") Long itemId,
 			@RequestBody EditItemRequestDto request,
 			@AuthenticationPrincipal User user
 	){
-		ItemDto itemDto=barterService.edit(itemId, request, user);
+		ItemResDto itemDto=barterService.edit(itemId, request, user);
 		
 		if(itemDto != null) {
 			return ResponseEntity.ok(itemDto);
@@ -76,7 +76,7 @@ public class BarterController {
 	}
 	
 	//아이템 삭제
-	@DeleteMapping("/{item-id}")
+	@DeleteMapping("/item/{item-id}")
 	public ResponseEntity<Void> deleteItem(
 			@PathVariable("item-id") Long itemId,
 			@AuthenticationPrincipal User user
@@ -92,24 +92,24 @@ public class BarterController {
 	
 	//아이템 페이징
 	@GetMapping("/items")
-	public ResponseEntity<Page<ItemsResponseDto>> items(
+	public ResponseEntity<Page<ItemsResDto>> items(
 			@PageableDefault(page=0, size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
 			@RequestParam(value="category", defaultValue = "") String category,
 			@RequestParam(value = "searchTerm", defaultValue  = "") String searchTerm
 			){
-		Page<ItemsResponseDto> items=null;
+		Page<ItemsResDto> items=null;
 		
 		if(searchTerm.isEmpty()) {
-			items=barterService.findAll(pageable, category).map(ItemsResponseDto::from);
+			items=barterService.findAll(pageable, category).map(ItemsResDto::from);
 		}else {
-			items=barterService.findByTitleContaining(pageable, searchTerm).map(ItemsResponseDto::from);
+			items=barterService.findByTitleContaining(pageable, searchTerm).map(ItemsResDto::from);
 		}
 		
 		return ResponseEntity.ok(items);
 	}
 	
-	//거래 요청
-	@PostMapping("/suggestDeal")
+	//거래 제안
+	@PostMapping("/suggest")
 	public ResponseEntity<Void> suggestDeal(
 			@RequestBody DealRequestDto request,
 			@AuthenticationPrincipal User user
@@ -125,13 +125,30 @@ public class BarterController {
 	}
 	
 	//거래 수락
-	@PostMapping("/accept/{deal-id}")
+	@PostMapping("/accept")
 	public ResponseEntity<Void> acceptDeal(
-			@PathVariable("deal-id") Long dealId,
+			
 			@AuthenticationPrincipal User user
 	){
 		return ResponseEntity.ok().build();
 	}
 	
+	//거래 거절
+	@PostMapping("/reject")
+	public ResponseEntity<Void> rejectDeal(
+			
+			@AuthenticationPrincipal User user
+	){
+		return ResponseEntity.ok().build();
+	}
+	
+	//거래 완료
+	@PostMapping("/complete")
+	public ResponseEntity<Void> completeDeal(
+			
+			@AuthenticationPrincipal User user
+	){
+		return ResponseEntity.ok().build();
+	}
 	
 }

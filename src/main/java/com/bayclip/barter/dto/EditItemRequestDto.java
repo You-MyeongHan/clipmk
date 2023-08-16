@@ -5,5 +5,6 @@ import lombok.Data;
 @Data
 public class EditItemRequestDto {
 	private String title;
+	private String category;
 	private String content;
 }

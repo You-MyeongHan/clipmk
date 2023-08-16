@@ -6,5 +6,6 @@ import lombok.Data;
 public class DealRequestDto {
 	private long fromItemId;
 	private long toItemId;
-	private Integer toUesrId;
+	private String content;
+	private Integer toUserId;
 }

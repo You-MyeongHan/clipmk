@@ -45,8 +45,8 @@ public class AuthController {
         refreshTokenCookie.setHttpOnly(true);
 //        refreshTokenCookie.setSecure(true); // HTTPS에서만 전송되도록 설정 (필요에 따라 변경)
         response.addCookie(refreshTokenCookie);
-
-        LoginResponseDto loginResponse = new LoginResponseDto(authResponse.getNick(), authResponse.getEmail());
+        response.setHeader("access-control-expose-headers", "Authorization");
+        LoginResponseDto loginResponse = new LoginResponseDto(authResponse.getId(), authResponse.getNick(), authResponse.getEmail());
         
         return ResponseEntity.ok(loginResponse);
 	}

@@ -8,8 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.bayclip.barter.dto.DealRequestDto;
 import com.bayclip.barter.dto.EditItemRequestDto;
-import com.bayclip.barter.dto.ItemDto;
-import com.bayclip.barter.dto.ItemRequestDto;
+import com.bayclip.barter.dto.ItemReqDto;
+import com.bayclip.barter.dto.ItemResDto;
 import com.bayclip.barter.entity.Deal;
 import com.bayclip.barter.entity.Item;
 import com.bayclip.barter.repository.BarterRepository;
@@ -27,7 +27,7 @@ public class BarterService {
 	private final UserRepository userRepository;
 	
 	@Transactional
-	public ItemDto getItemById(Long itemId) {
+	public ItemResDto getItemById(Long itemId) {
 		Item item=barterRepository.findItemById(itemId);
 		
 		if(item!=null) {
@@ -38,7 +38,7 @@ public class BarterService {
 	}
 	
 	@Transactional
-	public Boolean register(ItemRequestDto request, Integer userId) {
+	public Boolean register(ItemReqDto request, Integer userId) {
 		
 		User user=userRepository.findById(userId).orElseThrow(()->
 		new IllegalStateException("존재하지 않는 계정입니다."));
@@ -56,7 +56,7 @@ public class BarterService {
 	}
 	
 	@Transactional
-	public ItemDto edit(Long itemId, EditItemRequestDto request, User user) {
+	public ItemResDto edit(Long itemId, EditItemRequestDto request, User user) {
 		
 		Item item= barterRepository.findById(itemId).orElse(null);
 		
@@ -107,18 +107,26 @@ public class BarterService {
 		return barterRepository.findByTitleContaining(pageable, searchTerm);
 	}
 	
-	public boolean suggestDeal(DealRequestDto dealRequestDto, User fromUser) {
+	public boolean suggestDeal(DealRequestDto request, User fromUser) {
 		
-		User toUser = userRepository.findById(dealRequestDto.getToUesrId()).orElse(null);
+		User toUser = userRepository.findById(request.getToUserId()).orElse(null);
+		Item fromItem = barterRepository.findById(request.getFromItemId()).orElse(null);
+		Item toItem = barterRepository.findById(request.getToItemId()).orElse(null);
 		
-		if(fromUser!=null && toUser!=null) {
-			
-			Deal deal= Deal.builder()
-					.
-			
-			dealRepository.save(deal);
+		if(toUser !=null && fromUser !=null) {
+			if(fromItem!=null && toItem!=null) {
+				
+				Deal deal= Deal.builder()
+						.content(request.getContent())
+						.fromItemId(fromItem)
+						.toItemId(toItem)
+						.build();
+						
+				dealRepository.save(deal);
+				return true;
+			}
 		}
 		
-		return true;
+		return false;
 	}
 }

@@ -6,10 +6,14 @@ import java.util.Set;
 
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
-import com.bayclip.barter.dto.ItemDto;
+import com.bayclip.barter.dto.ItemResDto;
 import com.bayclip.user.entity.User;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -31,8 +35,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@DynamicInsert
+@DynamicUpdate
 @Entity
 @Table(name="item")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Item {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -61,8 +68,8 @@ public class Item {
 	@Column(name="user_id")
 	private Set<Integer> interested=new HashSet<>();
 	
-	public ItemDto toDto() {
-		ItemDto itemDto = ItemDto.builder()
+	public ItemResDto toDto() {
+		ItemResDto itemDto = ItemResDto.builder()
 				.id(this.id)
 				.title(this.title)
 				.content(this.content)

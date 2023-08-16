@@ -62,6 +62,13 @@ public class SecurityConfig {
             	.requestMatchers(HttpMethod.DELETE, "/board/comment/{commentId}").authenticated()//댓글 삭제
             	.requestMatchers(HttpMethod.PATCH, "/board/comment/{comment-id}").authenticated()//댓글 수정
             	.requestMatchers(HttpMethod.PATCH, "/board/comment/{comment-id}/recommend").authenticated()//댓글 추천
+            	
+            	//barter 요청
+            	.requestMatchers(HttpMethod.POST, "/barter/item").authenticated()		//아이템 등록
+            	.requestMatchers(HttpMethod.GET, "/barter/item/{item-id}").authenticated()		//아이템 조회
+            	.requestMatchers(HttpMethod.PATCH, "/barter/item/{item-id}").authenticated()		//아이템 수정
+            	.requestMatchers(HttpMethod.DELETE, "/barter/item/{item-id}").authenticated()		//아이템 삭제
+            	.requestMatchers(HttpMethod.POST, "/barter/suggest").authenticated()		//아이템 삭제
             	.anyRequest().hasAnyRole("ADMIN"))
 			
 			.sessionManagement((sessionManagement) ->

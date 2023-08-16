@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 @Builder
 @AllArgsConstructor
-public class ItemsResponseDto {
+public class ItemsResDto {
 	private String title;
 	private Long id;
 	private String nick;
@@ -20,8 +20,8 @@ public class ItemsResponseDto {
 	private Integer view_cnt;
 	private Integer interested_cnt;
 	
-	public static ItemsResponseDto from(Item item) {
-		ItemsResponseDto itemsResponseDto = ItemsResponseDto.builder()
+	public static ItemsResDto from(Item item) {
+		ItemsResDto itemsResponseDto = ItemsResDto.builder()
 				.title(item.getTitle())
 				.id(item.getId())
 				.nick(item.getUser().getNick())
