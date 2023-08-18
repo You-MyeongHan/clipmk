@@ -65,6 +65,7 @@ public class Comment {
     @JoinColumn(name = "parent_id")
     private Comment parent;
 	
+	@Builder.Default
 	@ElementCollection
 	@CollectionTable(
 		name="comment_recommendations",
@@ -73,6 +74,7 @@ public class Comment {
 	@Column(name="user_id")
 	private Set<Integer> recommendations=new HashSet<>();
 	
+	@Builder.Default
 	@ElementCollection
 	@CollectionTable(
 		name="comment_decommendations",
@@ -80,6 +82,7 @@ public class Comment {
 	)
 	private Set<Integer> decommendations=new HashSet<>();
 	
+	@Builder.Default
 	@OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     private List<Comment> replies= new ArrayList<>();
 	

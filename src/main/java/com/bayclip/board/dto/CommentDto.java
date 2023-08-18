@@ -22,8 +22,10 @@ public class CommentDto {
 	private LocalDateTime  del_date;
 	private Integer user_id;
 	private String user_nick;
+	private String parent_nick;
 	private int recommend_cnt;
 	private int decommend_cnt;
+	@Builder.Default
 	private List<CommentDto> replies = new ArrayList<>();
 	
 	public static CommentDto from(Comment comment) {
@@ -34,6 +36,7 @@ public class CommentDto {
         		.del_date(comment.getDel_date())
         		.user_id(comment.getUser().getId())
         		.user_nick(comment.getUser().getNick())
+        		.parent_nick(comment.getParent().getUser().getNick())
         		.recommend_cnt(comment.getRecommendations().size())
         		.decommend_cnt(comment.getDecommendations().size())
         		.build();
@@ -46,5 +49,12 @@ public class CommentDto {
         dto.setReplies(replyDtos);
 
         return dto;
+    }
+	
+	public String getContent() {
+        if (del_date != null) {
+            return "(삭제됨)";
+        }
+        return content;
     }
 }

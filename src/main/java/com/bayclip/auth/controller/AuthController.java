@@ -1,5 +1,6 @@
 package com.bayclip.auth.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,8 +14,10 @@ import com.bayclip.auth.dto.AuthResponseDto;
 import com.bayclip.auth.dto.LoginRequestDto;
 import com.bayclip.auth.dto.LoginResponseDto;
 import com.bayclip.auth.service.AuthService;
+import com.bayclip.config.TokenProvider;
 import com.bayclip.mail.dto.EmailRequestDto;
 import com.bayclip.mail.service.MailService;
+import com.bayclip.user.entity.User;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,9 +28,11 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
-	
+	@Value("${application.security.jwt.secret-key}")
+	private String secretKey;
 	private final AuthService authService;
 	private final MailService mailService;
+	private final TokenProvider tokenProvider;
 	
 	//로그인
 	@PostMapping("/login")
@@ -54,7 +59,6 @@ public class AuthController {
 	//로그아웃
 	@GetMapping("/logout")
 	public ResponseEntity<Void> logout(
-			HttpServletRequest request,
 		    HttpServletResponse response
 	){
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -86,11 +90,19 @@ public class AuthController {
 		return ResponseEntity.ok().build();
 	}
 	
-//	@GetMapping("/renew-token")
-//	  public void refreshToken(
-//	      HttpServletRequest request,
-//	      HttpServletResponse response
-//	  ) throws IOException {
-//		userService.refreshToken(request, response);
-//	  }
+	@PostMapping("/renew-token")
+	public ResponseEntity<Void> refreshToken(
+	    HttpServletRequest request,
+	    HttpServletResponse response
+	) {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication != null && authentication.isAuthenticated()) {
+			Object principal = authentication.getPrincipal();
+			Integer id = ((User) principal).getId();
+			response.setHeader("Authorization", "Bearer " + tokenProvider.generateAccessToken(id.toString()));
+			return ResponseEntity.ok().build();
+		}else {
+			return ResponseEntity.badRequest().build();
+		}	
+	}
 }

@@ -19,6 +19,7 @@ public class PostsResponseDto {
 	private LocalDateTime wr_date;
 	private Integer view_cnt;
 	private Integer recommend_cnt;
+	private Integer comment_cnt;
 
 	public static PostsResponseDto from(Post post) {
 		PostsResponseDto postsResponseDto = PostsResponseDto.builder()
@@ -29,6 +30,7 @@ public class PostsResponseDto {
 				.wr_date(post.getWr_date())
 				.view_cnt(post.getViewCnt())
 				.recommend_cnt(post.getRecommendations().size())
+				.comment_cnt(post.getComments().size())
 				.build();
 		return postsResponseDto;
 	}

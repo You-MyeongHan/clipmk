@@ -163,13 +163,12 @@ public class BoardController {
 	}
 	
 	//댓글 달기
-	@PostMapping("/post/{post-id}/comment")
+	@PostMapping("/post/comment")
 	public ResponseEntity<Void> createComment(
-			@PathVariable(value="post-id") Long postId,
 			@RequestBody CommentCreateDto request,
 			@AuthenticationPrincipal User user){
 		
-		if(commentService.createComment(postId, user, request.getContent())) {
+		if(commentService.createComment(request.getPostId(), user, request.getContent())) {
 			return ResponseEntity.ok().build();
 		}
 		else {
@@ -178,14 +177,13 @@ public class BoardController {
 	}
 	
 	//대댓글 달기
-	@PostMapping("/post/{post-id}/comment/{parent-id}/reply")
-	 public ResponseEntity<Void> createReply(
-			 @PathVariable(value="post-id") Long postId,
+	@PostMapping("/post/comment/{parent-id}/reply")
+	public ResponseEntity<Void> createReply(
 			 @PathVariable(value="parent-id") Long parentId,
 			 @RequestBody CommentCreateDto request,
 			 @AuthenticationPrincipal User user
 	){
-		if(commentService.createReply(postId, parentId, user, request.getContent())) {
+		if(commentService.createReply(request.getPostId(), parentId, user, request.getContent())) {
 			return ResponseEntity.ok().build();
 		}
 		else {

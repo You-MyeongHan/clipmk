@@ -28,8 +28,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.NamedAttributeNode;
-import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.transaction.Transactional;
@@ -53,6 +51,7 @@ public class Post {
 	private Long id;
 	private String title;
 	private String category;
+	@Column(length = 3000)
 	private String content;
 	
 	@CreationTimestamp
@@ -70,9 +69,11 @@ public class Post {
     private User user;
 	private String thumbnail;
 	
+	@Builder.Default
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 	
+	@Builder.Default
 	@ElementCollection
 	@CollectionTable(
 		name="post_recommendations",
@@ -81,6 +82,7 @@ public class Post {
 	@Column(name="user_id")
 	private Set<Integer> recommendations=new HashSet<>();
 	
+	@Builder.Default
 	@ElementCollection
 	@CollectionTable(
 		name="post_decommendations",

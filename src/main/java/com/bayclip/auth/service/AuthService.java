@@ -53,6 +53,7 @@ public class AuthService implements LogoutHandler{
 		    HttpServletResponse response,
 		    Authentication authentication
 	){
+		
 		final String authHeader = request.getHeader("Authorization");
 	    
 	    if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
@@ -60,5 +61,7 @@ public class AuthService implements LogoutHandler{
 	    }
 	    SecurityContextHolder.clearContext();
 	}
+	
+//	public String renew-accessToken
 	
 }

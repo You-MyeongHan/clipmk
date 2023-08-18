@@ -47,7 +47,7 @@ public class SecurityConfig {
 //            	.requestMatchers(HttpMethod.POST, "/auth/auto-logout").authenticated()	//자동 로그아웃
             	.requestMatchers(HttpMethod.POST, "/auth/email-authcode").permitAll()	//email 인증코드 생성
             	.requestMatchers(HttpMethod.GET, "/auth/email-authcode").permitAll()	//email 인증코드 확인
-            	.requestMatchers(HttpMethod.GET, "/auth/renew-token").authenticated()	//토큰 재발급
+            	.requestMatchers(HttpMethod.POST, "/auth/renew-token").permitAll()	//토큰 재발급
             	
             	// board 요청
             	.requestMatchers(HttpMethod.POST, "/board/post").authenticated()		//게시물 등록
