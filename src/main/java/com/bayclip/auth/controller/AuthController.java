@@ -16,8 +16,8 @@ import com.bayclip.auth.dto.LoginResponseDto;
 import com.bayclip.auth.service.AuthService;
 import com.bayclip.config.TokenProvider;
 import com.bayclip.mail.dto.EmailRequestDto;
+import com.bayclip.mail.dto.EmailVerifyRequestDto;
 import com.bayclip.mail.service.MailService;
-import com.bayclip.user.entity.User;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,8 +28,6 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
-	@Value("${application.security.jwt.secret-key}")
-	private String secretKey;
 	private final AuthService authService;
 	private final MailService mailService;
 	private final TokenProvider tokenProvider;
@@ -88,6 +86,19 @@ public class AuthController {
 		mailService.sendVerificationEmail(request.getEmail());
 		
 		return ResponseEntity.ok().build();
+	}
+	
+	@PostMapping("/verify-email")
+	public ResponseEntity<Void> verifyEmail(@RequestBody EmailVerifyRequestDto request){
+		
+		String email = request.getEmail();
+        String authCode = request.getAuthCode();
+		
+		if (mailService.isValidAuthCode(email, authCode)) {
+			return ResponseEntity.ok().build();
+		}else {
+			return ResponseEntity.badRequest().build();
+		}	
 	}
 	
 	@PostMapping("/renew-token")

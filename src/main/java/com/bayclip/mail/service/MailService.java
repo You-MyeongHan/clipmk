@@ -4,6 +4,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +24,7 @@ import software.amazon.awssdk.services.ses.model.SendEmailRequest;
 @RequiredArgsConstructor
 public class MailService {
 	
-    private final StringRedisTemplate stringRedisTemplate;
+	private final RedisTemplate<String, String> redisTemplate;
     
     @Value("${aws.ses.sender}")
 	private String senderEmail;
@@ -41,7 +42,7 @@ public class MailService {
     	//인증번호 생성
     	String verificationCode = generateVerificationCode();
     	//
-    	stringRedisTemplate.opsForValue().set(to, verificationCode, EXPIRATION_MINUTES, TimeUnit.MINUTES);
+    	redisTemplate.opsForValue().set(to, verificationCode, EXPIRATION_MINUTES, TimeUnit.MINUTES);
     	
     	// 이메일 발송
         sendEmailWithSES(to, verificationCode);
@@ -86,4 +87,13 @@ public class MailService {
         // 클라이언트 종료
         sesClient.close();
     }
+	
+	public boolean isValidAuthCode(String email, String authCode) {
+		String storedAuthCode = redisTemplate.opsForValue().get(email);
+		if(storedAuthCode != null && storedAuthCode.equals(authCode)) {
+			return true;
+		}else {
+			return false;
+		}
+	}
 }
