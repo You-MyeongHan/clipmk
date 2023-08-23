@@ -1,7 +1,9 @@
 package com.bayclip.board.service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,9 +18,11 @@ import com.bayclip.board.dto.PostRequestDto;
 import com.bayclip.board.entity.Comment;
 import com.bayclip.board.entity.Post;
 import com.bayclip.board.repository.BoardRepository;
+import com.bayclip.board.repository.CommentRepository;
 import com.bayclip.user.entity.User;
 import com.bayclip.user.repository.UserRepository;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -26,34 +30,50 @@ import lombok.RequiredArgsConstructor;
 public class BoardService {
 	
 	private final BoardRepository boardRepository;
+	private final CommentRepository commentRepository;
 	private final UserRepository userRepository;
 	
 	
 	@Transactional
-	public PostDto getPostById(Long postId, User user) {
+	public PostDto getPostById(Long postId, User user, HttpSession session) {
 		Post post=boardRepository.findById(postId).orElse(null);
+		Set<Long> viewedPostIds = (Set<Long>) session.getAttribute("viewedPostIds");
+		
+		if (viewedPostIds == null) {
+            viewedPostIds = new HashSet<>();
+        }
+		
+		if (!viewedPostIds.contains(postId)) {
+            if (post != null) {
+            	post.setViewCnt(post.getViewCnt()+1);
+                boardRepository.save(post);
+                viewedPostIds.add(postId);
+            }
+        }
+		session.setAttribute("viewedPostIds", viewedPostIds);
 		
 		if(post!=null) {
-			post.setViewCnt(post.getViewCnt()+1);
-			post=boardRepository.save(post);
-			
-			int commentSize=0;
-			
 			PostDto postDto = post.toDto();
-			List<CommentDto> combinedComments = new ArrayList<>();
 			
-			for (Comment comment : post.getComments()) {
-				if(comment.getParent()==null) {
-					commentSize+=1+comment.getReplies().size();
-					combinedComments.add(comment.toDto());
-	                if (commentSize >= 50) {
-	                    break;
-	                }
-				}
-            }
+			List<Comment> comments = commentRepository.findByPostIdAndParentIsNull(postId);
+			List<CommentDto> commentDtos = new ArrayList<>();
 			
-			postDto.setComments(combinedComments);
-			
+			for (Comment comment : comments) {
+	            CommentDto commentDto = CommentDto.from(comment);
+	            List<CommentDto> replyDtos = comment.getReplies();
+	            commentDto.setReplies(replyDtos);
+	            commentDtos.add(commentDto);
+	        }
+//			for (Comment comment : post.getComments()) {
+//				if(comment.getParent()==null) {
+//					commentSize+=1+comment.getReplies().size();
+//					combinedComments.add(comment.toDto());
+//	                if (commentSize >= 50) {
+//	                    break;
+//	                }
+//				}
+//            }
+			postDto.setComments(commentDtos);
 			if(user!=null) {
 				if(post.getRecommendations().contains(user.getId()))
 					postDto.setRecommend_state(1);
@@ -63,7 +83,7 @@ public class BoardService {
 					postDto.setRecommend_state(0);
 			}
 			
-			return postDto;	        
+			return postDto;
 		}
 		return null;
         

@@ -1,5 +1,8 @@
 package com.bayclip.board.controller;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,13 +25,14 @@ import com.bayclip.board.dto.CommentCreateDto;
 import com.bayclip.board.dto.EditCommentRequestDto;
 import com.bayclip.board.dto.EditPostRequestDto;
 import com.bayclip.board.dto.PostDto;
-import com.bayclip.board.dto.RecommendRequestDto;
 import com.bayclip.board.dto.PostRequestDto;
 import com.bayclip.board.dto.PostsResponseDto;
+import com.bayclip.board.dto.RecommendRequestDto;
 import com.bayclip.board.service.BoardService;
 import com.bayclip.board.service.CommentService;
 import com.bayclip.user.entity.User;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -59,10 +63,13 @@ public class BoardController {
 	@GetMapping("/post/{post-id}")
 	public ResponseEntity<PostDto> getPostById(
 			@PathVariable("post-id") Long postId,
+			HttpSession session,
 //			@RequestParam(defaultValue = "50") int pageSize,
 			@AuthenticationPrincipal User user
 	){	
-		PostDto postDto= boardService.getPostById(postId, user);
+		
+		PostDto postDto= boardService.getPostById(postId, user, session);
+		
 		
 		if(postDto != null) {
 			return ResponseEntity.ok(postDto);
@@ -132,22 +139,6 @@ public class BoardController {
 		return ResponseEntity.ok(boards);
 	}
 	
-//	@GetMapping("/posts/{post-Id}/comments")
-//	public ResponseEntity<Page<CommentDto>> getPagedComments(
-//			@PathVariable("post-id") Long postId,
-//	        @RequestParam(defaultValue = "0") int page,
-//	        @RequestParam(defaultValue = "50") int pageSize) {
-//	    Page<Comment> comments = commentService.getPagedComments(postId, page, pageSize);
-//	    
-//	    if (!comments.isEmpty()) {
-//	        Page<CommentDto> commentDtos = comments.toDto();
-//	        return ResponseEntity.ok(commentDtos);
-//	    } else {
-//	        // 댓글이 없는 경우 처리
-//	        return ResponseEntity.notFound().build();
-//	    }
-//	}
-
 	//게시물 추천
 	@PatchMapping("/post/{post-id}/recommend")
 	public ResponseEntity<Boolean> recommendBoard(
@@ -163,7 +154,7 @@ public class BoardController {
 	}
 	
 	//댓글 달기
-	@PostMapping("/post/comment")
+	@PostMapping("/comment")
 	public ResponseEntity<Void> createComment(
 			@RequestBody CommentCreateDto request,
 			@AuthenticationPrincipal User user){
@@ -177,7 +168,7 @@ public class BoardController {
 	}
 	
 	//대댓글 달기
-	@PostMapping("/post/comment/{parent-id}/reply")
+	@PostMapping("/comment/{parent-id}/reply")
 	public ResponseEntity<Void> createReply(
 			 @PathVariable(value="parent-id") Long parentId,
 			 @RequestBody CommentCreateDto request,
@@ -229,7 +220,7 @@ public class BoardController {
 			return ResponseEntity.ok().build();
 		}else {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-		}
-		
+		}	
 	}
+
 }
