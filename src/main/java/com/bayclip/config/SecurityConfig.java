@@ -57,8 +57,8 @@ public class SecurityConfig {
             	.requestMatchers(HttpMethod.GET, "/board/posts/{category}").permitAll()			//게시물 페이징
             	.requestMatchers(HttpMethod.GET, "/board/posts/best").permitAll()		//베스트 게시물 
             	.requestMatchers(HttpMethod.PATCH, "/board/post/{post-id}/recommend").authenticated()//게시물 추천
-            	.requestMatchers(HttpMethod.POST, "/board/post/{post-id}/comment").authenticated()	//댓글 달기
-            	.requestMatchers(HttpMethod.POST, "/board/post/{post-id}/comment/{parent-id}/reply").authenticated()	//대댓글 달기
+            	.requestMatchers(HttpMethod.POST, "/board/comment").authenticated()	//댓글 달기
+            	.requestMatchers(HttpMethod.POST, "/board/comment/{parent-id}/reply").authenticated()	//대댓글 달기
             	.requestMatchers(HttpMethod.DELETE, "/board/comment/{commentId}").authenticated()//댓글 삭제
             	.requestMatchers(HttpMethod.PATCH, "/board/comment/{comment-id}").authenticated()//댓글 수정
             	.requestMatchers(HttpMethod.PATCH, "/board/comment/{comment-id}/recommend").authenticated()//댓글 추천
@@ -68,7 +68,15 @@ public class SecurityConfig {
             	.requestMatchers(HttpMethod.GET, "/barter/item/{item-id}").authenticated()		//아이템 조회
             	.requestMatchers(HttpMethod.PATCH, "/barter/item/{item-id}").authenticated()		//아이템 수정
             	.requestMatchers(HttpMethod.DELETE, "/barter/item/{item-id}").authenticated()		//아이템 삭제
-            	.requestMatchers(HttpMethod.POST, "/barter/suggest").authenticated()		//아이템 삭제
+            	.requestMatchers(HttpMethod.GET, "/barter/items").permitAll()		//아이템 페이징
+            	.requestMatchers(HttpMethod.POST, "/barter/suggest").authenticated()		//거래 제안
+            	.requestMatchers(HttpMethod.POST, "/barter/accept").authenticated()			//거래 수락
+            	
+            	//chat 요청
+            	.requestMatchers(HttpMethod.GET, "/chat/rooms").authenticated()			//채팅방 페이징
+            	.requestMatchers(HttpMethod.GET, "/chat/history").authenticated()		//채팅방 조회
+            	.requestMatchers(HttpMethod.POST, "/chat/send").authenticated()			//메세지 보내기
+            	
             	.anyRequest().hasAnyRole("ADMIN"))
 			
 			.sessionManagement((sessionManagement) ->

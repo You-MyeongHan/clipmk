@@ -2,6 +2,7 @@ package com.bayclip.board.entity;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -10,10 +11,8 @@ import java.util.stream.Collectors;
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.bayclip.board.dto.CommentDto;
-import com.bayclip.board.dto.ReplyCommentDto;
 import com.bayclip.user.entity.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
@@ -66,6 +65,10 @@ public class Comment {
     private Comment parent;
 	
 	@Builder.Default
+	@OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+    private List<Comment> replies= new ArrayList<>();
+	
+	@Builder.Default
 	@ElementCollection
 	@CollectionTable(
 		name="comment_recommendations",
@@ -82,29 +85,15 @@ public class Comment {
 	)
 	private Set<Integer> decommendations=new HashSet<>();
 	
-	@Builder.Default
-	@OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
-    private List<Comment> replies= new ArrayList<>();
-	
-	public CommentDto toDto() {
-		CommentDto dto = CommentDto.builder()
-				.id(this.id)
-				.content(this.content)
-				.wr_date(this.wr_date)
-				.del_date(this.del_date)
-				.user_id(this.user.getId())
-				.user_nick(this.user.getNick())
-				.recommend_cnt(this.recommendations.size())
-				.decommend_cnt(this.decommendations.size())
-				.build();
-
-        List<CommentDto> replyDtos = new ArrayList<>();
-        for (Comment reply : replies) {
-            replyDtos.add(reply.toDto());
+	public List<CommentDto> getReplies(){
+		List<CommentDto> replyDtos = new ArrayList<>();
+        for (Comment reply : this.replies) {
+        	CommentDto replyDto = CommentDto.from(reply);
+            replyDto.setParent_nick(this.getUser().getNick());
+            replyDtos.add(replyDto);
+            replyDtos.addAll(reply.getReplies());
         }
-        dto.setReplies(replyDtos);
-
-        return dto;
+        return replyDtos;
 	}
 	
 }

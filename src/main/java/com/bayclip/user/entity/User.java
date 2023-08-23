@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.bayclip.user.dto.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -44,6 +45,8 @@ public class User implements UserDetails{
 	@Enumerated(EnumType.STRING)
 	@JsonIgnore
 	private Role role;
+	@Column(nullable = false)
+	private Integer point = 0;
 	
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {

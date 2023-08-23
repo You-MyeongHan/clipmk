@@ -11,6 +11,7 @@ import com.bayclip.board.entity.Comment;
 public interface CommentRepository extends JpaRepository<Comment, Long>{
 	List<Comment> findByPostId(Long postId);
 	Page<Comment> findByPostId(Long postId, Pageable pageable);
+	List<Comment> findByPostIdAndParentIsNull(Long postId);
 //	Long countByUser_Id(Integer userId);
 	Page<Comment> findTop10ByUser_IdOrderByIdDesc(Integer userId, Pageable pageable);
 }

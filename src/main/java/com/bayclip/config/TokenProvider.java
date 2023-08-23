@@ -11,6 +11,9 @@ import java.util.function.Function;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.bayclip.user.entity.User;
@@ -73,6 +76,23 @@ public class TokenProvider {
 		HashMap<String, Object> map = new HashMap<>();
 		return generateToken(map, user_id, accessExpiration); 
 	}
+	
+	public String renewAccessToken() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication != null && authentication.isAuthenticated()) {
+			Object principal = authentication.getPrincipal();
+			Integer id = ((User) principal).getId();
+			
+			return generateAccessToken(id.toString());
+		}else {
+			return null;
+		}	
+	}
+	
+	public String generateAccessTokenFromRefreshToken(String refreshToken) {
+        // 리프레시 토큰에서 유저 ID 추출       
+        return generateAccessToken(extractId(refreshToken));
+    }
 	
 	public boolean isTokenValid(String token, User user) {
 		final Integer id=Integer.parseInt(extractId(token));

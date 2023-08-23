@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -54,6 +55,8 @@ public class Item {
 	private LocalDateTime  wr_date;
 	private LocalDateTime  re_date;
 	private LocalDateTime  del_date;
+	@Nullable
+	private String region;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

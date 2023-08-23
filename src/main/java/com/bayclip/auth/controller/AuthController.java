@@ -95,11 +95,9 @@ public class AuthController {
 	    HttpServletRequest request,
 	    HttpServletResponse response
 	) {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication != null && authentication.isAuthenticated()) {
-			Object principal = authentication.getPrincipal();
-			Integer id = ((User) principal).getId();
-			response.setHeader("Authorization", "Bearer " + tokenProvider.generateAccessToken(id.toString()));
+		String accessToken = tokenProvider.renewAccessToken();
+		if (accessToken != null) {
+			response.setHeader("Authorization", "Bearer " + accessToken);
 			return ResponseEntity.ok().build();
 		}else {
 			return ResponseEntity.badRequest().build();

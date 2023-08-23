@@ -17,13 +17,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bayclip.barter.dto.DealAcceptRequestDto;
 import com.bayclip.barter.dto.DealRequestDto;
 import com.bayclip.barter.dto.EditItemRequestDto;
 import com.bayclip.barter.dto.ItemReqDto;
 import com.bayclip.barter.dto.ItemResDto;
 import com.bayclip.barter.dto.ItemsResDto;
+import com.bayclip.barter.entity.Deal;
 import com.bayclip.barter.service.BarterService;
+import com.bayclip.chat.service.ChatService;
 import com.bayclip.user.entity.User;
+import com.bayclip.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -32,6 +36,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BarterController {
 	private final BarterService barterService;
+	private final ChatService chatService;
 	
 	//아이템 등록
 	@PostMapping("/item")
@@ -120,23 +125,33 @@ public class BarterController {
 		}else {
 			return ResponseEntity.notFound().build();
 		}
-		
-		
 	}
 	
 	//거래 수락
 	@PostMapping("/accept")
-	public ResponseEntity<Void> acceptDeal(
-			
+	public ResponseEntity<Long> acceptDeal(
+			@RequestBody DealAcceptRequestDto request,
 			@AuthenticationPrincipal User user
 	){
-		return ResponseEntity.ok().build();
+		Deal deal = barterService.getDealById(request.getDealId());
+		
+		if(deal != null) {
+			if(user.getId() == deal.getToItemId().getUser().getId()) {
+				long chatRoomId = chatService.createChatRoom(deal);
+				barterService.dealOn(deal);
+				return ResponseEntity.ok(chatRoomId);
+			}
+			return ResponseEntity.badRequest().build();
+			
+		}
+		
+		return ResponseEntity.badRequest().build();
+		
 	}
 	
 	//거래 거절
 	@PostMapping("/reject")
 	public ResponseEntity<Void> rejectDeal(
-			
 			@AuthenticationPrincipal User user
 	){
 		return ResponseEntity.ok().build();

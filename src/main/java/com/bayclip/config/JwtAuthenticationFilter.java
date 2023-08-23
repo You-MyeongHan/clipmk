@@ -12,8 +12,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.bayclip.user.entity.User;
 import com.bayclip.user.service.UserService;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -32,17 +34,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 		@NonNull FilterChain filterChain)throws ServletException, IOException{
 		
 		final String authHeader=request.getHeader("Authorization");
-		final String jwt;
-		final String id;
+		String jwt="";
+		String id=null;
 		
-		if(authHeader==null || !authHeader.startsWith("Bearer ")) {
-			filterChain.doFilter(request, response);
-			return;
-		}
+		if (authHeader != null && authHeader.startsWith("Bearer ")) { //액세스 토큰이 있을 때
+            jwt = authHeader.substring(7);
+            try {
+                id = tokenProvider.extractId(jwt); // 액세스 토큰이 있을 때만 추출 시도
+            } catch (Exception e) {
+                // 액세스 토큰이 없는 경우 무시
+            } 
+        }
 		
-		jwt=authHeader.substring(7);
-		id=tokenProvider.extractId(jwt);
-		
+		//액세스 토큰이 있을 때
 		if(id!=null && SecurityContextHolder.getContext().getAuthentication()==null) {
 			User user=userService.loadUserByUsername(id);
 			if(tokenProvider.isTokenValid(jwt,user)) {
@@ -56,7 +60,46 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 				);
 				SecurityContextHolder.getContext().setAuthentication(authToken);
 			}
+
+		}else{ //액세스 토큰이 없을 때
+			String refreshToken = getRefreshTokenFromCookie(request);
+			
+			if(refreshToken==null) {
+				filterChain.doFilter(request,response);
+				return;
+			}
+			
+			id = tokenProvider.extractId(refreshToken);
+			String accessToken=tokenProvider.generateAccessToken(id);
+			response.setHeader("Authorization", "Bearer " + accessToken);
+			
+			User user=userService.loadUserByUsername(id);
+			if(tokenProvider.isTokenValid(accessToken,user)) {
+				UsernamePasswordAuthenticationToken authToken =new UsernamePasswordAuthenticationToken (
+					user,
+					null,
+					user.getAuthorities()
+				);
+				authToken.setDetails(
+					new WebAuthenticationDetailsSource().buildDetails(request)
+				);
+				SecurityContextHolder.getContext().setAuthentication(authToken);
+			}
+
 		}
+		
 		filterChain.doFilter(request,response);
 	}
+	
+	private String getRefreshTokenFromCookie(HttpServletRequest request) {
+		Cookie[] cookies = request.getCookies();
+	    if (cookies != null) {
+	        for (Cookie cookie : cookies) {
+	            if ("refreshToken".equals(cookie.getName())) {
+	                return cookie.getValue();
+	            }
+	        }
+	    }
+	    return null;
+    }
 }

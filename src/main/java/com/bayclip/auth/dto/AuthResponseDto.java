@@ -15,4 +15,5 @@ public class AuthResponseDto {
 	private Integer id;
 	private String nick;
 	private String email;
+	private Integer point;
 }

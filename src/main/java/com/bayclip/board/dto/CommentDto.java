@@ -36,17 +36,9 @@ public class CommentDto {
         		.del_date(comment.getDel_date())
         		.user_id(comment.getUser().getId())
         		.user_nick(comment.getUser().getNick())
-        		.parent_nick(comment.getParent().getUser().getNick())
         		.recommend_cnt(comment.getRecommendations().size())
         		.decommend_cnt(comment.getDecommendations().size())
         		.build();
-        
-
-        List<CommentDto> replyDtos = new ArrayList<>();
-        for (Comment reply : comment.getReplies()) {
-            replyDtos.add(from(reply));
-        }
-        dto.setReplies(replyDtos);
 
         return dto;
     }

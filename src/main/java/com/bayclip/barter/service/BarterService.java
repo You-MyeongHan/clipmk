@@ -26,6 +26,7 @@ public class BarterService {
 	private final DealRepository dealRepository;
 	private final UserRepository userRepository;
 	
+	// 아이템 가져오기
 	@Transactional
 	public ItemResDto getItemById(Long itemId) {
 		Item item=barterRepository.findItemById(itemId);
@@ -37,6 +38,7 @@ public class BarterService {
 		return null;
 	}
 	
+	//아이템 등록
 	@Transactional
 	public Boolean register(ItemReqDto request, Integer userId) {
 		
@@ -55,6 +57,7 @@ public class BarterService {
 		return true;
 	}
 	
+	//아이템 수정
 	@Transactional
 	public ItemResDto edit(Long itemId, EditItemRequestDto request, User user) {
 		
@@ -75,6 +78,7 @@ public class BarterService {
 		return null;
 	}
 	
+	//아이템 삭제
 	@Transactional
 	public boolean delete(Long itemId, User user) {
 		
@@ -89,6 +93,7 @@ public class BarterService {
 		return false;
 	}
 	
+	//아이템 페이징
 	public Page<Item> findAll(Pageable pageable, String category){
 		Specification<Item> spec = null;
 		if(category !=null && !category.isEmpty()) {
@@ -103,10 +108,12 @@ public class BarterService {
         }
 	}
 	
+	//아이템 검색
 	public Page<Item> findByTitleContaining(Pageable pageable, String searchTerm){
 		return barterRepository.findByTitleContaining(pageable, searchTerm);
 	}
 	
+	//거래 제안
 	public boolean suggestDeal(DealRequestDto request, User fromUser) {
 		
 		User toUser = userRepository.findById(request.getToUserId()).orElse(null);
@@ -129,4 +136,15 @@ public class BarterService {
 		
 		return false;
 	}
+	
+	//거래 아이디로 거래 조회
+	public Deal getDealById(long dealId) {
+		return dealRepository.findById(dealId).orElse(null);
+	}
+	
+	public void dealOn(Deal deal) {
+		deal.setStatus(1);
+		dealRepository.save(deal);
+	}
+	
 }
