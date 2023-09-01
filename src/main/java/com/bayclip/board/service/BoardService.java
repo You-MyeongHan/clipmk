@@ -201,16 +201,18 @@ public class BoardService {
 					
 					if(post.getDecommendations().contains(user.getId())) {
 						post.getDecommendations().remove(user.getId());
+						post.getRecommendations().add(user.getId());
 						boardRepository.save(post);
-						return true;
 					}
 					
 					if(post.getRecommendations().contains(user.getId())) {
-						return false;
+						post.getRecommendations().remove(user.getId());
+						boardRepository.save(post);
 					}
-					
-					post.getRecommendations().add(user.getId());
-					boardRepository.save(post);
+					else {
+						post.getRecommendations().add(user.getId());
+						boardRepository.save(post);
+					}
 					return true;
 					
 				}
@@ -218,16 +220,18 @@ public class BoardService {
 					
 					if(post.getRecommendations().contains(user.getId())) {
 						post.getRecommendations().remove(user.getId());
+						post.getDecommendations().add(user.getId());
 						boardRepository.save(post);
-						return true;
 					}
 					
 					if(post.getDecommendations().contains(user.getId())) {
-						return false;
+						post.getDecommendations().remove(user.getId());
+						boardRepository.save(post);
 					}
-					
-					post.getDecommendations().add(user.getId());
-					boardRepository.save(post);
+					else {
+						post.getDecommendations().add(user.getId());
+						boardRepository.save(post);
+					}
 					return true;
 				}
 			}

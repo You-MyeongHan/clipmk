@@ -25,9 +25,9 @@ import com.bayclip.barter.dto.ItemResDto;
 import com.bayclip.barter.dto.ItemsResDto;
 import com.bayclip.barter.entity.Deal;
 import com.bayclip.barter.service.BarterService;
+import com.bayclip.chat.entity.ChatRoom;
 import com.bayclip.chat.service.ChatService;
 import com.bayclip.user.entity.User;
-import com.bayclip.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -53,8 +53,8 @@ public class BarterController {
 	}
 	
 	//아이템 조회
-	@GetMapping("/item/{itemId}")
-	public ResponseEntity<ItemResDto> getItemById(@PathVariable("itemId") Long itemId){
+	@GetMapping("/item/{item-id}")
+	public ResponseEntity<ItemResDto> getItemById(@PathVariable("item-id") Long itemId){
 		ItemResDto itemDto=barterService.getItemById(itemId);
 		
 		if(itemDto != null) {
@@ -137,9 +137,10 @@ public class BarterController {
 		
 		if(deal != null) {
 			if(user.getId() == deal.getToItemId().getUser().getId()) {
-				long chatRoomId = chatService.createChatRoom(deal);
+//				long chatRoomId = chatService.createChatRoom(deal);
+				ChatRoom chatRoom = chatService.createChatRoom(request.getUserId1(),request.getUserId2());
 				barterService.dealOn(deal);
-				return ResponseEntity.ok(chatRoomId);
+				return ResponseEntity.ok(chatRoom.getId());
 			}
 			return ResponseEntity.badRequest().build();
 			

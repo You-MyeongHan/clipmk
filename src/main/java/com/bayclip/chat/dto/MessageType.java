@@ -1,6 +1,7 @@
 package com.bayclip.chat.dto;
 
-public enum MessegeType {
+public enum MessageType {
 	ENTER,
-	TYPE
+	SEND,
+	EXIT
 }

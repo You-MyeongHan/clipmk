@@ -11,7 +11,6 @@ import java.util.function.Function;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -86,9 +85,9 @@ public class TokenProvider {
 			return generateAccessToken(id.toString());
 		}else {
 			return null;
-		}	
+		}
 	}
-	
+
 	public String generateAccessTokenFromRefreshToken(String refreshToken) {
         // 리프레시 토큰에서 유저 ID 추출       
         return generateAccessToken(extractId(refreshToken));

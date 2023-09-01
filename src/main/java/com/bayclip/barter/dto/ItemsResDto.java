@@ -15,6 +15,7 @@ public class ItemsResDto {
 	private String title;
 	private Long id;
 	private String nick;
+	private String content;
 	private String category;
 	private LocalDateTime wr_date;
 	private Integer view_cnt;
@@ -25,6 +26,7 @@ public class ItemsResDto {
 				.title(item.getTitle())
 				.id(item.getId())
 				.nick(item.getUser().getNick())
+				.content(item.getContent())
 				.category(item.getCategory())
 				.wr_date(item.getWr_date())
 				.view_cnt(item.getViewCnt())
