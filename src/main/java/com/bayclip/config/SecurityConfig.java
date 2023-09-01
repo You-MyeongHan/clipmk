@@ -72,18 +72,18 @@ public class SecurityConfig {
             	.requestMatchers(HttpMethod.POST, "/barter/suggest").authenticated()		//거래 제안
             	.requestMatchers(HttpMethod.POST, "/barter/accept").authenticated()			//거래 수락
             	
-            	//chat 요청
-//            	.requestMatchers(HttpMethod.GET, "/chat/rooms").authenticated()			//채팅방 페이징
-//            	.requestMatchers(HttpMethod.GET, "/chat/history").authenticated()		//채팅방 조회
-//            	.requestMatchers(HttpMethod.POST, "/chat/send-message").authenticated()			//메세지 보내기
-            	.anyRequest().permitAll());
-//            	.anyRequest().hasAnyRole("ADMIN"))
-//			
-//			.sessionManagement((sessionManagement) ->
-//            	sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//			.addFilter(corsConfig.corsFilter())
-//			.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-//			.authenticationProvider(authenticationProvider);
+//            	chat 요청
+            	.requestMatchers(HttpMethod.GET, "/chat/rooms").authenticated()			//채팅방 페이징
+            	.requestMatchers(HttpMethod.GET, "/chat/history").authenticated()		//채팅방 조회
+            	.requestMatchers(HttpMethod.POST, "/chat/send-message").authenticated()			//메세지 보내기
+//            	.anyRequest().permitAll());
+            	.anyRequest().hasAnyRole("ADMIN"))
+			
+			.sessionManagement((sessionManagement) ->
+            	sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+			.addFilter(corsConfig.corsFilter())
+			.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+			.authenticationProvider(authenticationProvider);
 		
 		return http.build();
 	}

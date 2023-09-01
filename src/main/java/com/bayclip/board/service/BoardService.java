@@ -197,43 +197,48 @@ public class BoardService {
 		Post post = boardRepository.findById(postId).orElse(null);
 		if(post!=null) {
 			if(user!=null) {
-				if( value==1) {
-					
-					if(post.getDecommendations().contains(user.getId())) {
-						post.getDecommendations().remove(user.getId());
-						post.getRecommendations().add(user.getId());
-						boardRepository.save(post);
-					}
-					
-					if(post.getRecommendations().contains(user.getId())) {
-						post.getRecommendations().remove(user.getId());
-						boardRepository.save(post);
-					}
-					else {
-						post.getRecommendations().add(user.getId());
-						boardRepository.save(post);
-					}
-					return true;
-					
-				}
-				else if(value==-1) {
-					
-					if(post.getRecommendations().contains(user.getId())) {
-						post.getRecommendations().remove(user.getId());
-						post.getDecommendations().add(user.getId());
-						boardRepository.save(post);
-					}
-					
-					if(post.getDecommendations().contains(user.getId())) {
-						post.getDecommendations().remove(user.getId());
-						boardRepository.save(post);
-					}
-					else {
-						post.getDecommendations().add(user.getId());
-						boardRepository.save(post);
-					}
-					return true;
-				}
+				Set<Integer> recommendations = post.getRecommendations();
+		        Set<Integer> decommendations = post.getDecommendations();
+
+		        if (value == 1) {
+		            // 추천 버튼 클릭
+		            if (decommendations.remove(user.getId())) {
+		                // 이미 비추천한 경우, 비추천 제거
+		                boardRepository.save(post);
+		            }
+
+		            if (recommendations.contains(user.getId())) {
+		                // 이미 추천한 경우, 추천 취소
+		                recommendations.remove(user.getId());
+		                boardRepository.save(post);
+		                return true;
+		            }
+
+		            if (recommendations.add(user.getId())) {
+		                // 추천 추가
+		                boardRepository.save(post);
+		                return true;
+		            }
+		        } else if (value == -1) {
+		            // 비추천 버튼 클릭
+		            if (recommendations.remove(user.getId())) {
+		                // 이미 추천한 경우, 추천 제거
+		                boardRepository.save(post);
+		            }
+
+		            if (decommendations.contains(user.getId())) {
+		                // 이미 비추천한 경우, 비추천 취소
+		                decommendations.remove(user.getId());
+		                boardRepository.save(post);
+		                return true;
+		            }
+
+		            if (decommendations.add(user.getId())) {
+		                // 비추천 추가
+		                boardRepository.save(post);
+		                return true;
+		            }
+		        }
 			}
 		}
 		
