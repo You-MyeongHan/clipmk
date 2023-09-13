@@ -34,7 +34,7 @@ public class AuthService implements LogoutHandler{
 		);	
 		var user=userRepository.findByUid(request.getUid())
 				.orElseThrow();
-		var accessToken=tokenProvider.generateAccessToken(user.getId().toString());
+		var accessToken=tokenProvider.generateAccessToken(user.getId().toString(), user.getNick());
 		var refreshToken = tokenProvider.generateRefreshToken(user.getId().toString());
 		
 		return AuthResponseDto.builder()

@@ -15,14 +15,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 	
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws").setAllowedOrigins(frontServer).withSockJS();
+        registry.addEndpoint("/ws").setAllowedOriginPatterns("*").withSockJS();	
     }
 	
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-    	// 메세지 보낼 때 URL
-    	registry.setApplicationDestinationPrefixes("/pub");
     	// 메세지 받을 때 URL
-    	registry.enableSimpleBroker("/sub");
+        registry.enableSimpleBroker("/sub");
+        // 메세지 보낼 때 URL
+        registry.setApplicationDestinationPrefixes("/pub");
     }
 }

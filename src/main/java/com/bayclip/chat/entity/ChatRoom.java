@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -43,10 +44,12 @@ public class ChatRoom {
 	@OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "deal_id")
 	@JsonIgnore
+	@Nullable
     private Deal deal;
 	@CreationTimestamp
     private LocalDateTime createdAt;
 	@ManyToMany
+	@Builder.Default
     @JoinTable(
         name = "chat_room_user",
         joinColumns = @JoinColumn(name = "chat_room_id"),
@@ -56,9 +59,9 @@ public class ChatRoom {
 	
 	public ChatRoomDto toDto(ChatMessage lastMessage) {
 		ChatRoomDto chatRoomDto=ChatRoomDto.builder()
-				.id(this.getId())
-				.lastMessage(lastMessage)
-				.partnerNickname("notYet").build();
+				.roomId(this.getId())
+				.lastMessage(lastMessage.getContent())
+				.receiverNick("notYet").build();
 		return chatRoomDto;
 	}
 	

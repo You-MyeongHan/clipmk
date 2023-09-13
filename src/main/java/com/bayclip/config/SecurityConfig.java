@@ -46,7 +46,7 @@ public class SecurityConfig {
             	.requestMatchers(HttpMethod.GET, "/auth/logout").authenticated()//로그아웃
 //            	.requestMatchers(HttpMethod.POST, "/auth/auto-logout").authenticated()	//자동 로그아웃
             	.requestMatchers(HttpMethod.POST, "/auth/email-authcode").permitAll()	//email 인증코드 생성
-            	.requestMatchers(HttpMethod.POST, "/auth/verify-email").permitAll()	//email 인증코드 확인
+            	.requestMatchers(HttpMethod.POST, "/auth/verify-authcode").permitAll()	//email 인증코드 확인
             	.requestMatchers(HttpMethod.POST, "/auth/renew-token").permitAll()	//토큰 재발급
             	
             	// board 요청
@@ -73,11 +73,12 @@ public class SecurityConfig {
             	.requestMatchers(HttpMethod.POST, "/barter/accept").authenticated()			//거래 수락
             	
 //            	chat 요청
-            	.requestMatchers(HttpMethod.GET, "/chat/rooms").authenticated()			//채팅방 페이징
-            	.requestMatchers(HttpMethod.GET, "/chat/history").authenticated()		//채팅방 조회
-            	.requestMatchers(HttpMethod.POST, "/chat/send-message").authenticated()			//메세지 보내기
-//            	.anyRequest().permitAll());
-            	.anyRequest().hasAnyRole("ADMIN"))
+//            	.requestMatchers(HttpMethod.GET, "/chat/rooms").authenticated()			//채팅방 페이징
+//            	.requestMatchers(HttpMethod.GET, "/chat/history").authenticated()		//채팅방 조회
+//            	.requestMatchers(HttpMethod.POST, "/chat/send-message").authenticated()			//메세지 보내기
+//            	.requestMatchers(HttpMethod.POST, "/chat/room").permitAll()	//채팅방 생성
+            	.anyRequest().permitAll())
+//            	.anyRequest().hasAnyRole("ADMIN"))
 			
 			.sessionManagement((sessionManagement) ->
             	sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

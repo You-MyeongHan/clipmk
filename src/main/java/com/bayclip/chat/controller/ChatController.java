@@ -1,19 +1,20 @@
 package com.bayclip.chat.controller;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bayclip.chat.dto.ChatMessageDto;
 import com.bayclip.chat.dto.ChatRoomDto;
 import com.bayclip.chat.dto.ChatRoomRequestDto;
 import com.bayclip.chat.entity.ChatMessage;
@@ -44,12 +45,14 @@ public class ChatController {
         }
     }
 	
-    @GetMapping("/rooms")
+	//chatRoom 페이징
+    @GetMapping("/rooms/{user-id}")
     public ResponseEntity<List<ChatRoomDto>> getAllChatRooms(
+    		@PathVariable("user-id") Integer userId
 //    		@AuthenticationPrincipal User user
     	) {
     	
-    	List<ChatRoomDto> chatRoomDtos=chatService.getAllChatRoomsDto();
+    	List<ChatRoomDto> chatRoomDtos=chatService.getAllChatRoomsDto(userId);
     	
         if(chatRoomDtos!=null) {
         	return ResponseEntity.ok(chatRoomDtos);
@@ -59,7 +62,7 @@ public class ChatController {
     }
 
     @GetMapping("/history")
-    public ResponseEntity<List<ChatMessage>> getChatHistory(
+    public ResponseEntity<List<ChatMessageDto>> getChatHistory(
     		@RequestParam Long roomId,
     		@AuthenticationPrincipal User user 
     	) {
@@ -73,8 +76,8 @@ public class ChatController {
     @PostMapping("/send-message")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ChatMessage> sendChatMessage(
-    		@RequestBody ChatMessage message,
-    		@AuthenticationPrincipal User user
+    		@RequestBody ChatMessage message
+//    		@AuthenticationPrincipal User user
     	) {
         // 메시지를 저장하고 필요에 따라 수신자에게 전송
         chatService.saveChatMessage(message);

@@ -88,7 +88,7 @@ public class AuthController {
 		return ResponseEntity.ok().build();
 	}
 	
-	@PostMapping("/verify-email")
+	@PostMapping("/verify-authcode")
 	public ResponseEntity<Void> verifyEmail(@RequestBody EmailVerifyRequestDto request){
 		
 		String email = request.getEmail();

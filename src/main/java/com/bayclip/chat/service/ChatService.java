@@ -2,11 +2,13 @@ package com.bayclip.chat.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
 
+import com.bayclip.chat.dto.ChatMessageDto;
 import com.bayclip.chat.dto.ChatRoomDto;
 import com.bayclip.chat.entity.ChatMessage;
 import com.bayclip.chat.entity.ChatRoom;
@@ -37,17 +39,23 @@ public class ChatService {
         return chatRoom;
     }
     
-    public List<ChatRoomDto> getAllChatRoomsDto() {
-    	List<ChatRoom> chatRooms = chatRoomRepository.findAll();
+    public List<ChatRoomDto> getAllChatRoomsDto(Integer userId) {
+    	List<ChatRoom> chatRooms = chatRoomRepository.findByUsers_Id(userId);
     	List<ChatRoomDto> chatRoomDtos = new ArrayList<>();
     	
     	for (ChatRoom chatRoom : chatRooms) {
     		ChatMessage lastMessage=chatMessageRepository.findFirstByChatRoomOrderByCreatedAtDesc(chatRoom);
+
     		ChatRoomDto chatRoomDto = ChatRoomDto.builder()
-    				.id(chatRoom.getId())
-    				.lastMessage(lastMessage)
-    				.partnerNickname("notYet")
+    				.roomId(chatRoom.getId())
+    				.lastMessage(lastMessage.getContent())
     				.build();
+    		for (User user : chatRoom.getUsers()) {
+                if (user.getId() != userId) {
+                	chatRoomDto.setReceiverNick(user.getNick());
+                	chatRoomDto.setReceiverId(user.getId());
+                }
+            }
     		chatRoomDtos.add(chatRoomDto);
     	}
     	return chatRoomDtos;
@@ -66,8 +74,14 @@ public class ChatService {
         return chatRoomRepository.findAll();
     }
 
-    public List<ChatMessage> getChatHistory(ChatRoom chatRoom) {
-        return chatMessageRepository.findByChatRoom(chatRoom);
+    public List<ChatMessageDto> getChatHistory(ChatRoom chatRoom) {
+    	List<ChatMessage> chatMessages = chatMessageRepository.findByChatRoom(chatRoom);
+    	
+    	List<ChatMessageDto> chatMessageDtos = chatMessages.stream()
+                .map(ChatMessage::toDto)
+                .collect(Collectors.toList());
+    	
+        return chatMessageDtos;
     }
 
     public void saveChatMessage(ChatMessage message) {

@@ -71,9 +71,9 @@ public class TokenProvider {
 		return refreshToken;
 	}
 	
-	public String generateAccessToken(String user_id) {
-		HashMap<String, Object> map = new HashMap<>();
-		return generateToken(map, user_id, accessExpiration); 
+	public String generateAccessToken(String user_id, String user_nick) {
+		Map<String, Object> claims = Map.of("user_nick", user_nick);
+		return generateToken(claims, user_id, accessExpiration); 
 	}
 	
 	public String renewAccessToken() {
@@ -81,17 +81,18 @@ public class TokenProvider {
 		if (authentication != null && authentication.isAuthenticated()) {
 			Object principal = authentication.getPrincipal();
 			Integer id = ((User) principal).getId();
+			String nick = ((User) principal).getNick();
 			
-			return generateAccessToken(id.toString());
+			return generateAccessToken(id.toString(),nick);
 		}else {
 			return null;
 		}
 	}
 
-	public String generateAccessTokenFromRefreshToken(String refreshToken) {
-        // 리프레시 토큰에서 유저 ID 추출       
-        return generateAccessToken(extractId(refreshToken));
-    }
+//	public String generateAccessTokenFromRefreshToken(String refreshToken) {
+//        // 리프레시 토큰에서 유저 ID 추출       
+//        return generateAccessToken(extractId(refreshToken));
+//    }
 	
 	public boolean isTokenValid(String token, User user) {
 		final Integer id=Integer.parseInt(extractId(token));

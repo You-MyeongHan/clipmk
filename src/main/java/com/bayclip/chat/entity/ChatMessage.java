@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.bayclip.chat.dto.ChatMessageDto;
 import com.bayclip.chat.dto.MessageType;
 import com.bayclip.user.entity.User;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -48,4 +49,15 @@ public class ChatMessage {
     @ManyToOne
     @JoinColumn(name = "chat_room_id")
     private ChatRoom chatRoom;
+    
+    public ChatMessageDto toDto() {
+    	ChatMessageDto chatMessageDto = ChatMessageDto.builder()
+    			.senderId(this.sender.getId())
+    			.receiverId(this.receiver.getId())
+    			.receiverNick(this.receiver.getNick())
+    			.content(this.content)
+    			.createdAt(this.createdAt)
+    			.build();
+    	return chatMessageDto;
+    }
 }
