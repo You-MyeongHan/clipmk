@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -32,7 +33,10 @@ public class BoardService {
 	private final BoardRepository boardRepository;
 	private final CommentRepository commentRepository;
 	private final UserRepository userRepository;
-	
+	@Value("${point.recommend-post}")
+	private int RPP;	//Recommend Post Point
+	@Value("${point.create-post}")
+	private int CPP;	//Recommend Post Point 
 	
 	@Transactional
 	public PostDto getPostById(Long postId, User user, HttpSession session) {
@@ -169,7 +173,7 @@ public class BoardService {
 		
 		User user=userRepository.findById(userId).orElseThrow(()->
 				new IllegalStateException("존재하지 않는 계정입니다."));
-		
+		Integer point = user.getPoint();
 		Post post=Post.builder()
 				.title(request.getTitle())
 				.category(request.getCategory())
@@ -177,7 +181,8 @@ public class BoardService {
 				.user(user)
 				.thumbnail(request.getThumbnail())
 				.build();
-		
+		point+=CPP;
+		userRepository.save(user);
 		boardRepository.save(post);
 		
 		return true;
@@ -197,48 +202,44 @@ public class BoardService {
 		Post post = boardRepository.findById(postId).orElse(null);
 		if(post!=null) {
 			if(user!=null) {
+				
 				Set<Integer> recommendations = post.getRecommendations();
 		        Set<Integer> decommendations = post.getDecommendations();
-
+		        Integer point = user.getPoint();
 		        if (value == 1) {
 		            // 추천 버튼 클릭
-		            if (decommendations.remove(user.getId())) {
-		                // 이미 비추천한 경우, 비추천 제거
-		                boardRepository.save(post);
+		            if(decommendations.remove(user.getId())) {
+		            	point+=RPP;
 		            }
 
 		            if (recommendations.contains(user.getId())) {
 		                // 이미 추천한 경우, 추천 취소
 		                recommendations.remove(user.getId());
-		                boardRepository.save(post);
-		                return true;
-		            }
-
-		            if (recommendations.add(user.getId())) {
-		                // 추천 추가
-		                boardRepository.save(post);
-		                return true;
+		                point-=RPP;
+		            } else {
+		            	recommendations.add(user.getId());
+		            	point+=RPP;
 		            }
 		        } else if (value == -1) {
 		            // 비추천 버튼 클릭
-		            if (recommendations.remove(user.getId())) {
-		                // 이미 추천한 경우, 추천 제거
-		                boardRepository.save(post);
+		            if(recommendations.remove(user.getId())) {
+		            	point-=RPP;
 		            }
 
 		            if (decommendations.contains(user.getId())) {
 		                // 이미 비추천한 경우, 비추천 취소
 		                decommendations.remove(user.getId());
-		                boardRepository.save(post);
-		                return true;
+		                point+=RPP;
 		            }
-
-		            if (decommendations.add(user.getId())) {
+		            else{
 		                // 비추천 추가
-		                boardRepository.save(post);
-		                return true;
+		            	decommendations.add(user.getId());
+		            	point-=RPP;
 		            }
 		        }
+		        boardRepository.save(post);
+		        userRepository.save(user);
+		        return true;
 			}
 		}
 		

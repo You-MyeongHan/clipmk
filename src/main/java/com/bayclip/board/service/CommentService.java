@@ -2,7 +2,9 @@ package com.bayclip.board.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import com.bayclip.board.entity.Post;
 import com.bayclip.board.repository.BoardRepository;
 import com.bayclip.board.repository.CommentRepository;
 import com.bayclip.user.entity.User;
+import com.bayclip.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,7 +25,12 @@ import lombok.RequiredArgsConstructor;
 public class CommentService {
 	private final CommentRepository commentRepository;
     private final BoardRepository boardRepository;
-    
+    private final UserRepository userRepository;
+    @Value("${point.recommend-comment}")
+	private int RCP;	//Recommend Post Point
+	@Value("${point.create-comment}")
+	private int CCP;	//Recommend Post Point
+	
     @Transactional
     public boolean createComment(Long postId, User user, String content) {
     	Post post = boardRepository.findById(postId)
@@ -46,10 +54,9 @@ public class CommentService {
     	
     	Post post = boardRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid Post ID"));
-    	
     	Comment parentComment = commentRepository.findById(parentId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid parent comment ID"));
-    	
+    	Integer point = user.getPoint();
     	
     	if(post!=null && parentComment!=null) {
     		Comment comment= Comment.builder()
@@ -58,7 +65,8 @@ public class CommentService {
 						.post(post)
 						.parent(parentComment)
 						.build();
-    		
+    		point+=CCP;
+    		userRepository.save(user);
     		commentRepository.save(comment);
 			return true;
     	}
@@ -79,9 +87,12 @@ public class CommentService {
     public boolean deleteComment(Long commentId, User user) {
     	
     	Comment comment=commentRepository.findById(commentId).orElseThrow(null);
+    	Integer point = user.getPoint();
     	
     	if(user!=null && comment!=null) {
     		comment.setDel_date(LocalDateTime.now());
+    		point-=CCP;
+    		userRepository.save(user);
         	commentRepository.save(comment);
         	return true;
     	}
@@ -112,39 +123,46 @@ public class CommentService {
 	public Boolean recommend(Long commentId, User user, int value) {
 		
 		Comment comment= commentRepository.findById(commentId).orElse(null);
-		if(comment!=null && user!=null) {
-			if( value==1) {
+		if(comment!=null) {
+			if(user!=null) {
 				
-				if(comment.getDecommendations().contains(user.getId())) {
-					comment.getDecommendations().remove(user.getId());
-					commentRepository.save(comment);
-					return true;
-				}
-				
-				if(comment.getRecommendations().contains(user.getId())) {
-					return false;
-				}
-				
-				comment.getRecommendations().add(user.getId());
-				commentRepository.save(comment);
-				return true;
-				
-			}
-			else if(value==-1) {
-				
-				if(comment.getRecommendations().contains(user.getId())) {
-					comment.getRecommendations().remove(user.getId());
-					commentRepository.save(comment);
-					return true;
-				}
-				
-				if(comment.getDecommendations().contains(user.getId())) {
-					return false;
-				}
-				
-				comment.getDecommendations().add(user.getId());
-				commentRepository.save(comment);
-				return true;
+				Set<Integer> recommendations = comment.getRecommendations();
+		        Set<Integer> decommendations = comment.getDecommendations();
+		        Integer point = user.getPoint();
+		        if (value == 1) {
+		            // 추천 버튼 클릭
+		            if(decommendations.remove(user.getId())) {
+		            	point+=RCP;
+		            }
+
+		            if (recommendations.contains(user.getId())) {
+		                // 이미 추천한 경우, 추천 취소
+		                recommendations.remove(user.getId());
+		                point-=RCP;
+		            } else {
+		            	recommendations.add(user.getId());
+		            	point+=RCP;
+		            }
+		        } else if (value == -1) {
+		            // 비추천 버튼 클릭
+		            if(recommendations.remove(user.getId())) {
+		            	point-=RCP;
+		            }
+
+		            if (decommendations.contains(user.getId())) {
+		                // 이미 비추천한 경우, 비추천 취소
+		                decommendations.remove(user.getId());
+		                point+=RCP;
+		            }
+		            else{
+		                // 비추천 추가
+		            	decommendations.add(user.getId());
+		            	point-=RCP;
+		            }
+		        }
+		        commentRepository.save(comment);
+		        userRepository.save(user);
+		        return true;
 			}
 		}
 		
