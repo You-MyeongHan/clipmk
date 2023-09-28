@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.bayclip.board.entity.Post;
 import com.bayclip.user.entity.User;
 
 

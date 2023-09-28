@@ -182,6 +182,8 @@ public class BoardService {
 				.thumbnail(request.getThumbnail())
 				.build();
 		point+=CPP;
+		
+		user.setPoint(point);
 		userRepository.save(user);
 		boardRepository.save(post);
 		
@@ -200,12 +202,14 @@ public class BoardService {
 	public Boolean recommend(Long postId, User user, int value) {
 		
 		Post post = boardRepository.findById(postId).orElse(null);
+		User postUser=post.getUser();
+		
 		if(post!=null) {
 			if(user!=null) {
 				
 				Set<Integer> recommendations = post.getRecommendations();
 		        Set<Integer> decommendations = post.getDecommendations();
-		        Integer point = user.getPoint();
+		        Integer point = postUser.getPoint();
 		        if (value == 1) {
 		            // 추천 버튼 클릭
 		            if(decommendations.remove(user.getId())) {
@@ -238,7 +242,8 @@ public class BoardService {
 		            }
 		        }
 		        boardRepository.save(post);
-		        userRepository.save(user);
+		        postUser.setPoint(point);
+		        userRepository.save(postUser);
 		        return true;
 			}
 		}

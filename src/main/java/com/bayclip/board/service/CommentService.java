@@ -123,12 +123,13 @@ public class CommentService {
 	public Boolean recommend(Long commentId, User user, int value) {
 		
 		Comment comment= commentRepository.findById(commentId).orElse(null);
+		User postUser=comment.getUser();
 		if(comment!=null) {
 			if(user!=null) {
 				
 				Set<Integer> recommendations = comment.getRecommendations();
 		        Set<Integer> decommendations = comment.getDecommendations();
-		        Integer point = user.getPoint();
+		        Integer point = postUser.getPoint();
 		        if (value == 1) {
 		            // 추천 버튼 클릭
 		            if(decommendations.remove(user.getId())) {
@@ -161,7 +162,8 @@ public class CommentService {
 		            }
 		        }
 		        commentRepository.save(comment);
-		        userRepository.save(user);
+		        postUser.setPoint(point);
+		        userRepository.save(postUser);
 		        return true;
 			}
 		}

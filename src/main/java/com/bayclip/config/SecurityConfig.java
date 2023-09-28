@@ -65,7 +65,7 @@ public class SecurityConfig {
             	
             	//barter 요청
             	.requestMatchers(HttpMethod.POST, "/barter/item").authenticated()		//아이템 등록
-            	.requestMatchers(HttpMethod.GET, "/barter/item/{item-id}").authenticated()		//아이템 조회
+            	.requestMatchers(HttpMethod.GET, "/barter/item/{item-id}").permitAll()		//아이템 조회
             	.requestMatchers(HttpMethod.PATCH, "/barter/item/{item-id}").authenticated()		//아이템 수정
             	.requestMatchers(HttpMethod.DELETE, "/barter/item/{item-id}").authenticated()		//아이템 삭제
             	.requestMatchers(HttpMethod.GET, "/barter/items").permitAll()		//아이템 페이징

@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import com.bayclip.board.entity.Post;
+import com.bayclip.user.entity.User;
 
 public interface BoardRepository extends JpaRepository<Post, Long>,JpaSpecificationExecutor<Post>{
 	Optional<Post> findById(Long postId);
