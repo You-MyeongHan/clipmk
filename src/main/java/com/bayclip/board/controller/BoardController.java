@@ -16,19 +16,24 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.bayclip.board.dto.CommentCreateDto;
 import com.bayclip.board.dto.EditCommentRequestDto;
 import com.bayclip.board.dto.EditPostRequestDto;
+import com.bayclip.board.dto.FileResponseDto;
 import com.bayclip.board.dto.PostDto;
 import com.bayclip.board.dto.PostRequestDto;
 import com.bayclip.board.dto.PostsResponseDto;
 import com.bayclip.board.dto.RecommendRequestDto;
 import com.bayclip.board.service.BoardService;
 import com.bayclip.board.service.CommentService;
+import com.bayclip.board.service.FileUploadService;
 import com.bayclip.user.entity.User;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
@@ -41,7 +46,19 @@ public class BoardController {
 	private final CommentService commentService;
 	@Value("${application.post.best-post.viewCnt}")
 	private Integer viewCount;
+	private final FileUploadService fileUploadService;
 	
+	//s3 이미지 등록
+    @PostMapping("/s3/upload")
+    public ResponseEntity<FileResponseDto> fileUploadFromCKEditor(HttpServletResponse response,
+                                                               @RequestPart(value = "image", required = false) MultipartFile image) throws Exception {
+
+        return new ResponseEntity<>(FileResponseDto.builder().
+                uploaded(true).
+                url(fileUploadService.upload(image)).
+                build(), HttpStatus.OK);
+    }
+    
 	//게시물 등록
 	@PostMapping("/post")
 	public ResponseEntity<Void> register(

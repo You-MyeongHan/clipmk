@@ -45,10 +45,12 @@ public class AuthController {
         Cookie refreshTokenCookie = new Cookie("refreshToken", authResponse.getRefreshToken());
         refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60); //7 days
         refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setDomain("bayclip.com");
         refreshTokenCookie.setHttpOnly(true);
 //        refreshTokenCookie.setSecure(true); // HTTPS에서만 전송되도록 설정 (필요에 따라 변경)
         response.addCookie(refreshTokenCookie);
         response.setHeader("access-control-expose-headers", "Authorization");
+//        response.setHeader("Set-Cookie", "SameSite=None; Secure");
         LoginResponseDto loginResponse = new LoginResponseDto(authResponse.getId(), authResponse.getNick(), authResponse.getEmail());
         
         return ResponseEntity.ok(loginResponse);

@@ -3,12 +3,16 @@ package com.bayclip.mail.service;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import com.bayclip.user.controller.UserController;
+
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -20,19 +24,20 @@ import software.amazon.awssdk.services.ses.model.Destination;
 import software.amazon.awssdk.services.ses.model.Message;
 import software.amazon.awssdk.services.ses.model.SendEmailRequest;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MailService {
-	
+	private final Logger logger = LoggerFactory.getLogger(UserController.class);
 	private final RedisTemplate<String, String> redisTemplate;
     
-    @Value("${aws.ses.sender}")
+    @Value("${cloud.aws.ses.sender}")
 	private String senderEmail;
     
-    @Value("${aws.ses.access-key}")
+    @Value("${cloud.aws.ses.access-key}")
 	private String accessKey;
     
-    @Value("${aws.ses.secret-key}")
+    @Value("${cloud.aws.ses.secret-key}")
 	private String secretKey;
     
     private static final int EXPIRATION_MINUTES = 5;
@@ -80,7 +85,7 @@ public class MailService {
                 .destination(destination)
                 .message(message)
                 .build();
-
+        
         // 이메일 발송
         sesClient.sendEmail(emailRequest);
 

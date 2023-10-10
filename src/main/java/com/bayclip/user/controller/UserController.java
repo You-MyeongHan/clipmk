@@ -1,5 +1,7 @@
 package com.bayclip.user.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,12 +26,14 @@ import com.bayclip.user.entity.User;
 import com.bayclip.user.service.UserService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
 public class UserController {
-	
+	private final Logger logger = LoggerFactory.getLogger(UserController.class);
 	private final BoardService boardService;
 	private final CommentService commentService;
 	private final UserService userService;
@@ -52,9 +56,12 @@ public class UserController {
 					.posts(boardService.findTop10ByUser_IdOrderByIdDesc(user.getId(), pageable))
 					.comments(commentService.findTop10ByUser_IdOrderByComment_IdDesc(user.getId(), pageable))
 					.build();
+			
+			logger.info("User information retrieved successfully: {}", userInfo);
 			return ResponseEntity.ok(userInfo);
 		}
 		else {
+			logger.warn("Invalid 'act' parameter value: {}", act);
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}
@@ -65,9 +72,11 @@ public class UserController {
 			@RequestBody RegisterRequestDto request
 	){
 		if(userService.register(request)) {
+			logger.info("User registered successfully: {}", request.getUid());;
 			return ResponseEntity.ok().build();
 		}
 		else {
+			logger.warn("User registration failed for uid: {}", request.getUid());
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 		}
 	}
@@ -99,11 +108,13 @@ public class UserController {
 	public ResponseEntity<Void> checkUidDuplication(
 			@RequestBody UidRequestDto request
 	){
-		if(userService.existsByUid(request.getUid())) {
-			return ResponseEntity.ok().build();
+		if(!userService.existsByUid(request.getUid())) {
+			logger.info("UID {} is duplicated.", request.getUid());
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 		}
 		else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+			logger.info("UID {} is not duplicated.", request.getUid());
+			return ResponseEntity.ok().build();
 		}
 		
 	}
@@ -113,10 +124,12 @@ public class UserController {
 	public ResponseEntity<?> checkEmailDuplication(
 			@RequestBody NickRequestDto request){
 		if(userService.existsByNick(request.getNick())) {
-			return ResponseEntity.ok().build();
+			logger.info("UID {} is duplicated.", request.getNick());
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 		}
 		else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+			logger.info("UID {} is duplicated.", request.getNick());
+			return ResponseEntity.ok().build();
 		}
 		
 	}
