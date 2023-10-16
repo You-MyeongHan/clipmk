@@ -1,6 +1,7 @@
 package com.bayclip.board.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -10,7 +11,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bayclip.board.dto.CommentDto;
 import com.bayclip.board.dto.EditCommentRequestDto;
+import com.bayclip.board.dto.PostDto;
+import com.bayclip.board.dto.RecommendCntResponseDto;
 import com.bayclip.board.entity.Comment;
 import com.bayclip.board.entity.Post;
 import com.bayclip.board.repository.BoardRepository;
@@ -31,6 +35,19 @@ public class CommentService {
 	@Value("${point.create-comment}")
 	private int CCP;	//Recommend Post Point
 	
+	public List<CommentDto> getComments(long postId) {
+		List<Comment> comments = commentRepository.findByPostIdAndParentIsNull(postId);
+		List<CommentDto> commentDtos = new ArrayList<>();
+		
+		for (Comment comment : comments) {
+            CommentDto commentDto = CommentDto.from(comment);
+            List<CommentDto> replyDtos = comment.getReplies();
+            commentDto.setReplies(replyDtos);
+            commentDtos.add(commentDto);
+        }
+		return commentDtos;
+	}
+	
     @Transactional
     public boolean createComment(Long postId, User user, String content) {
     	Post post = boardRepository.findById(postId)
@@ -47,6 +64,30 @@ public class CommentService {
     	else {
     		return false;
     	}
+    }
+    
+    @Transactional
+    public RecommendCntResponseDto getRecommendCnt(Long postId, User user) {
+    	Post post = boardRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid Post ID"));
+    	PostDto postDto=post.toDto();
+    	
+    	RecommendCntResponseDto recommendCntResponseDto = RecommendCntResponseDto
+														.builder()
+														.recommend_cnt(postDto.getRecommend_cnt())
+														.decommend_cnt(postDto.getDecommend_cnt())
+														.build();
+    	
+    	if(user!=null) {
+			if(post.getRecommendations().contains(user.getId()))
+				recommendCntResponseDto.setRecommend_state(1);
+			else if(post.getDecommendations().contains(user.getId()))
+				recommendCntResponseDto.setRecommend_state(-1);
+			else
+				recommendCntResponseDto.setRecommend_state(0);
+		}
+    	
+    	return recommendCntResponseDto;
     }
     
     @Transactional

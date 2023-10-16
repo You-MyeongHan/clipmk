@@ -1,6 +1,5 @@
 package com.bayclip.auth.controller;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,10 +13,10 @@ import com.bayclip.auth.dto.AuthResponseDto;
 import com.bayclip.auth.dto.LoginRequestDto;
 import com.bayclip.auth.dto.LoginResponseDto;
 import com.bayclip.auth.service.AuthService;
-import com.bayclip.config.TokenProvider;
-import com.bayclip.mail.dto.EmailRequestDto;
-import com.bayclip.mail.dto.EmailVerifyRequestDto;
-import com.bayclip.mail.service.MailService;
+import com.global.config.TokenProvider;
+import com.infra.email.dto.EmailRequestDto;
+import com.infra.email.dto.EmailVerifyRequestDto;
+import com.infra.email.service.MailService;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -74,6 +73,7 @@ public class AuthController {
 	        Cookie refreshTokenCookie = new Cookie("refreshToken", "");
 	        refreshTokenCookie.setMaxAge(0);
 	        refreshTokenCookie.setPath("/");
+	        refreshTokenCookie.setDomain("bayclip.com");
 	        refreshTokenCookie.setHttpOnly(true);
 	        refreshTokenCookie.setSecure(true); // HTTPS에서만 전송되도록 설정 (필요에 따라 변경)
 	        response.addCookie(refreshTokenCookie);

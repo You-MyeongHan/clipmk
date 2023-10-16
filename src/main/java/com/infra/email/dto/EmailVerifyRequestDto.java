@@ -1,4 +1,4 @@
-package com.bayclip.mail.dto;
+package com.infra.email.dto;
 
 import lombok.Data;
 

@@ -1,5 +1,7 @@
 package com.bayclip.board.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,12 +23,14 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.bayclip.board.dto.CommentCreateDto;
+import com.bayclip.board.dto.CommentDto;
 import com.bayclip.board.dto.EditCommentRequestDto;
 import com.bayclip.board.dto.EditPostRequestDto;
 import com.bayclip.board.dto.FileResponseDto;
 import com.bayclip.board.dto.PostDto;
 import com.bayclip.board.dto.PostRequestDto;
 import com.bayclip.board.dto.PostsResponseDto;
+import com.bayclip.board.dto.RecommendCntResponseDto;
 import com.bayclip.board.dto.RecommendRequestDto;
 import com.bayclip.board.service.BoardService;
 import com.bayclip.board.service.CommentService;
@@ -164,7 +168,34 @@ public class BoardController {
 		}else {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 		}
+	}
+	
+	//게시물 추천 수 조회
+	@GetMapping("/post/{post-id}/recommend")
+	public ResponseEntity<RecommendCntResponseDto> recommendBoard(
+			@PathVariable(value="post-id") Long postId,
+			@AuthenticationPrincipal User user){
 		
+		RecommendCntResponseDto recommendCntResponseDto=commentService.getRecommendCnt(postId,user);
+		
+		if(recommendCntResponseDto!= null) {
+			return ResponseEntity.ok(recommendCntResponseDto);
+		}else {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+		}
+	}
+	
+	//댓글 조회
+	@GetMapping("/comment/{post-id}")
+	public ResponseEntity<List<CommentDto>> getComments(
+			@PathVariable(value="post-id") Long postId,
+			@AuthenticationPrincipal User user){
+		List<CommentDto> commentDtos= commentService.getComments(postId);
+		if(commentDtos != null) {
+			return ResponseEntity.ok(commentDtos);
+		}else {
+			return ResponseEntity.notFound().build();
+		}
 	}
 	
 	//댓글 달기

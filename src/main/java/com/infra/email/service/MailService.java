@@ -1,4 +1,4 @@
-package com.bayclip.mail.service;
+package com.infra.email.service;
 
 import java.util.Random;
 import java.util.concurrent.TimeUnit;

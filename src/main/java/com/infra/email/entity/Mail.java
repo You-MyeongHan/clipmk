@@ -1,4 +1,4 @@
-package com.bayclip.mail.entity;
+package com.infra.email.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

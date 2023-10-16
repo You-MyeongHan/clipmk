@@ -1,4 +1,4 @@
-package com.bayclip.config;
+package com.global.config;
 
 import java.security.Key;
 import java.time.Duration;

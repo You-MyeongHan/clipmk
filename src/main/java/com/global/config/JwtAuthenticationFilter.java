@@ -1,4 +1,4 @@
-package com.bayclip.config;
+package com.global.config;
 
 import java.io.IOException;
 

@@ -1,4 +1,4 @@
-package com.bayclip.config;
+package com.global.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,13 +50,15 @@ public class SecurityConfig {
             	.requestMatchers(HttpMethod.POST, "/auth/renew-token").permitAll()	//토큰 재발급
             	
             	// board 요청
-            	.requestMatchers(HttpMethod.POST, "/board/post").authenticated()		//게시물 등록
+            	.requestMatchers(HttpMethod.POST, "/board/post").permitAll()		//게시물 등록
             	.requestMatchers(HttpMethod.GET, "/board/post/{post-Id}").permitAll()	//게시물 조회
             	.requestMatchers(HttpMethod.PATCH, "/board/post/{post-Id}").authenticated()	//게시물 수정
             	.requestMatchers(HttpMethod.DELETE, "/board/post/{post-Id}").authenticated()	//게시물 삭제
             	.requestMatchers(HttpMethod.GET, "/board/posts/{category}").permitAll()			//게시물 페이징
             	.requestMatchers(HttpMethod.GET, "/board/posts/best").permitAll()		//베스트 게시물 
             	.requestMatchers(HttpMethod.PATCH, "/board/post/{post-id}/recommend").authenticated()//게시물 추천
+            	.requestMatchers(HttpMethod.GET, "/board/post/{post-id}/recommend").permitAll()//게시물 추천
+            	.requestMatchers(HttpMethod.GET, "/board/comment/{post-id}").permitAll()	//댓글 조회
             	.requestMatchers(HttpMethod.POST, "/board/comment").authenticated()	//댓글 달기
             	.requestMatchers(HttpMethod.POST, "/board/comment/{parent-id}/reply").authenticated()	//대댓글 달기
             	.requestMatchers(HttpMethod.DELETE, "/board/comment/{commentId}").authenticated()//댓글 삭제
