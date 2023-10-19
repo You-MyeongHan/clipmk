@@ -3,7 +3,7 @@ package com.bayclip.barter.dto;
 import lombok.Data;
 
 @Data
-public class DealRequestDto {
+public class DealReqDto {
 	private long fromItemId;
 	private long toItemId;
 	private String content;

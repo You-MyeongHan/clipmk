@@ -3,6 +3,6 @@ package com.bayclip.board.dto;
 import lombok.Data;
 
 @Data
-public class RecommendRequestDto {
+public class RecommendReqDto {
 	private int value;
 }

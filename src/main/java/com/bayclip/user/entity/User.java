@@ -46,7 +46,7 @@ public class User implements UserDetails{
 	@JsonIgnore
 	private Role role;
 	@Column(nullable = false)
-	private Integer point = 0;
+	private Integer point;
 	
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {

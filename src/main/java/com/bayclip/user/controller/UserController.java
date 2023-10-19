@@ -2,7 +2,11 @@ package com.bayclip.user.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,12 +19,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bayclip.auth.dto.NickRequestDto;
-import com.bayclip.auth.dto.RegisterRequestDto;
-import com.bayclip.auth.dto.UidRequestDto;
+import com.bayclip.auth.dto.NickReqDto;
+import com.bayclip.auth.dto.RegisterReqDto;
+import com.bayclip.auth.dto.UidReqDto;
+import com.bayclip.barter.dto.ItemsResDto;
+import com.bayclip.barter.service.BarterService;
+import com.bayclip.board.dto.PostsResDto;
 import com.bayclip.board.service.BoardService;
 import com.bayclip.board.service.CommentService;
-import com.bayclip.user.dto.EditUserRequestDto;
+import com.bayclip.user.dto.EditUserReqDto;
 import com.bayclip.user.dto.UserInfoDto;
 import com.bayclip.user.entity.User;
 import com.bayclip.user.service.UserService;
@@ -37,6 +44,7 @@ public class UserController {
 	private final BoardService boardService;
 	private final CommentService commentService;
 	private final UserService userService;
+	private final BarterService barterService;
 	
 	//회원 정보 조회
 	@GetMapping
@@ -68,12 +76,14 @@ public class UserController {
 	
 	//회원 가입
 	@PostMapping
-	public ResponseEntity<Void> register(
-			@RequestBody RegisterRequestDto request
+	public ResponseEntity<Integer> register(
+			@RequestBody RegisterReqDto request
 	){
-		if(userService.register(request)) {
+		
+		int user_id = userService.register(request);
+		if(user_id > 0) {
 			logger.info("User registered successfully: {}", request.getUid());;
-			return ResponseEntity.ok().build();
+			return ResponseEntity.ok(user_id);
 		}
 		else {
 			logger.warn("User registration failed for uid: {}", request.getUid());
@@ -85,15 +95,11 @@ public class UserController {
 	//수정예정
 	@PatchMapping
 	public ResponseEntity<Void> update(
-			@RequestBody EditUserRequestDto request,
+			@RequestBody EditUserReqDto request,
 			@AuthenticationPrincipal User user
 	){
-		if(userService.edit(request, user)) {
-			return ResponseEntity.ok().build();
-		}
-		else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-		}
+		userService.edit(request, user);
+		return ResponseEntity.ok().build();
 	}
 	
 	//회원 탈퇴
@@ -106,39 +112,65 @@ public class UserController {
 	//uid 중복검사
 	@PostMapping("/check-uid")
 	public ResponseEntity<Void> checkUidDuplication(
-			@RequestBody UidRequestDto request
+			@RequestBody UidReqDto request
 	){
-		if(!userService.existsByUid(request.getUid())) {
-			logger.info("UID {} is duplicated.", request.getUid());
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-		}
-		else {
+		if(userService.existsByUid(request.getUid())) {
 			logger.info("UID {} is not duplicated.", request.getUid());
 			return ResponseEntity.ok().build();
 		}
-		
-	}
-	
-	//email 중복검사
-	@PostMapping("/check-nick")
-	public ResponseEntity<?> checkEmailDuplication(
-			@RequestBody NickRequestDto request){
-		if(userService.existsByNick(request.getNick())) {
-			logger.info("UID {} is duplicated.", request.getNick());
+		else {
+			logger.info("UID {} is duplicated.", request.getUid());
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 		}
-		else {
-			logger.info("UID {} is duplicated.", request.getNick());
+		
+	}
+	
+	//닉네임 중복검사
+	@PostMapping("/check-nick")
+	public ResponseEntity<?> checkNickDuplication(
+			@RequestBody NickReqDto request){
+		if(userService.existsByNick(request.getNick())) {
+			logger.info("Nick {} is not duplicated.", request.getNick());
 			return ResponseEntity.ok().build();
+		}
+		else {
+			logger.info("Nick {} is duplicated.", request.getNick());
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 		}
 		
 	}
 	
-//	@GetMapping("/boards")
-//	public ResponseEntity<Page<PostResponse>> boards(
-//			@PageableDefault(page=0, size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable){
-//		
-//		return ResponseEntity.ok(boardService.findByUser_Id(pageable, ).map(PostResponse::from));
-//		
-//	}
+	//유저 아이템 페이징
+	@GetMapping("/items")
+	public ResponseEntity<Page<ItemsResDto>> items(
+			@PageableDefault(page=0, size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
+			@AuthenticationPrincipal User user){
+		
+		 Page<ItemsResDto> itemsResDto=barterService.findByUserId(user.getId(), pageable).map(ItemsResDto::from);
+		
+		return ResponseEntity.ok(itemsResDto);
+	}
+	
+	//유저 아이템 페이징
+	@GetMapping("/posts")
+	public ResponseEntity<Page<PostsResDto>> posts(
+			@PageableDefault(page=0, size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
+			@AuthenticationPrincipal User user){
+		
+		 Page<PostsResDto> postsResDto=boardService.findByUserId(user.getId(), pageable).map(PostsResDto::from);
+		
+		return ResponseEntity.ok(postsResDto);
+	}
+	
+	//유저 아이템 페이징
+	@GetMapping("/comments")
+	public ResponseEntity<Page<ItemsResDto>> comments(
+			@PageableDefault(page=0, size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
+			@AuthenticationPrincipal User user){
+		
+		 Page<ItemsResDto> itemsResDto=barterService.findByUserId(user.getId(), pageable).map(ItemsResDto::from);
+		
+		return ResponseEntity.ok(itemsResDto);
+	}
+
 }

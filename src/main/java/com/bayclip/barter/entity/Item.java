@@ -81,6 +81,8 @@ public class Item {
 				.wr_date(this.wr_date)
 				.re_date(this.re_date)
 				.del_date(this.del_date)
+				.user_id(this.user.getId())
+				.user_nick(this.user.getNick())
 				.build();
 		
 		return itemDto;

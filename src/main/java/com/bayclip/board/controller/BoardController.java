@@ -24,14 +24,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.bayclip.board.dto.CommentCreateDto;
 import com.bayclip.board.dto.CommentDto;
-import com.bayclip.board.dto.EditCommentRequestDto;
-import com.bayclip.board.dto.EditPostRequestDto;
-import com.bayclip.board.dto.FileResponseDto;
+import com.bayclip.board.dto.EditCommentReqDto;
+import com.bayclip.board.dto.EditPostReqDto;
+import com.bayclip.board.dto.FileResDto;
 import com.bayclip.board.dto.PostDto;
-import com.bayclip.board.dto.PostRequestDto;
-import com.bayclip.board.dto.PostsResponseDto;
-import com.bayclip.board.dto.RecommendCntResponseDto;
-import com.bayclip.board.dto.RecommendRequestDto;
+import com.bayclip.board.dto.PostReqDto;
+import com.bayclip.board.dto.PostsResDto;
+import com.bayclip.board.dto.RecommendCntResDto;
+import com.bayclip.board.dto.RecommendReqDto;
 import com.bayclip.board.service.BoardService;
 import com.bayclip.board.service.CommentService;
 import com.bayclip.board.service.FileUploadService;
@@ -54,10 +54,11 @@ public class BoardController {
 	
 	//s3 이미지 등록
     @PostMapping("/s3/upload")
-    public ResponseEntity<FileResponseDto> fileUploadFromCKEditor(HttpServletResponse response,
-                                                               @RequestPart(value = "image", required = false) MultipartFile image) throws Exception {
+    public ResponseEntity<FileResDto> fileUploadFromCKEditor(
+    		HttpServletResponse response,
+            @RequestPart(value = "image", required = false) MultipartFile image) throws Exception {
 
-        return new ResponseEntity<>(FileResponseDto.builder().
+        return new ResponseEntity<>(FileResDto.builder().
                 uploaded(true).
                 url(fileUploadService.upload(image)).
                 build(), HttpStatus.OK);
@@ -66,15 +67,13 @@ public class BoardController {
 	//게시물 등록
 	@PostMapping("/post")
 	public ResponseEntity<Void> register(
-			@RequestBody PostRequestDto request,
+			@RequestBody PostReqDto request,
 			@AuthenticationPrincipal User user
 	){
-		if(boardService.register(request, user.getId())) {
-			return ResponseEntity.ok().build();
-		}
-		else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-		}
+		
+		boardService.register(request, user.getId());
+		
+		return ResponseEntity.ok().build();
 	}
 	
 	//게시물 조회 
@@ -82,33 +81,24 @@ public class BoardController {
 	public ResponseEntity<PostDto> getPostById(
 			@PathVariable("post-id") Long postId,
 			HttpSession session,
-//			@RequestParam(defaultValue = "50") int pageSize,
 			@AuthenticationPrincipal User user
 	){	
 		
 		PostDto postDto= boardService.getPostById(postId, user, session);
 		
-		
-		if(postDto != null) {
-			return ResponseEntity.ok(postDto);
-		} else {
-			return ResponseEntity.notFound().build();
-		}
+		return ResponseEntity.ok(postDto);
 	}
 	
 	//게시물 수정
 	@PatchMapping("/post/{post-id}")
 	public ResponseEntity<Void> editPost(
 			@PathVariable("post-id") Long postId,
-			@RequestBody EditPostRequestDto request,
+			@RequestBody EditPostReqDto request,
 			@AuthenticationPrincipal User user
 	){
 
-		if(boardService.edit(postId, request, user)) {
-			return ResponseEntity.ok().build();
-		} else {
-			return ResponseEntity.notFound().build();
-		}
+		boardService.edit(postId, request, user);
+		return ResponseEntity.ok().build();
 		
 	}
 	
@@ -119,29 +109,25 @@ public class BoardController {
 			@AuthenticationPrincipal User user
 	){	
 		
-		if(boardService.delete(postId, user)) {
-			return ResponseEntity.ok().build();
-		}
-		else{
-			return ResponseEntity.notFound().build();
-		}
+		boardService.delete(postId, user);
+		return ResponseEntity.ok().build();
 	}
 	
 	
 	//게시물 페이징 and 검색
 	@GetMapping("/posts/{category}")
-	public ResponseEntity<Page<PostsResponseDto>> posts(
+	public ResponseEntity<Page<PostsResDto>> posts(
 			@PageableDefault(page=0, size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
 			@PathVariable("category") String category,
 			@RequestParam(value = "searchTerm", defaultValue  = "") String searchTerm
 			){
 		
-		Page<PostsResponseDto> posts =null;
+		Page<PostsResDto> posts =null;
 		
 		if(searchTerm.isEmpty()) {
-			 posts = boardService.findAll(pageable, category).map(PostsResponseDto::from);
+			 posts = boardService.findAll(pageable, category).map(PostsResDto::from);
 		}else {
-			 posts = boardService.findByTitleContaining(pageable, searchTerm).map(PostsResponseDto::from);
+			 posts = boardService.findByTitleContaining(pageable, searchTerm).map(PostsResDto::from);
 		}
 		
 		return ResponseEntity.ok(posts);
@@ -149,11 +135,11 @@ public class BoardController {
 	
 	//베스트 게시물 
 	@GetMapping("/posts/best")
-	public ResponseEntity<Page<PostsResponseDto>> bestPosts(
+	public ResponseEntity<Page<PostsResDto>> bestPosts(
 			@PageableDefault(page=0, size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable){
 		
-		Page<PostsResponseDto> boards =null;
-		boards = boardService.findByViewCntGreaterThan(viewCount, pageable).map(PostsResponseDto::from);
+		Page<PostsResDto> boards =null;
+		boards = boardService.findByViewCntGreaterThan(viewCount, pageable).map(PostsResDto::from);
 		return ResponseEntity.ok(boards);
 	}
 	
@@ -161,22 +147,20 @@ public class BoardController {
 	@PatchMapping("/post/{post-id}/recommend")
 	public ResponseEntity<Boolean> recommendBoard(
 			@PathVariable(value="post-id") Long postId,
-			@RequestBody RecommendRequestDto request,
+			@RequestBody RecommendReqDto request,
 			@AuthenticationPrincipal User user){
-		if(boardService.recommend(postId, user, request.getValue())) {
-			return ResponseEntity.ok().build();
-		}else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-		}
+		
+		boardService.recommend(postId, user, request.getValue());
+		return ResponseEntity.ok().build();
 	}
 	
 	//게시물 추천 수 조회
 	@GetMapping("/post/{post-id}/recommend")
-	public ResponseEntity<RecommendCntResponseDto> recommendBoard(
+	public ResponseEntity<RecommendCntResDto> recommendBoard(
 			@PathVariable(value="post-id") Long postId,
 			@AuthenticationPrincipal User user){
 		
-		RecommendCntResponseDto recommendCntResponseDto=commentService.getRecommendCnt(postId,user);
+		RecommendCntResDto recommendCntResponseDto=commentService.getRecommendCnt(postId,user);
 		
 		if(recommendCntResponseDto!= null) {
 			return ResponseEntity.ok(recommendCntResponseDto);
@@ -204,12 +188,9 @@ public class BoardController {
 			@RequestBody CommentCreateDto request,
 			@AuthenticationPrincipal User user){
 		
-		if(commentService.createComment(request.getPostId(), user, request.getContent())) {
-			return ResponseEntity.ok().build();
-		}
-		else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-		}
+		commentService.createComment(request.getPostId(), user, request.getContent());
+		
+		return ResponseEntity.ok().build();
 	}
 	
 	//대댓글 달기
@@ -219,12 +200,10 @@ public class BoardController {
 			 @RequestBody CommentCreateDto request,
 			 @AuthenticationPrincipal User user
 	){
-		if(commentService.createReply(request.getPostId(), parentId, user, request.getContent())) {
-			return ResponseEntity.ok().build();
-		}
-		else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-		}
+		
+		commentService.createReply(request.getPostId(), parentId, user, request.getContent());
+		
+		return ResponseEntity.ok().build();
 	}
 	
 	//댓글 삭제
@@ -232,26 +211,19 @@ public class BoardController {
 	public ResponseEntity<Void> deleteComment(
 			@PathVariable("commentId") Long commentId,
 			@AuthenticationPrincipal User user){
-		if(commentService.deleteComment(commentId, user)) {
-			return ResponseEntity.ok().build();
-		}
-		else {
-			return ResponseEntity.noContent().build();
-		}
+		commentService.deleteComment(commentId, user);
+		return ResponseEntity.ok().build();
 	}
 	
 	//댓글 수정
 	@PatchMapping("/comment/{comment-id}")
 	public ResponseEntity<Void> editPost(
 			@PathVariable("comment-id") Long commentId,
-			@RequestBody EditCommentRequestDto request,
+			@RequestBody EditCommentReqDto request,
 			@AuthenticationPrincipal User user
 	){
-		if(commentService.edit(commentId, request, user)) {
-			return ResponseEntity.ok().build();
-		} else {
-			return ResponseEntity.notFound().build();
-		}
+		commentService.edit(commentId, request, user);
+		return ResponseEntity.ok().build();
 		
 	}
 	
@@ -259,13 +231,11 @@ public class BoardController {
 	@PatchMapping("/comment/{comment-id}/recommend")
 	public ResponseEntity<Boolean> recommendComment(
 			@PathVariable(value="comment-id") Long commentId,
-			@RequestBody RecommendRequestDto request,
+			@RequestBody RecommendReqDto request,
 			@AuthenticationPrincipal User user){
-		if(commentService.recommend(commentId, user, request.getValue())) {
-			return ResponseEntity.ok().build();
-		}else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-		}	
+		commentService.recommend(commentId, user, request.getValue());
+		return ResponseEntity.ok().build();
+
 	}
 
 }

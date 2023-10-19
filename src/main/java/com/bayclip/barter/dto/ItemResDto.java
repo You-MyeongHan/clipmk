@@ -20,4 +20,7 @@ public class ItemResDto {
 	private LocalDateTime  re_date;
 	private LocalDateTime  del_date;
 	private Integer viewCnt;
+	private String user_nick;
+	private int user_id;
+	
 }

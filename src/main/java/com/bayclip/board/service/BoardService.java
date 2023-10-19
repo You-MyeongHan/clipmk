@@ -13,15 +13,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bayclip.board.dto.CommentDto;
-import com.bayclip.board.dto.EditPostRequestDto;
+import com.bayclip.board.dto.EditPostReqDto;
 import com.bayclip.board.dto.PostDto;
-import com.bayclip.board.dto.PostRequestDto;
+import com.bayclip.board.dto.PostReqDto;
 import com.bayclip.board.entity.Comment;
 import com.bayclip.board.entity.Post;
 import com.bayclip.board.repository.BoardRepository;
 import com.bayclip.board.repository.CommentRepository;
 import com.bayclip.user.entity.User;
 import com.bayclip.user.repository.UserRepository;
+import com.global.error.errorCode.BarterErrorCode;
+import com.global.error.errorCode.BoardErrorCode;
+import com.global.error.errorCode.UserErrorCode;
+import com.global.error.exception.RestApiException;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +44,9 @@ public class BoardService {
 	
 	@Transactional
 	public PostDto getPostById(Long postId, User user, HttpSession session) {
-		Post post=boardRepository.findById(postId).orElse(null);
+		
+		Post post=boardRepository.findById(postId).orElseThrow(
+				()-> new RestApiException(BoardErrorCode.POST_NOT_FOUND));
 		Set<Long> viewedPostIds = (Set<Long>) session.getAttribute("viewedPostIds");
 		
 		if (viewedPostIds == null) {
@@ -48,48 +54,36 @@ public class BoardService {
         }
 		
 		if (!viewedPostIds.contains(postId)) {
-            if (post != null) {
-            	post.setViewCnt(post.getViewCnt()+1);
-                boardRepository.save(post);
-                viewedPostIds.add(postId);
-            }
+        	post.setViewCnt(post.getViewCnt()+1);
+            boardRepository.save(post);
+            viewedPostIds.add(postId);
         }
 		session.setAttribute("viewedPostIds", viewedPostIds);
 		
-		if(post!=null) {
-			PostDto postDto = post.toDto();
-			
-			List<Comment> comments = commentRepository.findByPostIdAndParentIsNull(postId);
-			List<CommentDto> commentDtos = new ArrayList<>();
-			
-			for (Comment comment : comments) {
-	            CommentDto commentDto = CommentDto.from(comment);
-	            List<CommentDto> replyDtos = comment.getReplies();
-	            commentDto.setReplies(replyDtos);
-	            commentDtos.add(commentDto);
-	        }
-//			for (Comment comment : post.getComments()) {
-//				if(comment.getParent()==null) {
-//					commentSize+=1+comment.getReplies().size();
-//					combinedComments.add(comment.toDto());
-//	                if (commentSize >= 50) {
-//	                    break;
-//	                }
-//				}
-//            }
-			postDto.setComments(commentDtos);
-			if(user!=null) {
-				if(post.getRecommendations().contains(user.getId()))
-					postDto.setRecommend_state(1);
-				else if(post.getDecommendations().contains(user.getId()))
-					postDto.setRecommend_state(-1);
-				else
-					postDto.setRecommend_state(0);
-			}
-			
-			return postDto;
+
+		PostDto postDto = post.toDto();
+		
+		List<Comment> comments = commentRepository.findByPostIdAndParentIsNull(postId);
+		List<CommentDto> commentDtos = new ArrayList<>();
+		
+		for (Comment comment : comments) {
+            CommentDto commentDto = CommentDto.from(comment);
+            List<CommentDto> replyDtos = comment.getReplies();
+            commentDto.setReplies(replyDtos);
+            commentDtos.add(commentDto);
+        }
+
+		postDto.setComments(commentDtos);
+		if(user!=null) {
+			if(post.getRecommendations().contains(user.getId()))
+				postDto.setRecommend_state(1);
+			else if(post.getDecommendations().contains(user.getId()))
+				postDto.setRecommend_state(-1);
+			else
+				postDto.setRecommend_state(0);
 		}
-		return null;
+		
+		return postDto;
         
 	}
 	
@@ -99,46 +93,44 @@ public class BoardService {
 //	}
 	
 	@Transactional
-	public Boolean edit(Long postId, EditPostRequestDto request, User user) {
+	public Boolean edit(Long postId, EditPostReqDto request, User user) {
 		
-		Post post= boardRepository.findById(postId).orElse(null);
+		Post post= boardRepository.findById(postId).orElseThrow(
+				()-> new RestApiException(BoardErrorCode.POST_NOT_FOUND));
 		
-		if(user!=null) {
-			
-			if (request.getTitle() != null) {
-                post.setTitle(request.getTitle());
-            }
-            if (request.getCategory() != null) {
-                post.setCategory(request.getCategory());
-            }
-            if (request.getContent() != null) {
-                post.setContent(request.getContent());
-            }
-            if (request.getThumbnail() != null) {
-                post.setThumbnail(request.getThumbnail());
-            }
-            
-			boardRepository.save(post);
-			
-			return true;
-
-		}
+		if (!post.getUser().getId().equals(user.getId())) {
+	        throw new RestApiException(BoardErrorCode.POST_ACCESS_DENIED);
+	    }
 		
-		return false;
+		if (request.getTitle() != null) {
+            post.setTitle(request.getTitle());
+        }
+        if (request.getCategory() != null) {
+            post.setCategory(request.getCategory());
+        }
+        if (request.getContent() != null) {
+            post.setContent(request.getContent());
+        }
+        if (request.getThumbnail() != null) {
+            post.setThumbnail(request.getThumbnail());
+        }
+        
+		boardRepository.save(post);
+		
+		return true;
 	}
 	
 	@Transactional
-	public boolean delete(Long postId, User user) {
+	public void delete(Long postId, User user) {
 		
-		Post post=boardRepository.findById(postId).orElse(null);
+		Post post= boardRepository.findById(postId).orElseThrow(
+				()-> new RestApiException(BoardErrorCode.POST_NOT_FOUND));
 		
-		if(user!=null) {
-			if(post!=null) {
-				boardRepository.delete(post);
-				return true;
-			}
-		}
-		return false;
+		if (!post.getUser().getId().equals(user.getId())) {
+	        throw new RestApiException(BoardErrorCode.POST_ACCESS_DENIED);
+	    }
+		
+		boardRepository.delete(post);
 	}
 	
 	public Page<Post> findAll(Pageable pageable, String category) {
@@ -169,10 +161,11 @@ public class BoardService {
 	}
 	
 	@Transactional
-	public boolean register(PostRequestDto request, Integer userId) {
+	public boolean register(PostReqDto request, Integer userId) {
 		
-		User user=userRepository.findById(userId).orElseThrow(()->
-				new IllegalStateException("존재하지 않는 계정입니다."));
+		User user=userRepository.findById(userId).orElseThrow(
+				()-> new RestApiException(UserErrorCode.USER_NOT_FOUND));
+		
 		Integer point = user.getPoint();
 		Post post=Post.builder()
 				.title(request.getTitle())
@@ -199,55 +192,56 @@ public class BoardService {
 	}
 	
 	@Transactional
-	public Boolean recommend(Long postId, User user, int value) {
+	public void recommend(Long postId, User user, int value) {
 		
-		Post post = boardRepository.findById(postId).orElse(null);
-		User postUser=post.getUser();
-		
-		if(post!=null) {
-			if(user!=null) {
-				
-				Set<Integer> recommendations = post.getRecommendations();
-		        Set<Integer> decommendations = post.getDecommendations();
-		        Integer point = postUser.getPoint();
-		        if (value == 1) {
-		            // 추천 버튼 클릭
-		            if(decommendations.remove(user.getId())) {
-		            	point+=RPP;
-		            }
-
-		            if (recommendations.contains(user.getId())) {
-		                // 이미 추천한 경우, 추천 취소
-		                recommendations.remove(user.getId());
-		                point-=RPP;
-		            } else {
-		            	recommendations.add(user.getId());
-		            	point+=RPP;
-		            }
-		        } else if (value == -1) {
-		            // 비추천 버튼 클릭
-		            if(recommendations.remove(user.getId())) {
-		            	point-=RPP;
-		            }
-
-		            if (decommendations.contains(user.getId())) {
-		                // 이미 비추천한 경우, 비추천 취소
-		                decommendations.remove(user.getId());
-		                point+=RPP;
-		            }
-		            else{
-		                // 비추천 추가
-		            	decommendations.add(user.getId());
-		            	point-=RPP;
-		            }
-		        }
-		        boardRepository.save(post);
-		        postUser.setPoint(point);
-		        userRepository.save(postUser);
-		        return true;
-			}
+		Post post= boardRepository.findById(postId).orElseThrow(
+				()-> new RestApiException(BoardErrorCode.POST_NOT_FOUND));
+		if(user==null) {
+			throw new RestApiException(UserErrorCode.USER_NOT_FOUND);
 		}
-		
-		return false;
+		User postUser=post.getUser();
+			
+		Set<Integer> recommendations = post.getRecommendations();
+        Set<Integer> decommendations = post.getDecommendations();
+        Integer point = postUser.getPoint();
+        if (value == 1) {
+            // 추천 버튼 클릭
+            if(decommendations.remove(user.getId())) {
+            	point+=RPP;
+            }
+
+            if (recommendations.contains(user.getId())) {
+                // 이미 추천한 경우, 추천 취소
+                recommendations.remove(user.getId());
+                point-=RPP;
+            } else {
+            	recommendations.add(user.getId());
+            	point+=RPP;
+            }
+        } else if (value == -1) {
+            // 비추천 버튼 클릭
+            if(recommendations.remove(user.getId())) {
+            	point-=RPP;
+            }
+
+            if (decommendations.contains(user.getId())) {
+                // 이미 비추천한 경우, 비추천 취소
+                decommendations.remove(user.getId());
+                point+=RPP;
+            }
+            else{
+                // 비추천 추가
+            	decommendations.add(user.getId());
+            	point-=RPP;
+            }
+        }
+        boardRepository.save(post);
+        postUser.setPoint(point);
+        userRepository.save(postUser);
+	}
+	
+	public Page<Post> findByUserId(int userId, Pageable pageable){
+		Page<Post> posts = boardRepository.findByUserId(userId, pageable);
+		return posts;
 	}
 }

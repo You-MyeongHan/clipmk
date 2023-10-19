@@ -1,4 +1,4 @@
-package com.bayclip.auth.dto;
+package com.bayclip.board.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginResponseDto {
-	private Integer id;
-	private String nick;
-	private String email;
+public class FileResDto {
+    private boolean uploaded;
+    private String url;
 }

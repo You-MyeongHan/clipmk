@@ -69,7 +69,8 @@ public class FileUploadService {
         final TransferManager transferManager = TransferManagerBuilder.standard()
                                                 .withS3Client(this.amazonS3Client).build();
         // 요청 객체 생성
-        final PutObjectRequest request = new PutObjectRequest(bucket, findName, file);
+        String s3ImagePath = "images/" + findName;
+        final PutObjectRequest request = new PutObjectRequest(bucket, s3ImagePath, file);
         // 업로드 시도
         final Upload upload =  transferManager.upload(request);
 

@@ -3,6 +3,6 @@ package com.bayclip.auth.dto;
 import lombok.Getter;
 
 @Getter
-public class NickRequestDto {
+public class NickReqDto {
 	String nick;
 }

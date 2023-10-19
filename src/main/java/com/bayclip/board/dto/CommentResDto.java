@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class CommentResponseDto {
+public class CommentResDto {
 	private Long id;
 	private String content;
 	private LocalDateTime  wr_date;

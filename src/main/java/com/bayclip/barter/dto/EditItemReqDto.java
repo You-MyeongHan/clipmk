@@ -1,11 +1,10 @@
-package com.bayclip.board.dto;
+package com.bayclip.barter.dto;
 
 import lombok.Data;
 
 @Data
-public class EditPostRequestDto {
+public class EditItemReqDto {
 	private String title;
 	private String category;
 	private String content;
-	private String thumbnail;
 }

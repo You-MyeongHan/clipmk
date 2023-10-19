@@ -9,9 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostRequestDto {
-	private String title;
-	private String category;
-	private String content;
-	private String thumbnail;
+public class RecommendCntResDto {
+	private int recommend_cnt;
+	private int decommend_cnt;
+	private int recommend_state;
 }

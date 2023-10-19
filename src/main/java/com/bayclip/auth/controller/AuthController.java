@@ -9,11 +9,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bayclip.auth.dto.AuthResponseDto;
-import com.bayclip.auth.dto.LoginRequestDto;
-import com.bayclip.auth.dto.LoginResponseDto;
+import com.bayclip.auth.dto.AuthResDto;
+import com.bayclip.auth.dto.LoginReqDto;
+import com.bayclip.auth.dto.LoginResDto;
 import com.bayclip.auth.service.AuthService;
 import com.global.config.TokenProvider;
+import com.global.error.errorCode.AuthErrorCode;
+import com.global.error.exception.RestApiException;
 import com.infra.email.dto.EmailRequestDto;
 import com.infra.email.dto.EmailVerifyRequestDto;
 import com.infra.email.service.MailService;
@@ -33,11 +35,11 @@ public class AuthController {
 	
 	//로그인
 	@PostMapping("/login")
-	public ResponseEntity<LoginResponseDto> authenticate(
-			@RequestBody LoginRequestDto request,
+	public ResponseEntity<LoginResDto> authenticate(
+			@RequestBody LoginReqDto request,
 			HttpServletResponse response
 	){
-		AuthResponseDto authResponse = authService.authenticate(request);
+		AuthResDto authResponse = authService.authenticate(request);
 
         response.setHeader("Authorization", "Bearer " + authResponse.getAccessToken());
 
@@ -50,7 +52,7 @@ public class AuthController {
         response.addCookie(refreshTokenCookie);
         response.setHeader("access-control-expose-headers", "Authorization");
 //        response.setHeader("Set-Cookie", "SameSite=None; Secure");
-        LoginResponseDto loginResponse = new LoginResponseDto(authResponse.getId(), authResponse.getNick(), authResponse.getEmail());
+        LoginResDto loginResponse = new LoginResDto(authResponse.getId(), authResponse.getNick(), authResponse.getEmail());
         
         return ResponseEntity.ok(loginResponse);
 	}
@@ -77,9 +79,12 @@ public class AuthController {
 	        refreshTokenCookie.setHttpOnly(true);
 	        refreshTokenCookie.setSecure(true); // HTTPS에서만 전송되도록 설정 (필요에 따라 변경)
 	        response.addCookie(refreshTokenCookie);
+	        
+	        return ResponseEntity.ok().build();
+	    }else {
+	    	throw new RestApiException(AuthErrorCode.INVALID_TOKEN);
 	    }
 		
-		return ResponseEntity.ok().build();
 	}
 	
 	@PostMapping("/email-authcode")
@@ -99,7 +104,7 @@ public class AuthController {
 		if (mailService.isValidAuthCode(email, authCode)) {
 			return ResponseEntity.ok().build();
 		}else {
-			return ResponseEntity.badRequest().build();
+			throw new RestApiException(AuthErrorCode.INVALID_AUTHCODE);
 		}	
 	}
 	

@@ -3,6 +3,6 @@ package com.bayclip.user.dto;
 import lombok.Data;
 
 @Data
-public class EditUserRequestDto {
+public class EditUserReqDto {
 	private String nick;
 }

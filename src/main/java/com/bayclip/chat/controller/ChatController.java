@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bayclip.chat.dto.ChatMessageDto;
 import com.bayclip.chat.dto.ChatRoomDto;
-import com.bayclip.chat.dto.ChatRoomRequestDto;
+import com.bayclip.chat.dto.ChatRoomReqDto;
 import com.bayclip.chat.entity.ChatMessage;
 import com.bayclip.chat.entity.ChatRoom;
 import com.bayclip.chat.repository.ChatRoomRepository;
@@ -34,7 +34,7 @@ public class ChatController {
 	
 	@PostMapping("/room")
     public ResponseEntity<Void> createChatRoom(
-    		@RequestBody ChatRoomRequestDto request
+    		@RequestBody ChatRoomReqDto request
     		) {
         ChatRoom chatRoom = chatService.createChatRoom(request.getUserId1(), request.getUserId2());
         if(chatRoom!=null) {

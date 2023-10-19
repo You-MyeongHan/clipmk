@@ -8,8 +8,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Service;
 
-import com.bayclip.auth.dto.AuthResponseDto;
-import com.bayclip.auth.dto.LoginRequestDto;
+import com.bayclip.auth.dto.AuthResDto;
+import com.bayclip.auth.dto.LoginReqDto;
 import com.bayclip.user.repository.UserRepository;
 import com.global.config.TokenProvider;
 import com.global.error.errorCode.AuthErrorCode;
@@ -27,7 +27,7 @@ public class AuthService implements LogoutHandler{
 	private final TokenProvider tokenProvider;
 	private final AuthenticationManager authenticationManager;
 
-	public AuthResponseDto authenticate(LoginRequestDto request) {
+	public AuthResDto authenticate(LoginReqDto request) {
 		var user=userRepository.findByUid(request.getUid())
 				.orElseThrow(()-> new RestApiException(AuthErrorCode.INVALID_CREDENTIALS));
 		
@@ -45,7 +45,7 @@ public class AuthService implements LogoutHandler{
 		var accessToken=tokenProvider.generateAccessToken(user.getId().toString(), user.getNick());
 		var refreshToken = tokenProvider.generateRefreshToken(user.getId().toString());
 		
-		return AuthResponseDto.builder()
+		return AuthResDto.builder()
 				.accessToken(accessToken)
 				.refreshToken(refreshToken)
 				.id(user.getId())
@@ -54,7 +54,6 @@ public class AuthService implements LogoutHandler{
 				.build();
 	}
 	
-	//수정 필요
 	@Override
 	public void logout(
 			HttpServletRequest request,
@@ -69,7 +68,5 @@ public class AuthService implements LogoutHandler{
 	    }
 	    SecurityContextHolder.clearContext();
 	}
-	
-//	public String renew-accessToken
 	
 }

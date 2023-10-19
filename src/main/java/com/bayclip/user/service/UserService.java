@@ -5,11 +5,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.bayclip.auth.dto.RegisterRequestDto;
-import com.bayclip.user.dto.EditUserRequestDto;
+import com.bayclip.auth.dto.RegisterReqDto;
+import com.bayclip.user.dto.EditUserReqDto;
 import com.bayclip.user.dto.Role;
 import com.bayclip.user.entity.User;
 import com.bayclip.user.repository.UserRepository;
+import com.global.error.errorCode.UserErrorCode;
+import com.global.error.exception.RestApiException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,7 +23,11 @@ public class UserService implements UserDetailsService{
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	
-	public boolean register(RegisterRequestDto request) {
+	public int register(RegisterReqDto request) {
+		
+		if (userRepository.existsByUidOrNickOrEmail(request.getUid(), request.getNick(), request.getEmail())) {
+			throw new RestApiException(UserErrorCode.DUPLICATE_USER);
+	    }
 		
 		var user=User.builder()
 				.uid(request.getUid())
@@ -30,24 +36,23 @@ public class UserService implements UserDetailsService{
 				.email(request.getEmail())
 				.emailReceive(request.getEmailReceive())
 				.role(Role.USER)
+				.point(0)
 				.build();
-		userRepository.save(user);
+		User savedUser = userRepository.save(user);
 		
-		return true;
+		return savedUser.getId();
 	}
 	
-	public boolean edit(EditUserRequestDto request, User user) {
+	public void edit(EditUserReqDto request, User user) {
 		
-		if(user != null) {
-			String newNick=request.getNick();
-			
-			if(newNick != null) {
-				user.setNick(newNick);
-			}
-			userRepository.save(user);
-			return true;
+		String newNick=request.getNick();
+		if(newNick != null) {
+			throw new RestApiException(UserErrorCode.NICK_NOT_FOUND);
 		}
-		return false;
+		
+		user.setNick(newNick);
+		userRepository.save(user);
+	
 	}
 	
 	@Override

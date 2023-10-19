@@ -40,6 +40,9 @@ public class SecurityConfig {
             	.requestMatchers(HttpMethod.DELETE, "/user").authenticated()//회원 탈퇴
             	.requestMatchers(HttpMethod.POST, "/user/check-uid").permitAll()	//uid 중복검사
             	.requestMatchers(HttpMethod.POST, "/user/check-nick").permitAll()	//nick 중복검사
+            	.requestMatchers(HttpMethod.GET, "/user/items").authenticated()	//유저 아이템 페이징
+            	.requestMatchers(HttpMethod.GET, "/user/posts").authenticated()	//유저 게시글 페이징
+            	.requestMatchers(HttpMethod.GET, "/user/comments").authenticated()	//유저 댓글 페이징
             	
             	// auth 요청
             	.requestMatchers(HttpMethod.POST, "/auth/login").permitAll()	//로그인

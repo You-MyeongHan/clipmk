@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 @Builder
 @AllArgsConstructor
-public class PostsResponseDto {
+public class PostsResDto {
 	private String title;
 	private Long id;
 	private String nick;
@@ -21,8 +21,8 @@ public class PostsResponseDto {
 	private Integer recommend_cnt;
 	private Integer comment_cnt;
 
-	public static PostsResponseDto from(Post post) {
-		PostsResponseDto postsResponseDto = PostsResponseDto.builder()
+	public static PostsResDto from(Post post) {
+		PostsResDto postsResponseDto = PostsResDto.builder()
 				.title(post.getTitle())
 				.nick(post.getUser().getNick())
 				.id(post.getId())

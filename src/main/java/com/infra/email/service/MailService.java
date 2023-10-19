@@ -10,6 +10,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.bayclip.user.controller.UserController;
+import com.global.error.errorCode.AuthErrorCode;
+import com.global.error.exception.RestApiException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +25,7 @@ import software.amazon.awssdk.services.ses.model.Content;
 import software.amazon.awssdk.services.ses.model.Destination;
 import software.amazon.awssdk.services.ses.model.Message;
 import software.amazon.awssdk.services.ses.model.SendEmailRequest;
+import software.amazon.awssdk.services.ses.model.SesException;
 
 @Slf4j
 @Service
@@ -85,9 +88,12 @@ public class MailService {
                 .destination(destination)
                 .message(message)
                 .build();
-        
-        // 이메일 발송
-        sesClient.sendEmail(emailRequest);
+        try {
+        	// 이메일 발송
+            sesClient.sendEmail(emailRequest);
+        } catch(SesException e) {
+        	throw new RestApiException(AuthErrorCode.SES_ERROR);
+        }
 
         // 클라이언트 종료
         sesClient.close();
