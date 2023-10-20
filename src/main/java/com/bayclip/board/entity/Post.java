@@ -50,7 +50,8 @@ public class Post {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String title;
-	private String category;
+	private String tbl;
+	private String grp;
 	@Column(length = 3000)
 	private String content;
 	
@@ -100,7 +101,8 @@ public class Post {
 		PostDto postDto = PostDto.builder()
 				.id(this.id)
 				.title(this.title)
-				.category(this.category)
+				.tbl(this.tbl)
+				.grp(this.grp)
 				.content(this.content)
 				.thumbnail(this.thumbnail)
 				.wr_date(this.wr_date)

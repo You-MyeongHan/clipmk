@@ -12,10 +12,11 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 public class PostsResDto {
-	private String title;
 	private Long id;
+	private String title;
+	private String tbl;
+	private String grp;
 	private String nick;
-	private String category;
 	private LocalDateTime wr_date;
 	private Integer view_cnt;
 	private Integer recommend_cnt;
@@ -26,7 +27,8 @@ public class PostsResDto {
 				.title(post.getTitle())
 				.nick(post.getUser().getNick())
 				.id(post.getId())
-				.category(post.getCategory())
+				.tbl(post.getTbl())
+				.grp(post.getGrp())
 				.wr_date(post.getWr_date())
 				.view_cnt(post.getViewCnt())
 				.recommend_cnt(post.getRecommendations().size())

@@ -16,7 +16,8 @@ import lombok.NoArgsConstructor;
 public class PostDto{
 	private Long id;
 	private String title;
-	private String category;
+	private String tbl;
+	private String grp;
 	private String content;
 	private String thumbnail;
 	private LocalDateTime  wr_date;

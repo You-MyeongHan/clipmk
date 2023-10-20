@@ -115,17 +115,18 @@ public class BoardController {
 	
 	
 	//게시물 페이징 and 검색
-	@GetMapping("/posts/{category}")
+	@GetMapping("/posts/{table}")
 	public ResponseEntity<Page<PostsResDto>> posts(
 			@PageableDefault(page=0, size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
-			@PathVariable("category") String category,
+			@PathVariable("table") String table,
+			@RequestParam(value="group", defaultValue  = "") String group,
 			@RequestParam(value = "searchTerm", defaultValue  = "") String searchTerm
 			){
 		
 		Page<PostsResDto> posts =null;
 		
 		if(searchTerm.isEmpty()) {
-			 posts = boardService.findAll(pageable, category).map(PostsResDto::from);
+			 posts = boardService.findAll(pageable, table, group).map(PostsResDto::from);
 		}else {
 			 posts = boardService.findByTitleContaining(pageable, searchTerm).map(PostsResDto::from);
 		}

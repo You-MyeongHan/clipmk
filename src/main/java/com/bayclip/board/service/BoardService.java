@@ -22,7 +22,6 @@ import com.bayclip.board.repository.BoardRepository;
 import com.bayclip.board.repository.CommentRepository;
 import com.bayclip.user.entity.User;
 import com.bayclip.user.repository.UserRepository;
-import com.global.error.errorCode.BarterErrorCode;
 import com.global.error.errorCode.BoardErrorCode;
 import com.global.error.errorCode.UserErrorCode;
 import com.global.error.exception.RestApiException;
@@ -105,8 +104,11 @@ public class BoardService {
 		if (request.getTitle() != null) {
             post.setTitle(request.getTitle());
         }
-        if (request.getCategory() != null) {
-            post.setCategory(request.getCategory());
+        if (request.getTable() != null) {
+            post.setTbl(request.getTable());
+        }
+        if (request.getGroup() != null) {
+            post.setGrp(request.getGroup());
         }
         if (request.getContent() != null) {
             post.setContent(request.getContent());
@@ -133,13 +135,20 @@ public class BoardService {
 		boardRepository.delete(post);
 	}
 	
-	public Page<Post> findAll(Pageable pageable, String category) {
+	public Page<Post> findAll(Pageable pageable, String table, String group) {
 		
-		Specification<Post> spec = null;
-		if(category !=null && !category.isEmpty()) {
-			spec = (root, query, criteriaBuilder) ->
-            criteriaBuilder.equal(root.get("category"), category);
-		}
+		Specification<Post> spec = Specification.where(null);
+		if (table != null && !table.isEmpty()) {
+	        spec = spec.and((root, query, criteriaBuilder) ->
+	            criteriaBuilder.equal(root.get("tbl"), table)
+	        );
+	    }
+	    
+	    if (group != "" && !group.isEmpty()) {
+	        spec = spec.and((root, query, criteriaBuilder) ->
+	            criteriaBuilder.equal(root.get("grp"), group)
+	        );
+	    }
 		
 		if (spec != null) {
             return boardRepository.findAll(spec, pageable);
@@ -169,7 +178,8 @@ public class BoardService {
 		Integer point = user.getPoint();
 		Post post=Post.builder()
 				.title(request.getTitle())
-				.category(request.getCategory())
+				.tbl(request.getTable())
+				.grp(request.getGroup())
 				.content(request.getContent())
 				.user(user)
 				.thumbnail(request.getThumbnail())
