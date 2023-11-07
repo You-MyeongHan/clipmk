@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import com.bayclip.user.controller.UserController;
+import com.clipmk.user.controller.UserController;
 import com.global.error.errorCode.AuthErrorCode;
 import com.global.error.exception.RestApiException;
 

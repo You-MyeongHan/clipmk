@@ -43,6 +43,7 @@ public class SecurityConfig {
             	.requestMatchers(HttpMethod.GET, "/user/items").authenticated()	//유저 아이템 페이징
             	.requestMatchers(HttpMethod.GET, "/user/posts").authenticated()	//유저 게시글 페이징
             	.requestMatchers(HttpMethod.GET, "/user/comments").authenticated()	//유저 댓글 페이징
+            	.requestMatchers(HttpMethod.GET, "/user/dibs").authenticated()	//찜한 아이템 페이징
             	
             	// auth 요청
             	.requestMatchers(HttpMethod.POST, "/auth/login").permitAll()	//로그인
@@ -67,7 +68,7 @@ public class SecurityConfig {
             	.requestMatchers(HttpMethod.DELETE, "/board/comment/{commentId}").authenticated()//댓글 삭제
             	.requestMatchers(HttpMethod.PATCH, "/board/comment/{comment-id}").authenticated()//댓글 수정
             	.requestMatchers(HttpMethod.PATCH, "/board/comment/{comment-id}/recommend").authenticated()//댓글 추천
-            	.requestMatchers(HttpMethod.POST, "/board/s3/upload").permitAll()//미디어 리소스 등록
+            	.requestMatchers(HttpMethod.POST, "/board/s3/upload").authenticated()//미디어 리소스 등록
             	
             	//barter 요청
             	.requestMatchers(HttpMethod.POST, "/barter/item").authenticated()		//아이템 등록
@@ -75,8 +76,12 @@ public class SecurityConfig {
             	.requestMatchers(HttpMethod.PATCH, "/barter/item/{item-id}").authenticated()		//아이템 수정
             	.requestMatchers(HttpMethod.DELETE, "/barter/item/{item-id}").authenticated()		//아이템 삭제
             	.requestMatchers(HttpMethod.GET, "/barter/items").permitAll()		//아이템 페이징
-            	.requestMatchers(HttpMethod.POST, "/barter/suggest").authenticated()		//거래 제안
+            	.requestMatchers(HttpMethod.POST, "/barter/item/{from-item-id}/suggest/{to-item-id}").authenticated()		//거래 제안
             	.requestMatchers(HttpMethod.POST, "/barter/accept").authenticated()			//거래 수락
+            	.requestMatchers(HttpMethod.PATCH, "/barter/{item-id}/dib").authenticated()	//아이템 찜
+            	
+            	//test
+            	.requestMatchers(HttpMethod.GET, "/test").permitAll()
             	
 //            	chat 요청
 //            	.requestMatchers(HttpMethod.GET, "/chat/rooms").authenticated()			//채팅방 페이징
