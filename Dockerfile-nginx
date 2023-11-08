@@ -1,0 +1,2 @@
+FROM nginx
+COPY ./nginx/conf.d/clipmk.conf /etc/nginx/sites-enabledd
