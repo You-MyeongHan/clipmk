@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  web:
+    container_name: web
+    image: mhy5413/clipmk-docker
+    restart: unless-stopped
+    expose:
+      - 8080
+    ports:
+      - 8080:8080
+  nginx:
+    image: mhy5413/clipmk-nginx
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - web
