@@ -69,6 +69,7 @@ public class SecurityConfig {
             	.requestMatchers(HttpMethod.PATCH, "/board/comment/{comment-id}").authenticated()//댓글 수정
             	.requestMatchers(HttpMethod.PATCH, "/board/comment/{comment-id}/recommend").authenticated()//댓글 추천
             	.requestMatchers(HttpMethod.POST, "/board/s3/upload").authenticated()//미디어 리소스 등록
+            	.requestMatchers(HttpMethod.GET, "/board/posts-ids").permitAll()//미디어 리소스 등록
             	
             	//barter 요청
             	.requestMatchers(HttpMethod.POST, "/barter/item").authenticated()		//아이템 등록

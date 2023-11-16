@@ -312,4 +312,9 @@ public class BoardService {
 		Page<Post> posts = boardRepository.findByUserId(userId, pageable);
 		return posts;
 	}
+	
+	public List<Long> getPostsIds(){
+		List<Long> postsIds= boardRepository.findAllPostIds();
+		return postsIds;
+	}
 }

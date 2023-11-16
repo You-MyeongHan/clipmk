@@ -2,7 +2,7 @@ version: '3'
 
 services:
   web:
-    image: mhy5413/clipmk-docker
+    image: mhy5413/clipmk-docker:latest
     container_name: web
     restart: unless-stopped
     expose:
@@ -10,7 +10,7 @@ services:
     ports:
       - 8080:8080
   nginx:
-    image: mhy5413/clipmk-nginx
+    image: mhy5413/clipmk-nginx:latest
     restart: unless-stopped
     volumes:
       - ./conf/:/etc/nginx/conf.d
@@ -21,13 +21,22 @@ services:
       - 443:443
     depends_on:
       - web
-  redis:
-    image: redis:alpine
-    container_name: redis_boot
-    command: redis-server --port 6379
-    hostname: redis_boot
-    labels:
-      - "name=redis"
-      - "mode=standalone"
+#  redis:
+#    image: redis:alpine
+#    container_name: redis_boot
+#    command: redis-server --port 6379
+#    hostname: redis_boot
+#    labels:
+#      - "name=redis"
+#      - "mode=standalone"
+#    ports:
+#      - 6379:6379
+  admin:
+    image: mhy5413/clipmk-admin
+    container_name: admin
+    restart: unless-stopped
+    expose:
+      - 8000
     ports:
-      - 6379:6379
+      - 8000:8000
+    

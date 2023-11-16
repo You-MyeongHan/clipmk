@@ -1,15 +1,15 @@
 package com.clipmk.board.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 
-import com.clipmk.barter.entity.Item;
 import com.clipmk.board.entity.Post;
-import com.clipmk.user.entity.User;
 
 public interface BoardRepository extends JpaRepository<Post, Long>,JpaSpecificationExecutor<Post>{
 	Optional<Post> findById(Long postId);
@@ -18,4 +18,6 @@ public interface BoardRepository extends JpaRepository<Post, Long>,JpaSpecificat
 	Long countByUser_Id(Integer userId);
 	Page<Post> findTop10ByUser_IdOrderByIdDesc(Integer userId, Pageable pageable);
 	Page<Post> findByUserId(int userId, Pageable pageable);
+	@Query("SELECT p.id FROM Post p")
+    List<Long> findAllPostIds();
 }

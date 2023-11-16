@@ -239,5 +239,13 @@ public class BoardController {
 		return ResponseEntity.ok().build();
 
 	}
+	
+	@GetMapping("/posts-ids")
+	public ResponseEntity<List<Long>> postsIds(){
+		
+		List<Long> postsId= boardService.getPostsIds();
+		
+		return ResponseEntity.ok(postsId);
+	}
 
 }
