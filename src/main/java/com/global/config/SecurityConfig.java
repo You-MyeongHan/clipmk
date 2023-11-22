@@ -69,7 +69,7 @@ public class SecurityConfig {
             	.requestMatchers(HttpMethod.PATCH, "/board/comment/{comment-id}").authenticated()//댓글 수정
             	.requestMatchers(HttpMethod.PATCH, "/board/comment/{comment-id}/recommend").authenticated()//댓글 추천
             	.requestMatchers(HttpMethod.POST, "/board/s3/upload").authenticated()//미디어 리소스 등록
-            	.requestMatchers(HttpMethod.GET, "/board/posts-ids").permitAll()//미디어 리소스 등록
+            	
             	
             	//barter 요청
             	.requestMatchers(HttpMethod.POST, "/barter/item").authenticated()		//아이템 등록
@@ -80,6 +80,9 @@ public class SecurityConfig {
             	.requestMatchers(HttpMethod.POST, "/barter/item/{from-item-id}/suggest/{to-item-id}").authenticated()		//거래 제안
             	.requestMatchers(HttpMethod.POST, "/barter/accept").authenticated()			//거래 수락
             	.requestMatchers(HttpMethod.PATCH, "/barter/{item-id}/dib").authenticated()	//아이템 찜
+            	
+            	//메타 데이터
+            	.requestMatchers(HttpMethod.GET, "/ids").permitAll()//미디어 리소스 등록
             	
             	//test
             	.requestMatchers(HttpMethod.GET, "/test").permitAll()

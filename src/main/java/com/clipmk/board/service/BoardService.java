@@ -33,6 +33,7 @@ import com.clipmk.user.repository.UserRepository;
 import com.global.error.errorCode.BoardErrorCode;
 import com.global.error.errorCode.UserErrorCode;
 import com.global.error.exception.RestApiException;
+import com.infra.meta.dto.PostIdDto;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -313,8 +314,8 @@ public class BoardService {
 		return posts;
 	}
 	
-	public List<Long> getPostsIds(){
-		List<Long> postsIds= boardRepository.findAllPostIds();
+	public List<PostIdDto> getPostsIds(){
+		List<PostIdDto> postsIds= boardRepository.findAllPostIds();
 		return postsIds;
 	}
 }

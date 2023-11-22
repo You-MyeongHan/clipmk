@@ -15,7 +15,6 @@ import com.clipmk.barter.dto.DealsResDto;
 import com.clipmk.barter.dto.EditItemReqDto;
 import com.clipmk.barter.dto.ItemReqDto;
 import com.clipmk.barter.dto.ItemResDto;
-import com.clipmk.barter.dto.ItemsResDto;
 import com.clipmk.barter.entity.Deal;
 import com.clipmk.barter.entity.Item;
 import com.clipmk.barter.repository.BarterRepository;
@@ -24,6 +23,7 @@ import com.clipmk.user.entity.User;
 import com.clipmk.user.repository.UserRepository;
 import com.global.error.errorCode.BarterErrorCode;
 import com.global.error.exception.RestApiException;
+import com.infra.meta.dto.ItemIdDto;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpSession;
@@ -202,6 +202,11 @@ public class BarterService {
 	public void dealOn(Deal deal) {
 		deal.setStatus(1);
 		dealRepository.save(deal);
+	}
+	
+	public List<ItemIdDto> getItemsIds(){
+		List<ItemIdDto> itemsIds= barterRepository.findAllItemIds();
+		return itemsIds;
 	}
 	
 }
