@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.clipmk.user.dto.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -47,6 +48,8 @@ public class User implements UserDetails{
 	private Role role;
 	@Column(nullable = false)
 	private Integer point;
+	@Nullable
+	private String regionCode;
 	
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {

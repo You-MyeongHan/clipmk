@@ -18,6 +18,7 @@ public class ItemsResDto {
 	private String content;
 	private String category;
 	private String img_src;
+	private String region_code;
 	private LocalDateTime wr_date;
 	private Integer view_cnt;
 	private int deals_cnt;
@@ -30,6 +31,7 @@ public class ItemsResDto {
 				.id(item.getId())
 				.nick(item.getUser().getNick())
 				.category(item.getCategory())
+				.region_code(item.getRegionCode())
 				.wr_date(item.getWr_date())
 				.view_cnt(item.getViewCnt())
 				.dib_cnt(item.getDib().size())

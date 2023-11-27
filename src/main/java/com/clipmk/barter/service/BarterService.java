@@ -83,6 +83,7 @@ public class BarterService {
 				.category(request.getCategory())
 				.content(request.getContent())
 				.img_src(request.getImgSrc())
+				.regionCode(request.getCode())
 				.user(user)
 				.build();
 		

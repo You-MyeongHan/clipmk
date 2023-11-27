@@ -93,7 +93,8 @@ public class BarterController {
 	public ResponseEntity<Page<ItemsResDto>> items(
 			@PageableDefault(page=0, size = 20, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
 			@RequestParam(value="category", defaultValue = "") String category,
-			@RequestParam(value = "searchTerm", defaultValue  = "") String searchTerm
+			@RequestParam(value = "searchTerm", defaultValue  = "") String searchTerm,
+			@RequestParam(value = "regionCode", defaultValue  = "") String regionCode
 			){
 		Page<ItemsResDto> items=null;
 		

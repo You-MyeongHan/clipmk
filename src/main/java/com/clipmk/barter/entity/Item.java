@@ -60,7 +60,7 @@ public class Item {
 	private LocalDateTime  re_date;
 	private LocalDateTime  del_date;
 	@Nullable
-	private String region;
+	private String regionCode;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
