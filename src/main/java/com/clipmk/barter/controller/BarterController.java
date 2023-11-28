@@ -23,6 +23,7 @@ import com.clipmk.barter.dto.ItemResDto;
 import com.clipmk.barter.dto.ItemsResDto;
 import com.clipmk.barter.entity.Deal;
 import com.clipmk.barter.service.BarterService;
+import com.clipmk.barter.specification.ItemSpecifications;
 import com.clipmk.chat.entity.ChatRoom;
 import com.clipmk.chat.service.ChatService;
 import com.clipmk.user.entity.User;
@@ -96,13 +97,15 @@ public class BarterController {
 			@RequestParam(value = "searchTerm", defaultValue  = "") String searchTerm,
 			@RequestParam(value = "regionCode", defaultValue  = "") String regionCode
 			){
-		Page<ItemsResDto> items=null;
-		
-		if(searchTerm.isEmpty()) {
-			items=barterService.findAll(pageable, category).map(ItemsResDto::from);
-		}else {
-			items=barterService.findByTitleContaining(pageable, searchTerm).map(ItemsResDto::from);
-		}
+//		Page<ItemsResDto> items=null;
+//		
+//		if(searchTerm.isEmpty()) {
+//			items=barterService.findAll(pageable, category).map(ItemsResDto::from);
+//		}else {
+//			items=barterService.findByTitleContaining(pageable, searchTerm).map(ItemsResDto::from);
+//		}
+		Page<ItemsResDto> items = barterService.findAll(ItemSpecifications.filterItems(category, searchTerm, regionCode), pageable)
+	            .map(ItemsResDto::from);
 		
 		return ResponseEntity.ok(items);
 	}

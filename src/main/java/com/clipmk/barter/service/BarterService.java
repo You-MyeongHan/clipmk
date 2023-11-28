@@ -19,6 +19,7 @@ import com.clipmk.barter.entity.Deal;
 import com.clipmk.barter.entity.Item;
 import com.clipmk.barter.repository.BarterRepository;
 import com.clipmk.barter.repository.DealRepository;
+import com.clipmk.barter.specification.ItemSpecifications;
 import com.clipmk.user.entity.User;
 import com.clipmk.user.repository.UserRepository;
 import com.global.error.errorCode.BarterErrorCode;
@@ -129,18 +130,19 @@ public class BarterService {
 	}
 	
 	//아이템 페이징
-	public Page<Item> findAll(Pageable pageable, String category){
-		Specification<Item> spec = null;
-		if(category !=null && !category.isEmpty()) {
-			spec = (root, query, criteriaBuilder) ->
-            criteriaBuilder.equal(root.get("category"), category);
-		}
-		
-		if (spec != null) {
-            return barterRepository.findAll(spec, pageable);
-        } else {
-            return barterRepository.findAll(pageable);
-        }
+	public Page<Item> findAll(Specification<Item> spec, Pageable pageable){
+        return barterRepository.findAll(spec, pageable);
+//		Specification<Item> spec = null;
+//		if(category !=null && !category.isEmpty()) {
+//			spec = (root, query, criteriaBuilder) ->
+//            criteriaBuilder.equal(root.get("category"), category);
+//		}
+//		
+//		if (spec != null) {
+//            return barterRepository.findAll(spec, pageable);
+//        } else {
+//            return barterRepository.findAll(pageable);
+//        }
 	}
 	
 	//아이템 검색
