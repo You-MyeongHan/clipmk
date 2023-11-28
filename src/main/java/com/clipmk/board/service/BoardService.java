@@ -149,34 +149,12 @@ public class BoardService {
 		boardRepository.delete(post);
 	}
 	
-	public Page<Post> findAll(Pageable pageable, String table, String group) {
-		
-		Specification<Post> spec = Specification.where(null);
-		if (table != null && !table.isEmpty()) {
-	        spec = spec.and((root, query, criteriaBuilder) ->
-	            criteriaBuilder.equal(root.get("tbl"), table)
-	        );
-	    }
-	    
-	    if (group != "" && !group.isEmpty()) {
-	        spec = spec.and((root, query, criteriaBuilder) ->
-	            criteriaBuilder.equal(root.get("grp"), group)
-	        );
-	    }
-		
-		if (spec != null) {
-            return boardRepository.findAll(spec, pageable);
-        } else {
-            return boardRepository.findAll(pageable);
-        }
+	public Page<Post> findAll(Specification<Post> spec, Pageable pageable) {
+		return boardRepository.findAll(spec, pageable);
 	}
 	
 	public Page<Post> findByViewCntGreaterThan(Integer viewCount, Pageable pageable){
 		return boardRepository.findByViewCntGreaterThan(viewCount, pageable);
-	}
-	
-	public Page<Post> findByTitleContaining(Pageable pageable, String searchTerm){
-		return boardRepository.findByTitleContaining(pageable, searchTerm);
 	}
 	
 	public Page<Post> findTop10ByUser_IdOrderByIdDesc(Integer userId, Pageable pageable){

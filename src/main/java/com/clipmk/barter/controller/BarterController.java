@@ -97,13 +97,6 @@ public class BarterController {
 			@RequestParam(value = "searchTerm", defaultValue  = "") String searchTerm,
 			@RequestParam(value = "regionCode", defaultValue  = "") String regionCode
 			){
-//		Page<ItemsResDto> items=null;
-//		
-//		if(searchTerm.isEmpty()) {
-//			items=barterService.findAll(pageable, category).map(ItemsResDto::from);
-//		}else {
-//			items=barterService.findByTitleContaining(pageable, searchTerm).map(ItemsResDto::from);
-//		}
 		Page<ItemsResDto> items = barterService.findAll(ItemSpecifications.filterItems(category, searchTerm, regionCode), pageable)
 	            .map(ItemsResDto::from);
 		

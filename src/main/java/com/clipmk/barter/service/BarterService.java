@@ -132,17 +132,6 @@ public class BarterService {
 	//아이템 페이징
 	public Page<Item> findAll(Specification<Item> spec, Pageable pageable){
         return barterRepository.findAll(spec, pageable);
-//		Specification<Item> spec = null;
-//		if(category !=null && !category.isEmpty()) {
-//			spec = (root, query, criteriaBuilder) ->
-//            criteriaBuilder.equal(root.get("category"), category);
-//		}
-//		
-//		if (spec != null) {
-//            return barterRepository.findAll(spec, pageable);
-//        } else {
-//            return barterRepository.findAll(pageable);
-//        }
 	}
 	
 	//아이템 검색

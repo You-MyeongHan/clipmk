@@ -35,6 +35,7 @@ import com.clipmk.board.dto.RecommendReqDto;
 import com.clipmk.board.service.BoardService;
 import com.clipmk.board.service.CommentService;
 import com.clipmk.board.service.FileUploadService;
+import com.clipmk.board.specification.PostSpecifications;
 import com.clipmk.user.entity.User;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -124,13 +125,8 @@ public class BoardController {
 			@RequestParam(value = "searchTerm", defaultValue  = "") String searchTerm
 			){
 		
-		Page<PostsResDto> posts =null;
-		
-		if(searchTerm.isEmpty()) {
-			 posts = boardService.findAll(pageable, table, group).map(PostsResDto::from);
-		}else {
-			 posts = boardService.findByTitleContaining(pageable, searchTerm).map(PostsResDto::from);
-		}
+		Page<PostsResDto> posts = boardService.findAll(PostSpecifications.filterPosts(table, searchTerm, group), pageable)
+				.map(PostsResDto::from);
 		
 		return ResponseEntity.ok(posts);
 	}
