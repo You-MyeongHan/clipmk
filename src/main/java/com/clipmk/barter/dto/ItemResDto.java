@@ -27,6 +27,7 @@ public class ItemResDto {
 	private boolean dib_state;
 	private Integer viewCnt;
 	private String user_nick;
+	private String region_code;
 	private int user_id;
 	private Page<DealsResDto> deals;
 	
