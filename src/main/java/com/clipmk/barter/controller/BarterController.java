@@ -103,6 +103,14 @@ public class BarterController {
 		return ResponseEntity.ok(items);
 	}
 	
+	//최근 6개의 아이템
+	@GetMapping("/items6")
+	public ResponseEntity<Page<ItemsResDto>> items6(){
+		Page<ItemsResDto> items = barterService.find6()
+	            .map(ItemsResDto::from);
+		return ResponseEntity.ok(items);
+	}
+	
 	//아이템 찜
 	@PatchMapping("/item/{item-id}/dib")
 	public ResponseEntity<Void> dib(

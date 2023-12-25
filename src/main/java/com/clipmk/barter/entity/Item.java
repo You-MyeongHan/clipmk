@@ -11,6 +11,7 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import com.clipmk.barter.dto.ItemResDto;
+import com.clipmk.region.entity.Region;
 import com.clipmk.user.entity.User;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -59,8 +60,10 @@ public class Item {
 	private LocalDateTime  wr_date;
 	private LocalDateTime  re_date;
 	private LocalDateTime  del_date;
-	@Nullable
-	private String regionCode;
+	@ManyToOne(fetch = FetchType.EAGER, optional = true)
+	@JoinColumn(name = "region_code")
+	private Region region;
+	private Integer status;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -89,7 +92,8 @@ public class Item {
 				.viewCnt(this.viewCnt)
 				.wr_date(this.wr_date)
 				.re_date(this.re_date)
-				.region_code(this.regionCode)
+				.region(this.region)
+				.status(this.status)
 				.del_date(this.del_date)
 				.dib_cnt(this.getDib().size())
 				.user_id(this.user.getId())

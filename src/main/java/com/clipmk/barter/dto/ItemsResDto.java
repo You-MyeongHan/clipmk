@@ -3,6 +3,7 @@ package com.clipmk.barter.dto;
 import java.time.LocalDateTime;
 
 import com.clipmk.barter.entity.Item;
+import com.clipmk.region.entity.Region;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,12 +19,13 @@ public class ItemsResDto {
 	private String content;
 	private String category;
 	private String img_src;
-	private String region_code;
+	private Region region;
 	private LocalDateTime wr_date;
 	private Integer view_cnt;
 	private int deals_cnt;
 	private Integer dib_cnt;
 	private boolean dib_state;
+	private Integer status;
 	
 	public static ItemsResDto from(Item item) {
 		ItemsResDto itemsResponseDto = ItemsResDto.builder()
@@ -31,10 +33,11 @@ public class ItemsResDto {
 				.id(item.getId())
 				.nick(item.getUser().getNick())
 				.category(item.getCategory())
-				.region_code(item.getRegionCode())
+				.region(item.getRegion())	
 				.wr_date(item.getWr_date())
 				.view_cnt(item.getViewCnt())
 				.dib_cnt(item.getDib().size())
+				.status(item.getStatus())
 				.build();
 		
 		if (item.getImg_src() != null && !item.getImg_src().isEmpty()) {

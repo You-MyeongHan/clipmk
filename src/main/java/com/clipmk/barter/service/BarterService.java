@@ -7,6 +7,7 @@ import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +20,8 @@ import com.clipmk.barter.entity.Deal;
 import com.clipmk.barter.entity.Item;
 import com.clipmk.barter.repository.BarterRepository;
 import com.clipmk.barter.repository.DealRepository;
-import com.clipmk.barter.specification.ItemSpecifications;
+import com.clipmk.region.entity.Region;
+import com.clipmk.region.repository.RegionRepository;
 import com.clipmk.user.entity.User;
 import com.clipmk.user.repository.UserRepository;
 import com.global.error.errorCode.BarterErrorCode;
@@ -36,6 +38,7 @@ public class BarterService {
 	private final BarterRepository barterRepository;
 	private final DealRepository dealRepository;
 	private final UserRepository userRepository;
+	private final RegionRepository regionRepository;
 	
 	// 아이템 조회
 	@Transactional
@@ -78,13 +81,15 @@ public class BarterService {
 	public Boolean register(ItemReqDto request, Integer userId) {
 		
 		User user=userRepository.findById(userId).orElse(null);
-		
+		Region region = regionRepository.findByCode(request.getCode())
+                .orElseThrow(null);
 		Item item = Item.builder()
 				.title(request.getTitle())
 				.category(request.getCategory())
 				.content(request.getContent())
 				.img_src(request.getImgSrc())
-				.regionCode(request.getCode())
+				.region(region)
+				.status(1)
 				.user(user)
 				.build();
 		
@@ -132,6 +137,11 @@ public class BarterService {
 	//아이템 페이징
 	public Page<Item> findAll(Specification<Item> spec, Pageable pageable){
         return barterRepository.findAll(spec, pageable);
+	}
+	
+	public Page<Item> find6(){
+		Pageable spec = PageRequest.of(0, 6, Sort.by(Sort.Order.desc("id")));
+        return barterRepository.findAll(spec);
 	}
 	
 	//아이템 검색

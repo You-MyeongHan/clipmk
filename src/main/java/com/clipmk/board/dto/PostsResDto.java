@@ -2,6 +2,9 @@ package com.clipmk.board.dto;
 
 import java.time.LocalDateTime;
 
+import org.springframework.data.domain.Page;
+
+import com.clipmk.barter.dto.ItemsResDto;
 import com.clipmk.board.entity.Post;
 
 import lombok.AllArgsConstructor;

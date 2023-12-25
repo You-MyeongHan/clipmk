@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 
+import com.clipmk.region.entity.Region;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,8 +29,9 @@ public class ItemResDto {
 	private boolean dib_state;
 	private Integer viewCnt;
 	private String user_nick;
-	private String region_code;
+	private Region region;
 	private int user_id;
 	private Page<DealsResDto> deals;
+	private Integer status;
 	
 }
