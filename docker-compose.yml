@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  web:
+    image: mhy5413/clipmk-docker
+    container_name: web
+    expose:
+      - 8080
+    ports:
+      - 8080:8080
+    
