@@ -1,85 +1,57 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/header :: header('게시글')}">
-    <link rel="stylesheet" th:href="@{/css/post.css}">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시글 상세</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
 </head>
 <body>
     <div th:replace="~{fragments/nav :: nav}"></div>
     
-    <div class="container">
-        <div class="row">
-            <!-- 왼쪽 여백 -->
-            <div class="col-2">
-                <!-- 왼쪽 사이드바 내용 -->
-            </div>
-            
-            <!-- 메인 컨텐츠 -->
-            <div class="col-8">
-                <div class="post-container">
-                    <div class="post-header">
-                        <h1 class="post-title" th:text="${post.title}">게시글 제목</h1>
-                        <div class="post-info">
-                            <span class="author" th:text="'작성자: ' + ${post.user_id}">작성자</span>
-                            <span class="date" th:text="${#temporals.format(post.wr_date, 'yyyy-MM-dd HH:mm')}">날짜</span>
-                            <!-- <span class="views" th:text="'조회수: ' + ${post.view_cnt}">조회수</span> -->
-                        </div>
+    <main class="container">
+        <div class="post-detail">
+            <div class="post-detail__header">
+                <h1 class="post-detail__title" th:text="${post.title}">게시글 제목</h1>
+                <div class="post-detail__meta">
+                    <div class="post-detail__author">
+                        <i class="fas fa-user"></i>
+                        <span th:text="${post.user_nick}">작성자</span>
                     </div>
-                    
-                    <div class="post-content" th:utext="${post.content}">
-                        게시글 내용
+                    <div class="post-detail__date">
+                        <i class="fas fa-calendar"></i>
+                        <span th:text="${#temporals.format(post.wr_date, 'yyyy-MM-dd HH:mm')}">작성일</span>
                     </div>
-                    
-                    <!-- 댓글 섹션 -->
-                    <div class="comments-section">
-                        <h3>댓글</h3>
-                        
-                        <!-- 댓글 작성 폼 -->
-                        <div class="comment-form">
-                            <textarea placeholder="댓글을 입력하세요"></textarea>
-                            <button class="submit-comment">댓글 작성</button>
-                        </div>
-                        
-                        <!-- 댓글 목록 -->
-                        <div class="comments-list">
-                            <!-- 댓글 1 -->
-                            <div class="comment-item depth-0">
-                                <div class="comment-content">
-                                    <div class="comment-header">
-                                        <span class="comment-author">댓글작성자1</span>
-                                        <span class="comment-date">2024-03-19 15:00</span>
-                                    </div>
-                                    <p>첫 번째 댓글입니다.</p>
-                                    <div class="comment-actions">
-                                        <button class="reply-button">답글</button>
-                                    </div>
-                                </div>
-                                
-                                <!-- 대댓글 -->
-                                <div class="comment-item depth-1">
-                                    <div class="comment-content">
-                                        <div class="comment-header">
-                                            <span class="comment-author">대댓글작성자1</span>
-                                            <span class="comment-date">2024-03-19 15:05</span>
-                                        </div>
-                                        <p>첫 번째 댓글의 답글입니다.</p>
-                                        <div class="comment-actions">
-                                            <button class="reply-button">답글</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="post-detail__views">
+                        <i class="fas fa-eye"></i>
+                        <span th:text="${post.viewCnt}">조회수</span>
                     </div>
                 </div>
             </div>
             
-            <!-- 오른쪽 여백 -->
-            <div class="col-2">
-                <!-- 오른쪽 사이드바 내용 -->
+            <div class="post-detail__content" th:text="${post.content}">
+                게시글 내용
+            </div>
+            
+            <div class="post-detail__footer">
+                <div class="post-detail__actions">
+                    <a th:href="@{/posts}" class="post-detail__action">
+                        <i class="fas fa-list"></i>
+                        목록
+                    </a>
+                    <a th:href="@{/posts/{id}/edit(id=${post.id})}" class="post-detail__action">
+                        <i class="fas fa-edit"></i>
+                        수정
+                    </a>
+                    <a th:href="@{/posts/{id}/delete(id=${post.id})}" class="post-detail__action">
+                        <i class="fas fa-trash"></i>
+                        삭제
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
-    
+    </main>
+
     <div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html> 

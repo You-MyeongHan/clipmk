@@ -20,10 +20,7 @@ window.onload = function() {
         loginButton.addEventListener('click', function() {
             console.log('로그인 버튼 클릭됨');
             if (loginModal) {
-                loginModal.style.display = 'block';
-                console.log('모달 표시됨');
-            } else {
-                console.error('로그인 모달을 찾을 수 없습니다.');
+                loginModal.classList.add('show');
             }
         });
     } else {
@@ -34,30 +31,24 @@ window.onload = function() {
     function closeModal() {
         console.log('모달 닫기 함수 호출됨');
         if (loginModal) {
-            loginModal.style.display = 'none';
+            loginModal.classList.remove('show');
             console.log('모달 닫힘');
         }
     }
 
     // 닫기 버튼 클릭 이벤트
     if (closeModalButton) {
-        closeModalButton.addEventListener('click', function() {
-            console.log('닫기 버튼 클릭됨');
-            closeModal();
-        });
+        closeModalButton.addEventListener('click', closeModal);
     }
 
     // 취소 버튼 클릭 이벤트
     if (cancelButton) {
-        cancelButton.addEventListener('click', function() {
-            console.log('취소 버튼 클릭됨');
-            closeModal();
-        });
+        cancelButton.addEventListener('click', closeModal);
     }
 
     // 모달 외부 클릭 시 닫기
     window.addEventListener('click', function(event) {
-        if (event.target == loginModal) {
+        if (event.target === loginModal) {
             console.log('모달 외부 클릭됨');
             closeModal();
         }
