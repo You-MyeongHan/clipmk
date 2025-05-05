@@ -17,20 +17,11 @@
             </div>
             
             <table class="post__content">
-                <thead>
-                    <tr>
-                        <th>번호</th>
-                        <th>제목</th>
-                        <th>작성자</th>
-                        <th>작성일</th>
-                        <th>조회</th>
-                    </tr>
-                </thead>
                 <tbody>
                     <tr th:each="post : ${posts}" class="post-item">
                         <td th:text="${post.id}"></td>
                         <td>
-                            <a th:href="@{/posts/{id}(id=${post.id})}" class="post-item__title" th:text="${post.title}"></a>
+                            <a th:href="@{post/{id}(id=${post.id})}" class="post-item__title" th:text="${post.title}"></a>
                         </td>
                         <td class="post-item__meta" th:text="${post.nick}"></td>
                         <td class="post-item__meta" th:text="${#temporals.format(post.wr_date, 'yyyy-MM-dd')}"></td>
