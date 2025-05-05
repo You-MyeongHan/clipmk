@@ -10,10 +10,12 @@ import com.clipmk.board.entity.Post;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class PostsResDto {
 	private Long id;
 	private String title;
@@ -35,7 +37,6 @@ public class PostsResDto {
 				.grp(post.getGrp())
 				.wr_date(post.getWr_date())
 				.view_cnt(post.getViewCnt())
-				.recommend_cnt(post.getRecommendations().size())
 				.comment_cnt(post.getComments().size())
 				.thumbnail(post.getThumbnail())
 				.build();

@@ -8,7 +8,7 @@ import com.clipmk.board.entity.Post;
 import com.clipmk.user.entity.User;
 
 
-public interface UserRepository extends JpaRepository<User, Integer>{
+public interface UserRepository extends JpaRepository<User, Long> {
     public Optional<User> findByUid(String uid);
     public Optional<User> findById(Integer id);
     public boolean existsByUid(String uid);

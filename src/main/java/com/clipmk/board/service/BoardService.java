@@ -15,7 +15,6 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +23,7 @@ import com.clipmk.board.dto.CommentDto;
 import com.clipmk.board.dto.EditPostReqDto;
 import com.clipmk.board.dto.PostDto;
 import com.clipmk.board.dto.PostReqDto;
+import com.clipmk.board.dto.PostsResDto;
 import com.clipmk.board.entity.Comment;
 import com.clipmk.board.entity.Post;
 import com.clipmk.board.repository.BoardRepository;
@@ -48,53 +48,59 @@ public class BoardService {
 	private final AmazonS3Client amazonS3Client;
 	@Value("${point.recommend-post}")
 	private int RPP;	//Recommend Post Point
-	@Value("${point.create-post}")
-	private int CPP;	//Recommend Post Point 
-	@Value("${cloud.aws.s3.bucket.url}")
-    private String defaultUrl;
-	@Value("${cloud.aws.s3.bucket.name}")
-    public String bucket;
+	// @Value("${point.create-post}")
+	// private int CPP;	//Recommend Post Point 
+	// @Value("${cloud.aws.s3.bucket.url}")
+    // private String defaultUrl;
+	// @Value("${cloud.aws.s3.bucket.name}")
+    // public String bucket;
+
+	@Transactional
+	public Page<PostsResDto> findAll(Pageable pageable) {
+		return boardRepository.findPosts(pageable);
+	}
 	
 	@Transactional
-	public PostDto getPostById(Long postId, User user, HttpSession session) {
+	// public PostDto getPostById(Long postId, User user, HttpSession session) {
+	public PostDto getPostById(Long postId) {
 		
 		Post post=boardRepository.findById(postId).orElseThrow(
 				()-> new RestApiException(BoardErrorCode.POST_NOT_FOUND));
-		Set<Long> viewedPostIds = (Set<Long>) session.getAttribute("viewedPostIds");
+		// Set<Long> viewedPostIds = (Set<Long>) session.getAttribute("viewedPostIds");
 		
-		if (viewedPostIds == null) {
-            viewedPostIds = new HashSet<>();
-        }
+		// if (viewedPostIds == null) {
+        //     viewedPostIds = new HashSet<>();
+        // }
 		
-		if (!viewedPostIds.contains(postId)) {
-        	post.setViewCnt(post.getViewCnt()+1);
-            boardRepository.save(post);
-            viewedPostIds.add(postId);
-        }
-		session.setAttribute("viewedPostIds", viewedPostIds);
+		// if (!viewedPostIds.contains(postId)) {
+        // 	post.setViewCnt(post.getViewCnt()+1);
+        //     boardRepository.save(post);
+        //     viewedPostIds.add(postId);
+        // }
+		// session.setAttribute("viewedPostIds", viewedPostIds);
 		
 
 		PostDto postDto = post.toDto();
 		
-		List<Comment> comments = commentRepository.findByPostIdAndParentIsNull(postId);
-		List<CommentDto> commentDtos = new ArrayList<>();
+		// List<Comment> comments = commentRepository.findByPostIdAndParentIsNull(postId);
+		// List<CommentDto> commentDtos = new ArrayList<>();
 		
-		for (Comment comment : comments) {
-            CommentDto commentDto = CommentDto.from(comment);
-            List<CommentDto> replyDtos = comment.getReplies();
-            commentDto.setReplies(replyDtos);
-            commentDtos.add(commentDto);
-        }
+		// for (Comment comment : comments) {
+        //     CommentDto commentDto = CommentDto.from(comment);
+        //     List<CommentDto> replyDtos = comment.getReplies();
+        //     commentDto.setReplies(replyDtos);
+        //     commentDtos.add(commentDto);
+        // }
 
-		postDto.setComments(commentDtos);
-		if(user!=null) {
-			if(post.getRecommendations().contains(user.getId()))
-				postDto.setRecommend_state(1);
-			else if(post.getDecommendations().contains(user.getId()))
-				postDto.setRecommend_state(-1);
-			else
-				postDto.setRecommend_state(0);
-		}
+		// postDto.setComments(commentDtos);
+		// if(user!=null) {
+		// 	if(post.getRecommendations().contains(user.getId()))
+		// 		postDto.setRecommend_state(1);
+		// 	else if(post.getDecommendations().contains(user.getId()))
+		// 		postDto.setRecommend_state(-1);
+		// 	else
+		// 		postDto.setRecommend_state(0);
+		// }
 		
 		return postDto;
         
@@ -147,10 +153,6 @@ public class BoardService {
 	    }
 		
 		boardRepository.delete(post);
-	}
-	
-	public Page<Post> findAll(Specification<Post> spec, Pageable pageable) {
-		return boardRepository.findAll(spec, pageable);
 	}
 	
 	public Page<Post> findByViewCntGreaterThan(Integer viewCount, Pageable pageable){

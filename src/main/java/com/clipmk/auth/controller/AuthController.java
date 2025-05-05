@@ -32,90 +32,96 @@ public class AuthController {
 	
 	//로그인
 	@PostMapping("/login")
-	public ResponseEntity<LoginResDto> authenticate(
+	public ResponseEntity<AuthResDto> authenticate(
 			@RequestBody LoginReqDto request,
 			HttpServletResponse response
 	){
 		AuthResDto authResponse = authService.authenticate(request);
+		return ResponseEntity.ok(authResponse);
+	}
+//         response.setHeader("Authorization", "Bearer " + authResponse.getAccessToken());
 
-        response.setHeader("Authorization", "Bearer " + authResponse.getAccessToken());
-
-        Cookie refreshTokenCookie = new Cookie("refreshToken", authResponse.getRefreshToken());
-        refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60); //7 days
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setDomain("clipmk.com");
-        refreshTokenCookie.setHttpOnly(true);
-//        refreshTokenCookie.setSecure(true); // HTTPS에서만 전송되도록 설정 (필요에 따라 변경)
-        response.addCookie(refreshTokenCookie);
-        response.setHeader("access-control-expose-headers", "Authorization");
-//        response.setHeader("Set-Cookie", "SameSite=None; Secure");
-        LoginResDto loginResponse = new LoginResDto(authResponse.getId(), authResponse.getNick(), authResponse.getEmail());
+//         Cookie refreshTokenCookie = new Cookie("refreshToken", authResponse.getRefreshToken());
+//         refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60); //7 days
+//         refreshTokenCookie.setPath("/");
+//         refreshTokenCookie.setDomain("clipmk.com");
+//         refreshTokenCookie.setHttpOnly(true);
+// //        refreshTokenCookie.setSecure(true); // HTTPS에서만 전송되도록 설정 (필요에 따라 변경)
+//         response.addCookie(refreshTokenCookie);
+//         response.setHeader("access-control-expose-headers", "Authorization");
+// //        response.setHeader("Set-Cookie", "SameSite=None; Secure");
+//         LoginResDto loginResponse = new LoginResDto(authResponse.getId(), authResponse.getNick(), authResponse.getEmail());
         
-        return ResponseEntity.ok(loginResponse);
-	}
+//         return ResponseEntity.ok(loginResponse);
+// 	}
+
+// 	// @GetMapping("/register")
+//     // public String registerForm() {
+//     //     return "view/member/register";
+//     // }
 	
-	//로그아웃
-	@GetMapping("/logout")
-	public ResponseEntity<Void> logout(
-		    HttpServletResponse response
-	){
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+// 	//로그아웃
+// 	@GetMapping("/logout")
+// 	public ResponseEntity<Void> logout(
+// 		    HttpServletResponse response
+// 	){
+// 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		
-		if (authentication != null) {
-	        // 로그아웃 처리
-	        SecurityContextHolder.clearContext();
+// 		if (authentication != null) {
+// 	        // 로그아웃 처리
+// 	        SecurityContextHolder.clearContext();
 
-	        // Access Token을 헤더에서 삭제
-	        response.setHeader("Authorization", "");
+// 	        // Access Token을 헤더에서 삭제
+// 	        response.setHeader("Authorization", "");
 
-	        // Refresh Token을 쿠키에서 삭제
-	        Cookie refreshTokenCookie = new Cookie("refreshToken", "");
-	        refreshTokenCookie.setMaxAge(0);
-	        refreshTokenCookie.setPath("/");
-	        refreshTokenCookie.setDomain("clipmk.com");
-	        refreshTokenCookie.setHttpOnly(true);
-	        refreshTokenCookie.setSecure(true); // HTTPS에서만 전송되도록 설정 (필요에 따라 변경)
-	        response.addCookie(refreshTokenCookie);
+// 	        // Refresh Token을 쿠키에서 삭제
+// 	        Cookie refreshTokenCookie = new Cookie("refreshToken", "");
+// 	        refreshTokenCookie.setMaxAge(0);
+// 	        refreshTokenCookie.setPath("/");
+// 	        refreshTokenCookie.setDomain("clipmk.com");
+// 	        refreshTokenCookie.setHttpOnly(true);
+// 	        refreshTokenCookie.setSecure(true); // HTTPS에서만 전송되도록 설정 (필요에 따라 변경)
+// 	        response.addCookie(refreshTokenCookie);
 	        
-	        return ResponseEntity.ok().build();
-	    }else {
-	    	throw new RestApiException(AuthErrorCode.INVALID_TOKEN);
-	    }
+// 	        return ResponseEntity.ok().build();
+// 	    }else {
+// 	    	throw new RestApiException(AuthErrorCode.INVALID_TOKEN);
+// 	    }
 		
-	}
+// 	}
 	
-	@PostMapping("/email-authcode")
-	public ResponseEntity<Void> sendEmailVerification(@RequestBody EmailRequestDto request){
+// 	@PostMapping("/email-authcode")
+// 	public ResponseEntity<Void> sendEmailVerification(@RequestBody EmailRequestDto request){
 		
-		mailService.sendVerificationEmail(request.getEmail());
+// 		mailService.sendVerificationEmail(request.getEmail());
 		
-		return ResponseEntity.ok().build();
-	}
+// 		return ResponseEntity.ok().build();
+// 	}
 	
-	@PostMapping("/verify-authcode")
-	public ResponseEntity<Void> verifyEmail(@RequestBody EmailVerifyRequestDto request){
+// 	@PostMapping("/verify-authcode")
+// 	public ResponseEntity<Void> verifyEmail(@RequestBody EmailVerifyRequestDto request){
 		
-		String email = request.getEmail();
-        String authCode = request.getAuthCode();
+// 		String email = request.getEmail();
+//         String authCode = request.getAuthCode();
 		
-		if (mailService.isValidAuthCode(email, authCode)) {
-			return ResponseEntity.ok().build();
-		}else {
-			throw new RestApiException(AuthErrorCode.INVALID_AUTHCODE);
-		}	
-	}
+// 		if (mailService.isValidAuthCode(email, authCode)) {
+// 			return ResponseEntity.ok().build();
+// 		}else {
+// 			throw new RestApiException(AuthErrorCode.INVALID_AUTHCODE);
+// 		}	
+// 	}
 	
-	@PostMapping("/renew-token")
-	public ResponseEntity<Void> refreshToken(
-	    HttpServletRequest request,
-	    HttpServletResponse response
-	) {
-		String accessToken = tokenProvider.renewAccessToken();
-		if (accessToken != null) {
-			response.setHeader("Authorization", "Bearer " + accessToken);
-			return ResponseEntity.ok().build();
-		}else {
-			return ResponseEntity.badRequest().build();
-		}	
-	}
+// 	@PostMapping("/renew-token")
+// 	public ResponseEntity<Void> refreshToken(
+// 	    HttpServletRequest request,
+// 	    HttpServletResponse response
+// 	) {
+// 		String accessToken = tokenProvider.renewAccessToken();
+// 		if (accessToken != null) {
+// 			response.setHeader("Authorization", "Bearer " + accessToken);
+// 			return ResponseEntity.ok().build();
+// 		}else {
+// 			return ResponseEntity.badRequest().build();
+// 		}	
+	// }
 }

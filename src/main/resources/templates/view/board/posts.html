@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시판</title>
+</head>
+<body>
+    <div th:fragment="post-list(posts)">
+        <div class="post">
+            <div class="post__header">
+                <h1 class="post__title">게시판</h1>
+                <a href="/posts/new" class="post__action">
+                    <i class="fas fa-pen"></i>
+                    글쓰기
+                </a>
+            </div>
+            
+            <table class="post__content">
+                <thead>
+                    <tr>
+                        <th>번호</th>
+                        <th>제목</th>
+                        <th>작성자</th>
+                        <th>작성일</th>
+                        <th>조회</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="post : ${posts}" class="post-item">
+                        <td th:text="${post.id}"></td>
+                        <td>
+                            <a th:href="@{/posts/{id}(id=${post.id})}" class="post-item__title" th:text="${post.title}"></a>
+                        </td>
+                        <td class="post-item__meta" th:text="${post.nick}"></td>
+                        <td class="post-item__meta" th:text="${#temporals.format(post.wr_date, 'yyyy-MM-dd')}"></td>
+                        <td class="post-item__meta" th:text="${post.view_cnt}"></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="post__footer">
+                <div class="post__actions">
+                    <a class="post__action">
+                        이전
+                    </a>
+                    <a class="post__action">
+                        다음
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

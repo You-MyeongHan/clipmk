@@ -1,26 +1,18 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/header :: header">
+<head th:replace="~{fragments/header :: header(title='메인페이지')}">
+    <link rel="stylesheet" href="/css/main.css">
 </head>
 <body>
-    <div th:replace="fragments/nav :: nav"></div>
+    <div th:replace="~{fragments/nav :: nav}"></div>
     
     <div class="container">
-        <div class="post-list">
-            <!-- 게시글 목록 표시 -->
-            <div class="post-item" th:each="post : ${posts}">
-                <h3 class="post-title">
-                    <a th:href="@{/post/{id}(id=${post.id})}" th:text="${post.title}"></a>
-                </h3>
-                <div class="post-info">
-                    <span th:text="${post.user_id}"></span> |
-                    <span th:text="${#temporals.format(post.wr_date, 'yyyy-MM-dd HH:mm')}"></span> |
-                    <span th:text="'조회 ' + ${post.view_cnt}"></span>
-                </div>
-            </div>
-        </div>
+        <div th:replace="~{view/board/posts :: post-list(posts=${posts})}"></div>
     </div>
 
-    <div th:replace="fragments/footer :: footer"></div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    
+    <script src="/js/nav.js"></script>
+    <script src="/js/login.js"></script>
 </body>
 </html>

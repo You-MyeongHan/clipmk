@@ -1,0 +1,88 @@
+/* Grid System */
+:root {
+    --grid-columns: 12;
+    --grid-gap: 1rem;
+    --container-padding: 1rem;
+}
+
+.container {
+    width: 100%;
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 0 var(--container-padding);
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 calc(-1 * var(--grid-gap));
+}
+
+.col {
+    flex: 1 0 0%;
+    padding: 0 var(--grid-gap);
+}
+
+/* Generate column classes */
+@for $i from 1 through 12 {
+    .col-#{$i} {
+        flex: 0 0 calc(100% * #{$i} / 12);
+        max-width: calc(100% * #{$i} / 12);
+    }
+}
+
+/* Responsive breakpoints */
+@media (min-width: 576px) {
+    @for $i from 1 through 12 {
+        .col-sm-#{$i} {
+            flex: 0 0 calc(100% * #{$i} / 12);
+            max-width: calc(100% * #{$i} / 12);
+        }
+    }
+}
+
+@media (min-width: 768px) {
+    @for $i from 1 through 12 {
+        .col-md-#{$i} {
+            flex: 0 0 calc(100% * #{$i} / 12);
+            max-width: calc(100% * #{$i} / 12);
+        }
+    }
+}
+
+@media (min-width: 992px) {
+    @for $i from 1 through 12 {
+        .col-lg-#{$i} {
+            flex: 0 0 calc(100% * #{$i} / 12);
+            max-width: calc(100% * #{$i} / 12);
+        }
+    }
+}
+
+@media (min-width: 1200px) {
+    @for $i from 1 through 12 {
+        .col-xl-#{$i} {
+            flex: 0 0 calc(100% * #{$i} / 12);
+            max-width: calc(100% * #{$i} / 12);
+        }
+    }
+}
+
+/* Grid utilities */
+.g-0 { --grid-gap: 0; }
+.g-1 { --grid-gap: 0.25rem; }
+.g-2 { --grid-gap: 0.5rem; }
+.g-3 { --grid-gap: 1rem; }
+.g-4 { --grid-gap: 1.5rem; }
+.g-5 { --grid-gap: 3rem; }
+
+/* Alignment utilities */
+.align-items-start { align-items: flex-start; }
+.align-items-center { align-items: center; }
+.align-items-end { align-items: flex-end; }
+
+.justify-content-start { justify-content: flex-start; }
+.justify-content-center { justify-content: center; }
+.justify-content-end { justify-content: flex-end; }
+.justify-content-between { justify-content: space-between; }
+.justify-content-around { justify-content: space-around; } 

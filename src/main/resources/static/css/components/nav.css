@@ -1,0 +1,207 @@
+/* Navigation */
+.nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-md);
+    width: 850px;
+    padding: 0.5rem;
+    background-color: var(--color-background);
+    margin: 0 auto;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.nav__brand {
+    font-size: 1.5rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    text-decoration: none;
+    margin-right: 2rem;
+}
+
+.nav__list {
+    display: flex;
+    gap: var(--spacing-md);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.nav__auth {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.nav__item {
+    position: relative;
+}
+
+.nav__link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    /* padding: 0.5rem 1rem; */
+    color: var(--color-text);
+    text-decoration: none;
+    border-radius: var(--border-radius-sm);
+    transition: all 0.2s ease;
+}
+
+.nav__link:hover {
+    color: var(--color-primary);
+    background-color: var(--color-background-alt);
+}
+
+.nav__link--active {
+    color: var(--color-primary);
+    font-weight: var(--font-weight-medium);
+}
+
+/* Dropdown menu */
+.nav__dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 200px;
+    padding: 0.5rem 0;
+    margin-top: 0.5rem;
+    background-color: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-md);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
+}
+
+.nav__item:hover .nav__dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.nav__dropdown-item {
+    display: block;
+    padding: 0.5rem 1rem;
+    color: var(--color-text);
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.nav__dropdown-item:hover {
+    background-color: var(--color-background-alt);
+    color: var(--color-primary);
+}
+
+/* Mobile navigation */
+.nav__toggle {
+    display: none;
+    padding: 0.5rem;
+    background: none;
+    border: none;
+    color: var(--color-text);
+    cursor: pointer;
+}
+
+.nav__toggle-icon {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background-color: currentColor;
+    position: relative;
+    transition: background-color 0.2s ease;
+}
+
+.nav__toggle-icon::before,
+.nav__toggle-icon::after {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 2px;
+    background-color: currentColor;
+    transition: transform 0.2s ease;
+}
+
+.nav__toggle-icon::before {
+    top: -6px;
+}
+
+.nav__toggle-icon::after {
+    bottom: -6px;
+}
+
+/* Mobile menu open state */
+.nav--open .nav__toggle-icon {
+    background-color: transparent;
+}
+
+.nav--open .nav__toggle-icon::before {
+    transform: translateY(6px) rotate(45deg);
+}
+
+.nav--open .nav__toggle-icon::after {
+    transform: translateY(-6px) rotate(-45deg);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .nav__toggle {
+        display: block;
+    }
+
+    .nav__list {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        padding: 1rem;
+        background-color: var(--color-background);
+        border: 1px solid var(--color-border);
+        border-radius: var(--border-radius-md);
+        box-shadow: var(--shadow-md);
+    }
+
+    .nav--open .nav__list {
+        display: flex;
+    }
+
+    .nav__dropdown {
+        position: static;
+        display: none;
+        margin-top: 0.5rem;
+        margin-left: 1rem;
+        box-shadow: none;
+        border: none;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+    }
+
+    .nav__item:hover .nav__dropdown {
+        display: block;
+    }
+
+    .nav__link {
+        width: 100%;
+        padding: 0.75rem 1rem;
+    }
+}
+
+/* Dark theme styles */
+body.dark-theme .nav__dropdown {
+    background-color: var(--color-background-alt);
+    border-color: var(--color-border);
+}
+
+body.dark-theme .nav__link:hover {
+    background-color: var(--color-background-muted);
+}
+
+body.dark-theme .nav__dropdown-item:hover {
+    background-color: var(--color-background-muted);
+} 

@@ -9,10 +9,31 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
+import com.clipmk.board.dto.PostsResDto;
 import com.clipmk.board.entity.Post;
 import com.infra.meta.dto.PostIdDto;
 
 public interface BoardRepository extends JpaRepository<Post, Long>,JpaSpecificationExecutor<Post>{
+	@Query("""
+    SELECT new com.clipmk.board.dto.PostsResDto(
+        P.id,
+        P.title,
+        P.tbl,
+        P.grp,
+        U.nick,
+        P.wr_date,
+        P.viewCnt,
+        0,
+        0,
+        P.thumbnail
+    )
+    FROM Post P
+    JOIN P.user U
+    ORDER BY P.id DESC
+    """)
+    Page<PostsResDto> findPosts(Pageable pageable);
+
+
 	Optional<Post> findById(Long postId);
 	Page<Post> findByViewCntGreaterThan(Integer viewCount, Pageable pageable);
 	Page<Post> findByTitleContaining(Pageable pageable, String searchTerm);
