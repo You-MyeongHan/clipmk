@@ -12,6 +12,22 @@ window.onload = function() {
     const navToggle = document.getElementById('navToggle');
     const navbar = document.getElementById('navbarNav');
     
+    // 페이지 로드 시 인증 상태 확인
+    const accessToken = localStorage.getItem('accessToken');
+    const nick = localStorage.getItem('nick');
+    if (accessToken) {
+        const unauthenticated = document.getElementById('unauthenticated');
+        const authenticated = document.getElementById('authenticated');
+        const username = document.getElementById('username');
+
+        if (unauthenticated && authenticated) {
+            unauthenticated.style.display = 'none';
+            authenticated.style.display = 'block';
+            username.textContent = nick;
+            
+        }
+    }
+    
     console.log('로그인 버튼:', loginButton);
     console.log('로그인 모달:', loginModal);
 
@@ -38,17 +54,23 @@ window.onload = function() {
 
     // 닫기 버튼 클릭 이벤트
     if (closeModalButton) {
-        closeModalButton.addEventListener('click', closeModal);
+        closeModalButton.addEventListener('click', function() {
+            console.log('닫기 버튼 클릭됨');
+            closeModal();
+        });
     }
 
     // 취소 버튼 클릭 이벤트
     if (cancelButton) {
-        cancelButton.addEventListener('click', closeModal);
+        cancelButton.addEventListener('click', function() {
+            console.log('취소 버튼 클릭됨');
+            closeModal();
+        });
     }
 
     // 모달 외부 클릭 시 닫기
     window.addEventListener('click', function(event) {
-        if (event.target === loginModal) {
+        if (event.target == loginModal) {
             console.log('모달 외부 클릭됨');
             closeModal();
         }
@@ -63,7 +85,7 @@ window.onload = function() {
 
             console.log('로그인 시도:', uid);
 
-            fetch('/auth/authenticate', {
+            fetch('/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -81,9 +103,23 @@ window.onload = function() {
             })
             .then(data => {
                 console.log('로그인 성공');
-                localStorage.setItem('token', data.token);
+                // 토큰 저장
+                localStorage.setItem('accessToken', data.accessToken);
+                localStorage.setItem('refreshToken', data.refreshToken);
+                localStorage.setItem('nick', data.nick);
+                
+                // UI 업데이트
+                const unauthenticated = document.getElementById('unauthenticated');
+                const authenticated = document.getElementById('authenticated');
+                const username = document.getElementById('username');
+                
+                if (unauthenticated && authenticated && username) {
+                    unauthenticated.style.display = 'none';
+                    authenticated.style.display = 'block';
+                    username.textContent = data.nick;
+                }
+                
                 closeModal();
-                window.location.reload();
             })
             .catch(error => {
                 console.error('로그인 실패:', error);
@@ -96,8 +132,18 @@ window.onload = function() {
     if (logoutButton) {
         logoutButton.addEventListener('click', function() {
             console.log('로그아웃 버튼 클릭됨');
-            localStorage.removeItem('token');
-            window.location.reload();
+            // 토큰 제거
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            
+            // UI 업데이트
+            const unauthenticated = document.getElementById('unauthenticated');
+            const authenticated = document.getElementById('authenticated');
+            
+            if (unauthenticated && authenticated) {
+                unauthenticated.style.display = 'block';
+                authenticated.style.display = 'none';
+            }
         });
     }
 

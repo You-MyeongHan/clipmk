@@ -27,11 +27,11 @@
         </li>
     </ul>
     <div class="nav__auth">
-        <div th:if="${#authorization == null || !#authorization.authenticated}">
+        <div id="unauthenticated">
             <button class="btn" id="loginButton">로그인</button>
         </div>
-        <div th:if="${#authorization != null && #authorization.authenticated}">
-            <span class="nav__username" th:text="${#authorization.name}"></span>
+        <div id="authenticated" style="display: none;">
+            <span class="nav__username" id="username"></span>
             <button class="btn" id="logoutButton">로그아웃</button>
         </div>
     </div>
@@ -55,11 +55,12 @@
                 </form>
             </div>
             <div class="modal__footer">
+                <button type="button" class="btn btn--outline" id="signupButton">회원가입</button>
                 <button type="button" class="btn btn--secondary" id="cancelButton">닫기</button>
-                <button type="button" class="btn btn--primary" id="submitLoginButton">로그인</button>
+                <button type="button" class="btn" id="submitLoginButton">로그인</button>
             </div>
         </div>
     </div>
-    <script th:src="@{/js/nav.js}"></script>
-    <script th:src="@{/js/login.js}"></script>
+    <script th:src="@{/js/nav.js}" type="text/javascript"></script>
+    <!-- <script th:src="@{/js/login.js}"></script> -->
 </nav>

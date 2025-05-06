@@ -82,17 +82,17 @@ public class BoardService {
 
 		PostDto postDto = post.toDto();
 		
-		// List<Comment> comments = commentRepository.findByPostIdAndParentIsNull(postId);
-		// List<CommentDto> commentDtos = new ArrayList<>();
+		List<Comment> comments = commentRepository.findByPostIdAndParentIsNull(postId);
+		List<CommentDto> commentDtos = new ArrayList<>();
 		
-		// for (Comment comment : comments) {
-        //     CommentDto commentDto = CommentDto.from(comment);
-        //     List<CommentDto> replyDtos = comment.getReplies();
-        //     commentDto.setReplies(replyDtos);
-        //     commentDtos.add(commentDto);
-        // }
+		for (Comment comment : comments) {
+            CommentDto commentDto = CommentDto.from(comment);
+            List<CommentDto> replyDtos = comment.getReplies();
+            commentDto.setReplies(replyDtos);
+            commentDtos.add(commentDto);
+        }
 
-		// postDto.setComments(commentDtos);
+		postDto.setComments(commentDtos);
 		// if(user!=null) {
 		// 	if(post.getRecommendations().contains(user.getId()))
 		// 		postDto.setRecommend_state(1);

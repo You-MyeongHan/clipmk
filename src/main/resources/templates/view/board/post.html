@@ -50,8 +50,169 @@
                 </div>
             </div>
         </div>
+
+        <!-- 댓글 섹션 -->
+        <div class="comments-section">
+            <h3>댓글</h3>
+            <div class="comment-form">
+                <textarea id="commentContent" placeholder="댓글을 작성하세요..."></textarea>
+                <button class="btn" id="submitComment">댓글 작성</button>
+            </div>
+            
+            <div class="comments-list">
+                <div th:each="comment : ${post.comments}" class="comment">
+                    <div class="comment-header">
+                        <span class="comment-author" th:text="${comment.user_nick}"></span>
+                        <span class="comment-date" th:text="${#temporals.format(comment.wr_date, 'yyyy-MM-dd HH:mm')}"></span>
+                    </div>
+                    <div class="comment-content" th:text="${comment.content}"></div>
+                    <div class="comment-actions">
+                        <button class="btn btn--small" th:onclick="'showReplyForm(' + ${comment.id} + ')'">답글</button>
+                        <button class="btn btn--small" th:onclick="'recommendComment(' + ${comment.id} + ')'">
+                            추천 <span th:text="${comment.recommend_cnt}">0</span>
+                        </button>
+                        <button class="btn btn--small" th:onclick="'decommendComment(' + ${comment.id} + ')'">
+                            비추천 <span th:text="${comment.decommend_cnt}">0</span>
+                        </button>
+                    </div>
+                    
+                    <!-- 대댓글 목록 -->
+                    <div class="replies-list" th:if="${!comment.replies.empty}">
+                        <div th:each="reply : ${comment.replies}" class="reply">
+                            <div class="reply-header">
+                                <span class="reply-author" th:text="${reply.user_nick}"></span>
+                                <span class="reply-to" th:text="'@' + ${reply.parent_nick}"></span>
+                                <span class="reply-date" th:text="${#temporals.format(reply.wr_date, 'yyyy-MM-dd HH:mm')}"></span>
+                            </div>
+                            <div class="reply-content" th:text="${reply.content}"></div>
+                            <div class="reply-actions">
+                                <button class="btn btn--small" th:onclick="'recommendComment(' + ${reply.id} + ')'">
+                                    추천 <span th:text="${reply.recommend_cnt}">0</span>
+                                </button>
+                                <button class="btn btn--small" th:onclick="'decommendComment(' + ${reply.id} + ')'">
+                                    비추천 <span th:text="${reply.decommend_cnt}">0</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 대댓글 작성 폼 (기본적으로 숨김) -->
+                    <div class="reply-form" th:id="'replyForm-' + ${comment.id}" style="display: none;">
+                        <textarea th:id="'replyContent-' + ${comment.id}" placeholder="답글을 작성하세요..."></textarea>
+                        <button class="btn btn--small" th:onclick="'submitReply(' + ${comment.id} + ')'">답글 작성</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
     <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script th:inline="javascript">
+        // 댓글 작성
+        document.getElementById('submitComment').addEventListener('click', function() {
+            const content = document.getElementById('commentContent').value;
+            if (!content) {
+                alert('댓글 내용을 입력해주세요.');
+                return;
+            }
+            
+            fetch('/api/comments', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
+                },
+                body: JSON.stringify({
+                    content: content,
+                    postId: [[${post.id}]]
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('댓글 작성에 실패했습니다.');
+                }
+                window.location.reload();
+            })
+            .catch(error => {
+                alert(error.message);
+            });
+        });
+        
+        // 대댓글 폼 표시
+        function showReplyForm(commentId) {
+            const replyForm = document.getElementById('replyForm-' + commentId);
+            replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        // 대댓글 작성
+        function submitReply(commentId) {
+            const content = document.getElementById('replyContent-' + commentId).value;
+            if (!content) {
+                alert('답글 내용을 입력해주세요.');
+                return;
+            }
+            
+            fetch('/api/comments/reply', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
+                },
+                body: JSON.stringify({
+                    content: content,
+                    postId: [[${post.id}]],
+                    parentId: commentId
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('답글 작성에 실패했습니다.');
+                }
+                window.location.reload();
+            })
+            .catch(error => {
+                alert(error.message);
+            });
+        }
+        
+        // 댓글 추천
+        function recommendComment(commentId) {
+            fetch('/api/comments/' + commentId + '/recommend', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('추천에 실패했습니다.');
+                }
+                window.location.reload();
+            })
+            .catch(error => {
+                alert(error.message);
+            });
+        }
+        
+        // 댓글 비추천
+        function decommendComment(commentId) {
+            fetch('/api/comments/' + commentId + '/decommend', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('비추천에 실패했습니다.');
+                }
+                window.location.reload();
+            })
+            .catch(error => {
+                alert(error.message);
+            });
+        }
+    </script>
 </body>
 </html> 
