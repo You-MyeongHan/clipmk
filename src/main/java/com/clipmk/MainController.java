@@ -33,6 +33,11 @@ public class MainController {
 		return "view/board/post";
 	}
 
+	@GetMapping("/post-form")
+	public String postForm(Model model){
+		return "view/board/post-form";
+	}
+
     // //베스트 게시물 
 	// @GetMapping("/posts")
 	// public ResponseEntity<Page<PostsResDto>> bestPosts(

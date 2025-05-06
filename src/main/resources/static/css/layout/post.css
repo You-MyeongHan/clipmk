@@ -382,4 +382,119 @@ body.dark-theme .post__action:hover {
     border: 1px solid var(--color-border);
     border-radius: 4px;
     resize: vertical;
+}
+
+/* Post form */
+.post-form {
+    background-color: var(--color-surface);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.post-form__header {
+    margin-bottom: var(--spacing-lg);
+}
+
+.post-form__title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--color-text-primary);
+}
+
+.post-form__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.form-group {
+    margin-bottom: var(--spacing-md);
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: var(--spacing-xs);
+    color: var(--color-text-primary);
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: var(--spacing-sm);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-sm);
+    background-color: var(--color-surface);
+    color: var(--color-text-primary);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.form-control::placeholder {
+    color: var(--color-text-secondary);
+}
+
+/* CKEditor 스타일 */
+.ck-editor__editable {
+    min-height: 400px;
+    max-height: 600px;
+}
+
+.ck-editor__editable_inline {
+    padding: var(--spacing-md);
+}
+
+.ck.ck-editor {
+    width: 100%;
+}
+
+.ck.ck-toolbar {
+    border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
+    border-color: var(--color-border);
+}
+
+.ck.ck-editor__main > .ck-editor__editable {
+    border-radius: 0 0 var(--border-radius-sm) var(--border-radius-sm);
+    border-color: var(--color-border);
+}
+
+.ck.ck-button {
+    color: var(--color-text-primary);
+}
+
+.ck.ck-button:hover {
+    background-color: var(--color-surface-variant);
+}
+
+.ck.ck-button.ck-on {
+    background-color: var(--color-surface-variant);
+    color: var(--color-primary);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-lg);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .post-form {
+        padding: var(--spacing-md);
+    }
+
+    .post-form__title {
+        font-size: 1.25rem;
+    }
+
+    .ck-editor__editable {
+        min-height: 300px;
+    }
 } 

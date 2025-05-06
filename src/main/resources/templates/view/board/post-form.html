@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>글쓰기</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <!-- CKEditor CDN -->
+    <script src="https://cdn.ckeditor.com/ckeditor5/40.1.0/classic/ckeditor.js"></script>
+</head>
+<body>
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    
+    <main class="main-content">
+        <div class="container">
+            <div class="post-form">
+                <div class="post-form__header">
+                    <h1 class="post-form__title">글쓰기</h1>
+                </div>
+                
+                <form th:action="@{/posts}" method="post" class="post-form__content">
+                    <div class="form-group">
+                        <label for="title">제목</label>
+                        <input type="text" id="title" name="title" required 
+                               class="form-control" placeholder="제목을 입력하세요">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="content">내용</label>
+                        <textarea id="editor" name="content" required></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn--primary">작성</button>
+                        <a th:href="@{/posts}" class="btn btn--secondary">취소</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script th:src="@{/js/editor.js}"></script>
+</body>
+</html> 
