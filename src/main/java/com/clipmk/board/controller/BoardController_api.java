@@ -65,18 +65,6 @@
 //                 url(fileUploadService.upload(image, user)).
 //                 build(), HttpStatus.OK);
 //     }
-    
-// 	//게시물 등록
-// 	@PostMapping("/post")
-// 	public ResponseEntity<Void> register(
-// 			@RequestBody PostReqDto request,
-// 			@AuthenticationPrincipal User user
-// 	){
-		
-// 		boardService.register(request, user.getId());
-		
-// 		return ResponseEntity.ok().build();
-// 	}
 	
 // 	//게시물 조회 
 // 	@GetMapping("/post/{post-id}")

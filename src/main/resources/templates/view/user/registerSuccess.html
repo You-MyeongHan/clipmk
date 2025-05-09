@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/header :: header('회원가입 완료')}">
-    <link rel="stylesheet" th:href="@{/css/registerSuccess.css}">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
 </head>
 <body>
     <div th:replace="~{fragments/nav :: nav}"></div>
@@ -9,7 +9,6 @@
     <div class="success-container">
         <h3>회원가입이 완료되었습니다!</h3>
         <p>로그인 후 서비스를 이용해주세요.</p>
-        <a th:href="@{/user/loginForm}" class="btn">로그인 하기</a>
     </div>
     
     <div th:replace="~{fragments/footer :: footer}"></div>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 완료</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+    <div th:replace="~{layout/header :: header}"></div>
+    
+    <main class="main-content">
+        <div class="container">
+            <div class="success-container">
+                <h1>회원가입이 완료되었습니다</h1>
+                <p>
+                    클립마켓의 회원이 되신 것을 환영합니다.<br>
+                    로그인 후 서비스를 이용하실 수 있습니다.
+                </p>
+                <div class="btn-group">
+                    <a th:href="@{/}" class="btn btn--primary">홈으로</a>
+                    <a th:href="@{/login}" class="btn btn--secondary">로그인</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{layout/footer :: footer}"></div>
+</body>
+</html> 

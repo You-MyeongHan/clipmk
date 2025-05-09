@@ -44,7 +44,7 @@ public class UserController {
 	@PostMapping("/register")
 	public String register(RegisterReqDto request){
 		userService.register(request);
-		return "redirect:/user/registerSuccess";
+		return "view/user/registerSuccess";
 	}
 
 	@GetMapping("/registerSuccess")
