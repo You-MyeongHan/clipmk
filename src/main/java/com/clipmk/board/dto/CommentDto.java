@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.clipmk.board.entity.Comment;
+import com.clipmk.user.entity.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,21 +26,28 @@ public class CommentDto {
 	private String parent_nick;
 	private int recommend_cnt;
 	private int decommend_cnt;
+	private int recommend_state;
 	@Builder.Default
 	private List<CommentDto> replies = new ArrayList<>();
 	
 	public static CommentDto from(Comment comment) {
         CommentDto dto = CommentDto.builder()
-        		.id(comment.getId())
+        		.id(comment.getCommentId())
         		.content(comment.getContent())
-        		.wr_date(comment.getWr_date())
-        		.del_date(comment.getDel_date())
+        		.wr_date(comment.getFrsRgDtm())
+        		.del_date(comment.getDelYn() != null ? LocalDateTime.now() : null)
         		.user_id(comment.getUser().getId())
         		.user_nick(comment.getUser().getNick())
-        		.recommend_cnt(comment.getRecommendations().size())
-        		.decommend_cnt(comment.getDecommendations().size())
+        		.recommend_cnt((int) comment.getRecommendCount())
+        		.decommend_cnt((int) comment.getDecommendCount())
         		.build();
 
+        return dto;
+    }
+	
+	public static CommentDto from(Comment comment, User currentUser) {
+        CommentDto dto = from(comment);
+        dto.setRecommend_state(comment.getRecommendState(currentUser));
         return dto;
     }
 	

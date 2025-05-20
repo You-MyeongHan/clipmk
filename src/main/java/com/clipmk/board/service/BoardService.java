@@ -26,6 +26,7 @@ import com.clipmk.board.dto.PostReqDto;
 import com.clipmk.board.dto.PostsResDto;
 import com.clipmk.board.entity.Comment;
 import com.clipmk.board.entity.Post;
+import com.clipmk.board.entity.PostReaction;
 import com.clipmk.board.repository.BoardRepository;
 import com.clipmk.board.repository.CommentRepository;
 import com.clipmk.user.entity.User;
@@ -45,11 +46,11 @@ public class BoardService {
 	private final BoardRepository boardRepository;
 	private final CommentRepository commentRepository;
 	private final UserRepository userRepository;
-	private final AmazonS3Client amazonS3Client;
+	// private final AmazonS3Client amazonS3Client;
 	@Value("${point.recommend-post}")
 	private int RPP;	//Recommend Post Point
 	// @Value("${point.create-post}")
-	// private int CPP;	//Recommend Post Point 
+	// private int RPP;	//Recommend Post Point 
 	// @Value("${cloud.aws.s3.bucket.url}")
     // private String defaultUrl;
 	// @Value("${cloud.aws.s3.bucket.name}")
@@ -124,11 +125,11 @@ public class BoardService {
 		if (request.getTitle() != null) {
             post.setTitle(request.getTitle());
         }
-        if (request.getTable() != null) {
-            post.setTbl(request.getTable());
+        if (request.getCategory() != null) {
+            post.setCategory(request.getCategory());
         }
-        if (request.getGroup() != null) {
-            post.setGrp(request.getGroup());
+        if (request.getSubCategory() != null) {
+            post.setSubCategory(request.getSubCategory());
         }
         if (request.getContent() != null) {
             post.setContent(request.getContent());
@@ -160,7 +161,7 @@ public class BoardService {
 	}
 	
 	public Page<Post> findTop10ByUser_IdOrderByIdDesc(Integer userId, Pageable pageable){
-		return boardRepository.findTop10ByUser_IdOrderByIdDesc(userId, pageable);
+		return boardRepository.findTop10ByUserIdOrderByPostIdDesc(userId, pageable);
 	}
 	
 	@Transactional
@@ -183,13 +184,13 @@ public class BoardService {
 		Integer point = user.getPoint();
 		Post post=Post.builder()
 				.title(request.getTitle())
-				.tbl(request.getTable())
-				.grp(request.getGroup())
+				.category(request.getCategory())
+				.subCategory(request.getSubCategory())
 				.content(htmlContent)
 				.user(user)
 				.thumbnail(thumbnail)
 				.build();
-		point+=CPP;
+		point+=RPP;
 		
 		user.setPoint(point);
 		userRepository.save(user);
@@ -231,17 +232,17 @@ public class BoardService {
 	        e.printStackTrace();
 	    }
 
-	    moveS3(oldSource, newSource);
-	    deleteS3(oldSource);
+	    // moveS3(oldSource, newSource);
+	    // deleteS3(oldSource);
 	}
 	
-	private void moveS3(String oldSource, String newSource) {
-		amazonS3Client.copyObject(bucket, oldSource, bucket, newSource);
-	}
+	// private void moveS3(String oldSource, String newSource) {
+	// 	amazonS3Client.copyObject(bucket, oldSource, bucket, newSource);
+	// }
 
-	private void deleteS3(String source) {
-		amazonS3Client.deleteObject(bucket, source);
-	}
+	// private void deleteS3(String source) {
+	// 	amazonS3Client.deleteObject(bucket, source);
+	// }
 	
 	@Transactional
 	public void updateView_cnt(Long postId) {
@@ -253,51 +254,40 @@ public class BoardService {
 	
 	@Transactional
 	public void recommend(Long postId, User user, int value) {
-		
-		Post post= boardRepository.findById(postId).orElseThrow(
-				()-> new RestApiException(BoardErrorCode.POST_NOT_FOUND));
-		if(user==null) {
+		if (user == null) {
 			throw new RestApiException(UserErrorCode.USER_NOT_FOUND);
 		}
-		User postUser=post.getUser();
-			
-		Set<Integer> recommendations = post.getRecommendations();
-        Set<Integer> decommendations = post.getDecommendations();
-        Integer point = postUser.getPoint();
-        if (value == 1) {
-            // 추천 버튼 클릭
-            if(decommendations.remove(user.getId())) {
-            	point+=RPP;
-            }
 
-            if (recommendations.contains(user.getId())) {
-                // 이미 추천한 경우, 추천 취소
-                recommendations.remove(user.getId());
-                point-=RPP;
-            } else {
-            	recommendations.add(user.getId());
-            	point+=RPP;
-            }
-        } else if (value == -1) {
-            // 비추천 버튼 클릭
-            if(recommendations.remove(user.getId())) {
-            	point-=RPP;
-            }
+		Post post = boardRepository.findById(postId)
+				.orElseThrow(() -> new RestApiException(BoardErrorCode.POST_NOT_FOUND));
+		
+		User postUser = post.getUser();
+		Integer point = postUser.getPoint();
 
-            if (decommendations.contains(user.getId())) {
-                // 이미 비추천한 경우, 비추천 취소
-                decommendations.remove(user.getId());
-                point+=RPP;
-            }
-            else{
-                // 비추천 추가
-            	decommendations.add(user.getId());
-            	point-=RPP;
-            }
-        }
-        boardRepository.save(post);
-        postUser.setPoint(point);
-        userRepository.save(postUser);
+		PostReaction.ReactionType type = value == 1 ? 
+			PostReaction.ReactionType.UP : PostReaction.ReactionType.DOWN;
+
+		// 현재 반응 상태 확인
+		int currentState = post.getRecommendState(user);
+		
+		// 반응 토글
+		post.toggleReaction(user, type);
+		
+		// 포인트 계산
+		if (currentState == 0) {
+			// 새로운 반응 추가
+			point += value == 1 ? RPP : -RPP;
+		} else if (currentState == value) {
+			// 같은 반응 취소
+			point += value == 1 ? -RPP : RPP;
+		} else {
+			// 반대 반응으로 변경
+			point += value == 1 ? 2 * RPP : -2 * RPP;
+		}
+
+		postUser.setPoint(point);
+		userRepository.save(postUser);
+		boardRepository.save(post);
 	}
 	
 	public Page<Post> findByUserId(int userId, Pageable pageable){

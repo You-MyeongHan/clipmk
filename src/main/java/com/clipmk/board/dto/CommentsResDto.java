@@ -12,19 +12,19 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 public class CommentsResDto {
-	private Long id;
-	private Long postId;
+	private Long commentId;
 	private String content;
-	private LocalDateTime  wr_date;
-	private Integer recommend_cnt;
+	private LocalDateTime frsRgDtm;
+	private LocalDateTime lstChDtm;
+	private Long recommendCnt;
 	
 	public static CommentsResDto from(Comment comment) {
 		CommentsResDto commentsResDto = CommentsResDto.builder()
-				.id(comment.getId())
-				.postId(comment.getPost().getId())
+				.commentId(comment.getCommentId())
 				.content(comment.getContent())
-				.wr_date(comment.getWr_date())
-				.recommend_cnt(comment.getRecommendations().size())
+				.frsRgDtm(comment.getFrsRgDtm())
+				.lstChDtm(comment.getLastChDtm())
+				.recommendCnt(comment.getRecommendCount())
 				.build();
 		return commentsResDto; 
 	}

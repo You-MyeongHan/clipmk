@@ -14,21 +14,21 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PostDto{
-	private Long id;
+	private Long postId;
 	private String title;
-	private String tbl;
-	private String grp;
+	private String category;
+	private String subCategory;
 	private String content;
 	private String thumbnail;
-	private LocalDateTime  wr_date;
-	private LocalDateTime  re_date;
-	private LocalDateTime  del_date;
+	private LocalDateTime  wrDate;
+	private LocalDateTime  reDate;
+	private LocalDateTime  delDate;
 	private Integer viewCnt;
-	private String user_nick;
-	private Integer user_id;
-	private int recommend_cnt;
-	private int decommend_cnt;
-	private int recommend_state;
+	private String userNick;
+	private Integer userId;
+	private int recommendCnt;
+	private int decommendCnt;
+	private int recommendState;
 	
 	@OrderBy("id desc")
 	private List<CommentDto> comments;

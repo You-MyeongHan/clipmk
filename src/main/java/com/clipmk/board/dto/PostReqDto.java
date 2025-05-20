@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PostReqDto {
 	private String title;
-	private String table;
-	private String group;
+	private String category;
+	private String subCategory;
 	private String content;
 	private String thumbnail;
 }

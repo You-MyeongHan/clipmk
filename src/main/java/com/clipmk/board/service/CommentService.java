@@ -16,6 +16,7 @@ import com.clipmk.board.dto.EditCommentReqDto;
 import com.clipmk.board.dto.PostDto;
 import com.clipmk.board.dto.RecommendCntResDto;
 import com.clipmk.board.entity.Comment;
+import com.clipmk.board.entity.CommentReaction;
 import com.clipmk.board.entity.Post;
 import com.clipmk.board.repository.BoardRepository;
 import com.clipmk.board.repository.CommentRepository;
@@ -34,9 +35,9 @@ public class CommentService {
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
     @Value("${point.recommend-comment}")
-	private int RCP;	//Recommend Post Point
+	private int RCP;	//Recommend Comment Point
 	@Value("${point.create-comment}")
-	private int CCP;	//Recommend Post Point
+	private int CCP;	//Create Comment Point
 	
 	public List<CommentDto> getComments(long postId) {
 		List<Comment> comments = commentRepository.findByPostIdAndParentIsNull(postId);
@@ -68,26 +69,18 @@ public class CommentService {
     
     @Transactional
     public RecommendCntResDto getRecommendCnt(Long postId, User user) {
-    	
-    	Post post= boardRepository.findById(postId).orElseThrow(
+    	Post post = boardRepository.findById(postId).orElseThrow(
 				()-> new RestApiException(BoardErrorCode.POST_NOT_FOUND));
-    	
-    	PostDto postDto=post.toDto();
     	
     	RecommendCntResDto recommendCntResponseDto = RecommendCntResDto
 														.builder()
-														.recommend_cnt(postDto.getRecommend_cnt())
-														.decommend_cnt(postDto.getDecommend_cnt())
+														.recommend_cnt((int) post.getRecommendCount())
+														.decommend_cnt((int) post.getDecommendCount())
 														.build();
     	
-    	if(user!=null) {
-			if(post.getRecommendations().contains(user.getId()))
-				recommendCntResponseDto.setRecommend_state(1);
-			else if(post.getDecommendations().contains(user.getId()))
-				recommendCntResponseDto.setRecommend_state(-1);
-			else
-				recommendCntResponseDto.setRecommend_state(0);
-		}
+    	if(user != null) {
+    		recommendCntResponseDto.setRecommend_state(post.getRecommendState(user));
+    	}
     	
     	return recommendCntResponseDto;
     }
@@ -124,18 +117,17 @@ public class CommentService {
     
     @Transactional
     public void deleteComment(Long commentId, User user) {
-    	
-    	Comment comment=commentRepository.findById(commentId).orElseThrow(
+    	Comment comment = commentRepository.findById(commentId).orElseThrow(
     			() -> new RestApiException(BoardErrorCode.COMMENT_NOT_FOUND));
     	
-    	if(user==null) {
+    	if(user == null) {
 			throw new RestApiException(UserErrorCode.USER_NOT_FOUND);
 		}
     	
     	Integer point = user.getPoint();
     	
-		comment.setDel_date(LocalDateTime.now());
-		point-=CCP;
+		comment.setDelYn("Y");  // 삭제 여부를 Y로 설정
+		point -= CCP;
 		userRepository.save(user);
     	commentRepository.save(comment);
     }
@@ -155,55 +147,55 @@ public class CommentService {
 	}
     
     @Transactional
-	public void recommend(Long commentId, User user, int value) {
-		
-    	Comment comment=commentRepository.findById(commentId).orElseThrow(
-    			() -> new RestApiException(BoardErrorCode.COMMENT_NOT_FOUND));
-    	
-    	if(user==null) {
+	public void recommendComment(Long commentId, User user, int value) {
+		if (user == null) {
 			throw new RestApiException(UserErrorCode.USER_NOT_FOUND);
 		}
-    	
-		User postUser=comment.getUser();
-				
-		Set<Integer> recommendations = comment.getRecommendations();
-        Set<Integer> decommendations = comment.getDecommendations();
-        Integer point = postUser.getPoint();
-        if (value == 1) {
-            // 추천 버튼 클릭
-            if(decommendations.remove(user.getId())) {
-            	point+=RCP;
-            }
 
-            if (recommendations.contains(user.getId())) {
-                // 이미 추천한 경우, 추천 취소
-                recommendations.remove(user.getId());
-                point-=RCP;
-            } else {
-            	recommendations.add(user.getId());
-            	point+=RCP;
-            }
-        } else if (value == -1) {
-            // 비추천 버튼 클릭
-            if(recommendations.remove(user.getId())) {
-            	point-=RCP;
-            }
+		Comment comment = commentRepository.findById(commentId)
+				.orElseThrow(() -> new RestApiException(BoardErrorCode.COMMENT_NOT_FOUND));
+		
+		User commentUser = comment.getUser();
+		Integer point = commentUser.getPoint();
 
-            if (decommendations.contains(user.getId())) {
-                // 이미 비추천한 경우, 비추천 취소
-                decommendations.remove(user.getId());
-                point+=RCP;
-            }
-            else{
-                // 비추천 추가
-            	decommendations.add(user.getId());
-            	point-=RCP;
-            }
-        }
-        commentRepository.save(comment);
-        postUser.setPoint(point);
-        userRepository.save(postUser);
+		CommentReaction.ReactionType type = value == 1 ? 
+			CommentReaction.ReactionType.UP : CommentReaction.ReactionType.DOWN;
 
+		// 현재 반응 상태 확인
+		int currentState = comment.getRecommendState(user);
+		
+		// 반응 토글
+		comment.toggleReaction(user, type);
+		
+		// 포인트 계산
+		if (currentState == 0) {
+			// 새로운 반응 추가
+			point += value == 1 ? RCP : -RCP;
+		} else if (currentState == value) {
+			// 같은 반응 취소
+			point += value == 1 ? -RCP : RCP;
+		} else {
+			// 반대 반응으로 변경
+			point += value == 1 ? 2 * RCP : -2 * RCP;
+		}
+
+		commentUser.setPoint(point);
+		userRepository.save(commentUser);
+		commentRepository.save(comment);
+	}
+    
+    @Transactional
+	public RecommendCntResDto getCommentRecommendCnt(Long commentId, User user) {
+		Comment comment = commentRepository.findById(commentId)
+				.orElseThrow(() -> new RestApiException(BoardErrorCode.COMMENT_NOT_FOUND));
+		
+		RecommendCntResDto recommendCntResponseDto = RecommendCntResDto.builder()
+				.recommend_cnt((int) comment.getRecommendCount())
+				.decommend_cnt((int) comment.getDecommendCount())
+				.recommend_state(comment.getRecommendState(user))
+				.build();
+		
+		return recommendCntResponseDto;
 	}
     
     public Page<Comment> findByUserId(int userId, Pageable pageable){

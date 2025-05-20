@@ -1,6 +1,7 @@
 package com.clipmk;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,9 +19,14 @@ public class MainController {
     private final BoardService boardService;
     
     @GetMapping("/")
-    public String index(Model model, @PageableDefault(page=0, size=20, sort={"id"}) Pageable pageable) {
+    public String index(Model model, 
+            @PageableDefault(
+                page = 0, 
+                size = 20, 
+                sort = "postId", 
+                direction = Sort.Direction.DESC
+            ) Pageable pageable) {
         // 게시글 목록을 가져와서 모델에 추가
-        
         model.addAttribute("posts", boardService.findAll(pageable));
         return "view/main/index";
     }

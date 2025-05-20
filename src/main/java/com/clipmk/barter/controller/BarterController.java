@@ -149,28 +149,28 @@ public class BarterController {
 		return ResponseEntity.ok().build(); 
 		
 	}
-	//거래 수락
-	@PostMapping("/accept")
-	public ResponseEntity<Long> acceptDeal(
-			@RequestBody DealAcceptReqDto request,
-			@AuthenticationPrincipal User user
-	){
-		Deal deal = barterService.getDealById(request.getDealId());
+// 	//거래 수락
+// 	@PostMapping("/accept")
+// 	public ResponseEntity<Long> acceptDeal(
+// 			@RequestBody DealAcceptReqDto request,
+// 			@AuthenticationPrincipal User user
+// 	){
+// 		Deal deal = barterService.getDealById(request.getDealId());
 		
-		if(deal != null) {
-			if(user.getId() == deal.getToItem().getUser().getId()) {
-//				long chatRoomId = chatService.createChatRoom(deal);
-				ChatRoom chatRoom = chatService.createChatRoom(request.getUserId1(),request.getUserId2());
-				barterService.dealOn(deal);
-				return ResponseEntity.ok(chatRoom.getId());
-			}
-			return ResponseEntity.badRequest().build();
+// 		if(deal != null) {
+// 			if(user.getId() == deal.getToItem().getUser().getId()) {
+// //				long chatRoomId = chatService.createChatRoom(deal);
+// 				ChatRoom chatRoom = chatService.createChatRoom(request.getUserId1(),request.getUserId2());
+// 				barterService.dealOn(deal);
+// 				return ResponseEntity.ok(chatRoom.getId());
+// 			}
+// 			return ResponseEntity.badRequest().build();
 			
-		}
+// 		}
 		
-		return ResponseEntity.badRequest().build();
+// 		return ResponseEntity.badRequest().build();
 		
-	}
+// 	}
 	
 	//거래 거절
 	@PostMapping("/reject")

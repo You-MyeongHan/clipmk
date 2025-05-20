@@ -8,10 +8,11 @@ import lombok.Data;
 @Data
 @Builder
 public class CommentResDto {
-	private Long id;
+	private Long commentId;
 	private String content;
-	private LocalDateTime  wr_date;
-	private LocalDateTime  del_date;
+	private LocalDateTime  wrDate;
+	private LocalDateTime  delDate;
 	private String nick;
 	private Long parentCommentId;
+	// private List<CommentResDto> replies;
 }

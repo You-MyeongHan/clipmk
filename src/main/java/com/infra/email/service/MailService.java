@@ -31,80 +31,80 @@ import software.amazon.awssdk.services.ses.model.SesException;
 @Service
 @RequiredArgsConstructor
 public class MailService {
-	private final Logger logger = LoggerFactory.getLogger(UserController.class);
-	private final RedisTemplate<String, String> redisTemplate;
+	// private final Logger logger = LoggerFactory.getLogger(UserController.class);
+	// private final RedisTemplate<String, String> redisTemplate;
     
-    @Value("${cloud.aws.ses.sender}")
-	private String senderEmail;
+    // @Value("${cloud.aws.ses.sender}")
+	// private String senderEmail;
     
-    @Value("${cloud.aws.ses.access-key}")
-	private String accessKey;
+    // @Value("${cloud.aws.ses.access-key}")
+	// private String accessKey;
     
-    @Value("${cloud.aws.ses.secret-key}")
-	private String secretKey;
+    // @Value("${cloud.aws.ses.secret-key}")
+	// private String secretKey;
     
-    private static final int EXPIRATION_MINUTES = 5;
+    // private static final int EXPIRATION_MINUTES = 5;
     
-    public void sendVerificationEmail(String to){
+    // public void sendVerificationEmail(String to){
     	
-    	//인증번호 생성
-    	String verificationCode = generateVerificationCode();
-    	//
-    	redisTemplate.opsForValue().set(to, verificationCode, EXPIRATION_MINUTES, TimeUnit.MINUTES);
+    // 	//인증번호 생성
+    // 	String verificationCode = generateVerificationCode();
+    // 	//
+    // 	redisTemplate.opsForValue().set(to, verificationCode, EXPIRATION_MINUTES, TimeUnit.MINUTES);
     	
-    	// 이메일 발송
-        sendEmailWithSES(to, verificationCode);
-    }
+    // 	// 이메일 발송
+    //     sendEmailWithSES(to, verificationCode);
+    // }
 	
-	private String generateVerificationCode() {
+	// private String generateVerificationCode() {
 		
-        int codeLength = 6;
-        Random random = new Random();
-        StringBuilder sb = new StringBuilder();
+    //     int codeLength = 6;
+    //     Random random = new Random();
+    //     StringBuilder sb = new StringBuilder();
         
-        for (int i = 0; i < codeLength; i++) {
-            sb.append(random.nextInt(10));
-        }
+    //     for (int i = 0; i < codeLength; i++) {
+    //         sb.append(random.nextInt(10));
+    //     }
         
-        return sb.toString();
-    }
+    //     return sb.toString();
+    // }
 	
-	private void sendEmailWithSES(String to, String verificationCode) {
+	// private void sendEmailWithSES(String to, String verificationCode) {
 		
-		AwsCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
-		SesClient sesClient = SesClient.builder()
-                .region(Region.AP_NORTHEAST_2) // AWS SES 리전 설정
-                .credentialsProvider(StaticCredentialsProvider.create(credentials))
-                .build();
+	// 	AwsCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
+	// 	SesClient sesClient = SesClient.builder()
+    //             .region(Region.AP_NORTHEAST_2) // AWS SES 리전 설정
+    //             .credentialsProvider(StaticCredentialsProvider.create(credentials))
+    //             .build();
 		
-		// 이메일 발송 요청 생성
-        Destination destination = Destination.builder().toAddresses(to).build();
-        Content subject = Content.builder().data("이메일 인증 코드").build();
-        Content body = Content.builder().data("인증 코드: " + verificationCode).build();
-        Body emailBody = Body.builder().text(body).build();
-        Message message = Message.builder().subject(subject).body(emailBody).build();
-        SendEmailRequest emailRequest = SendEmailRequest.builder()
-                .source(senderEmail)
-                .destination(destination)
-                .message(message)
-                .build();
-        try {
-        	// 이메일 발송
-            sesClient.sendEmail(emailRequest);
-        } catch(SesException e) {
-        	throw new RestApiException(AuthErrorCode.SES_ERROR);
-        }
+	// 	// 이메일 발송 요청 생성
+    //     Destination destination = Destination.builder().toAddresses(to).build();
+    //     Content subject = Content.builder().data("이메일 인증 코드").build();
+    //     Content body = Content.builder().data("인증 코드: " + verificationCode).build();
+    //     Body emailBody = Body.builder().text(body).build();
+    //     Message message = Message.builder().subject(subject).body(emailBody).build();
+    //     SendEmailRequest emailRequest = SendEmailRequest.builder()
+    //             .source(senderEmail)
+    //             .destination(destination)
+    //             .message(message)
+    //             .build();
+    //     try {
+    //     	// 이메일 발송
+    //         sesClient.sendEmail(emailRequest);
+    //     } catch(SesException e) {
+    //     	throw new RestApiException(AuthErrorCode.SES_ERROR);
+    //     }
 
-        // 클라이언트 종료
-        sesClient.close();
-    }
+    //     // 클라이언트 종료
+    //     sesClient.close();
+    // }
 	
-	public boolean isValidAuthCode(String email, String authCode) {
-		String storedAuthCode = redisTemplate.opsForValue().get(email);
-		if(storedAuthCode != null && storedAuthCode.equals(authCode)) {
-			return true;
-		}else {
-			return false;
-		}
-	}
+	// public boolean isValidAuthCode(String email, String authCode) {
+	// 	String storedAuthCode = redisTemplate.opsForValue().get(email);
+	// 	if(storedAuthCode != null && storedAuthCode.equals(authCode)) {
+	// 		return true;
+	// 	}else {
+	// 		return false;
+	// 	}
+	// }
 }

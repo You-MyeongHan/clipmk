@@ -16,12 +16,12 @@ import com.infra.meta.dto.PostIdDto;
 public interface BoardRepository extends JpaRepository<Post, Long>,JpaSpecificationExecutor<Post>{
 	@Query("""
     SELECT new com.clipmk.board.dto.PostsResDto(
-        P.id,
+        P.postId,
         P.title,
-        P.tbl,
-        P.grp,
+        P.category,
+        P.subCategory,
         U.nick,
-        P.wr_date,
+        P.frsRgDtm,
         P.viewCnt,
         0,
         0,
@@ -29,17 +29,17 @@ public interface BoardRepository extends JpaRepository<Post, Long>,JpaSpecificat
     )
     FROM Post P
     JOIN P.user U
-    ORDER BY P.id DESC
+    ORDER BY P.postId DESC
     """)
     Page<PostsResDto> findPosts(Pageable pageable);
 
 
-	Optional<Post> findById(Long postId);
+	Optional<Post> findByPostId(Long postId);
 	Page<Post> findByViewCntGreaterThan(Integer viewCount, Pageable pageable);
 	Page<Post> findByTitleContaining(Pageable pageable, String searchTerm);
-	Long countByUser_Id(Integer userId);
-	Page<Post> findTop10ByUser_IdOrderByIdDesc(Integer userId, Pageable pageable);
+	Long countByUserId(Integer userId);
+	Page<Post> findTop10ByUserIdOrderByPostIdDesc(Integer userId, Pageable pageable);
 	Page<Post> findByUserId(int userId, Pageable pageable);
-	@Query("SELECT new com.infra.meta.dto.PostIdDto(p.id, p.wr_date) FROM Post p")
+	@Query("SELECT new com.infra.meta.dto.PostIdDto(p.postId, p.frsRgDtm) FROM Post p")
 	List<PostIdDto> findAllPostIds();
 }

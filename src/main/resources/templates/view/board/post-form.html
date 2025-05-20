@@ -18,11 +18,32 @@
                     <h1 class="post-form__title">글쓰기</h1>
                 </div>
                 
-                <form th:action="@{/posts}" method="post" class="post-form__content">
+                <form th:action="@{/board/post}" method="post" class="post-form__content">
                     <div class="form-group">
                         <label for="title">제목</label>
                         <input type="text" id="title" name="title" required 
                                class="form-control" placeholder="제목을 입력하세요">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="category">카테고리</label>
+                        <select id="category" name="category" required class="form-control">
+                            <option value="">카테고리를 선택하세요</option>
+                            <option value="HUMOR">유머</option>
+                            <option value="SPORTS">스포츠</option>
+                            <option value="MONEY">머니</option>
+                            <option value="GENERAL">일반</option>
+                            <option value="GAME">게임</option>
+                            <option value="COMMUNITY">커뮤니티</option>
+                            <option value="GALLERY">갤러리</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="subCategory">서브카테고리</label>
+                        <select id="subCategory" name="subCategory" required class="form-control">
+                            <option value="">서브카테고리를 선택하세요</option>
+                        </select>
                     </div>
                     
                     <div class="form-group">
@@ -40,7 +61,6 @@
     </main>
 
     <div th:replace="~{fragments/footer :: footer}"></div>
-
     <script th:src="@{/js/editor.js}"></script>
 </body>
 </html> 

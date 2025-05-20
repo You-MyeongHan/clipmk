@@ -17,27 +17,27 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PostsResDto {
-	private Long id;
+	private Long postId;
 	private String title;
-	private String tbl;
-	private String grp;
+	private String category;
+	private String subCategory;
 	private String nick;
-	private LocalDateTime wr_date;
-	private Integer view_cnt;
-	private Integer recommend_cnt;
-	private Integer comment_cnt;
+	private LocalDateTime wrDate;
+	private Integer viewCnt;
+	private Integer recommendCnt;
+	private Integer commentCnt;
 	private String thumbnail;
 
 	public static PostsResDto from(Post post) {
 		PostsResDto postsResDto = PostsResDto.builder()
+				.postId(post.getPostId())
 				.title(post.getTitle())
 				.nick(post.getUser().getNick())
-				.id(post.getId())
-				.tbl(post.getTbl())
-				.grp(post.getGrp())
-				.wr_date(post.getWr_date())
-				.view_cnt(post.getViewCnt())
-				.comment_cnt(post.getComments().size())
+				.category(post.getCategory())
+				.subCategory(post.getSubCategory())
+				.wrDate(post.getFrsRgDtm())
+				.viewCnt(post.getViewCnt())
+				.commentCnt(post.getComments().size())
 				.thumbnail(post.getThumbnail())
 				.build();
 		return postsResDto;
